@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glucose Prediction Game</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f7;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .clock-container {
+            position: relative;
+            width: 600px;
+            height: 600px;
+            margin: 40px 0;
+        }
+        
+        .prediction-controls {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        .food-selection {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .food-option {
+            padding: 10px 15px;
+            background: #e9f5ff;
+            border: 1px solid #b8daff;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .food-option:hover {
+            background: #d0e8ff;
+        }
+        
+        .food-option.selected {
+            background: #2b87ff;
+            color: white;
+        }
+        
+        .time-selector {
+            margin-bottom: 20px;
+        }
+        
+        .submit-btn {
+            background: #0066CC;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .submit-btn:hover {
+            background: #0055aa;
+        }
+        
+        .results-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-top: 30px;
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        .score {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .accuracy-meter {
+            height: 30px;
+            background: #f0f0f0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .accuracy-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff4646 0%, #ffaa00 50%, #00cc66 100%);
+            width: 75%;
+        }
+        
+        .feedback {
+            line-height: 1.6;
+        }
+        
+        /* SVG styling will be applied inline */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Predict Your Glucose Response</h1>
+        <p>Select a food, choose when you'll eat it, and predict how your blood glucose will respond over the next few hours.</p>
+        
+        <div class="prediction-controls">
+            <h2>Make Your Prediction</h2>
+            
+            <div class="food-selection">
+                <div class="food-option selected">🍎 Apple</div>
+                <div class="food-option">🍚 White Rice</div>
+                <div class="food-option">🍗 Chicken</div>
+                <div class="food-option">🍦 Ice Cream</div>
+                <div class="food-option">🥗 Salad</div>
+                <div class="food-option">🍔 Burger</div>
+                <div class="food-option">🥤 Soda</div>
+                <div class="food-option">🥐 Croissant</div>
+            </div>
+            
+            <div class="time-selector">
+                <label for="eating-time">When will you eat this? </label>
+                <select id="eating-time">
+                    <option value="breakfast">Breakfast (7:00 AM)</option>
+                    <option value="lunch">Lunch (12:00 PM)</option>
+                    <option value="dinner">Dinner (6:00 PM)</option>
+                    <option value="snack">Evening Snack (9:00 PM)</option>
+                </select>
+            </div>
+            
+            <p>Draw your predicted glucose response on the circular graph by clicking and dragging.</p>
+            
+            <button class="submit-btn">Submit Prediction</button>
+        </div>
+        
+        <div class="clock-container">
+            <!-- This would be replaced with actual SVG in a real implementation -->
+            <svg width="600" height="600" viewBox="0 0 600 600">
+                <!-- Background circles -->
+                <circle cx="300" cy="300" r="250" fill="none" stroke="#ddd" stroke-width="1"/>
+                <circle cx="300" cy="300" r="200" fill="none" stroke="#ddd" stroke-width="1"/>
+                <circle cx="300" cy="300" r="150" fill="none" stroke="#ddd" stroke-width="1"/>
+                <circle cx="300" cy="300" r="100" fill="none" stroke="#ddd" stroke-width="1"/>
+                
+                <!-- Time labels -->
+                <text x="300" y="40" text-anchor="middle" font-size="14">00:00</text>
+                <text x="460" y="150" text-anchor="middle" font-size="14">06:00</text>
+                <text x="560" y="300" text-anchor="middle" font-size="14">09:00</text>
+                <text x="460" y="460" text-anchor="middle" font-size="14">12:00</text>
+                <text x="300" y="560" text-anchor="middle" font-size="14">18:00</text>
+                <text x="150" y="460" text-anchor="middle" font-size="14">21:00</text>
+                <text x="40" y="300" text-anchor="middle" font-size="14">00:00</text>
+                <text x="150" y="150" text-anchor="middle" font-size="14">03:00</text>
+                
+                <!-- Glucose level labels -->
+                <text x="310" y="300" text-anchor="start" font-size="10" fill="#888">80</text>
+                <text x="310" y="250" text-anchor="start" font-size="10" fill="#888">100</text>
+                <text x="310" y="200" text-anchor="start" font-size="10" fill="#888">120</text>
+                <text x="310" y="150" text-anchor="start" font-size="10" fill="#888">140</text>
+                <text x="310" y="100" text-anchor="start" font-size="10" fill="#888">160</text>
+                
+                <!-- Time markers -->
+                <line x1="300" y1="50" x2="300" y2="60" stroke="#aaa" stroke-width="1"/>
+                <line x1="450" y1="150" x2="440" y2="160" stroke="#aaa" stroke-width="1"/>
+                <line x1="550" y1="300" x2="540" y2="300" stroke="#aaa" stroke-width="1"/>
+                <line x1="450" y1="450" x2="440" y2="440" stroke="#aaa" stroke-width="1"/>
+                <line x1="300" y1="550" x2="300" y2="540" stroke="#aaa" stroke-width="1"/>
+                <line x1="150" y1="450" x2="160" y2="440" stroke="#aaa" stroke-width="1"/>
+                <line x1="50" y1="300" x2="60" y2="300" stroke="#aaa" stroke-width="1"/>
+                <line x1="150" y1="150" x2="160" y2="160" stroke="#aaa" stroke-width="1"/>
+                
+                <!-- Example meal marker - a red dot representing a meal -->
+                <circle cx="450" cy="300" r="6" fill="red"/>
+                <text x="465" y="305" font-size="12" fill="red">🍎</text>
+                
+                <!-- User's predicted glucose curve -->
+                <path d="M450,300 C470,240 490,200 510,230 C530,260 540,270 550,280" fill="none" stroke="#00A5E3" stroke-width="3" stroke-dasharray="5,5"/>
+                
+                <!-- Actual glucose response curve -->
+                <path d="M450,300 C460,250 480,180 500,190 C520,240 540,280 550,290" fill="none" stroke="#FF6B6B" stroke-width="3"/>
+                
+                <!-- Legend -->
+                <rect x="400" y="520" width="12" height="3" fill="#00A5E3" stroke="none" stroke-dasharray="5,5"/>
+                <text x="420" y="525" font-size="12">Your Prediction</text>
+                <rect x="400" y="540" width="12" height="3" fill="#FF6B6B" stroke="none"/>
+                <text x="420" y="545" font-size="12">Actual Response</text>
+            </svg>
+        </div>
+        
+        <div class="results-panel">
+            <h2>Prediction Results</h2>
+            <div class="score">Score: 78/100</div>
+            
+            <h3>Prediction Accuracy</h3>
+            <div class="accuracy-meter">
+                <div class="accuracy-fill"></div>
+            </div>
+            
+            <div class="feedback">
+                <p><strong>Great prediction!</strong> You correctly anticipated the initial glucose spike, but the actual response peaked about 15 minutes earlier than you predicted. The actual glucose levels also stayed elevated longer than you expected.</p>
+                
+                <p>Did you know? Apples contain fiber that slows glucose absorption, but their fructose still causes a significant rise in blood sugar.</p>
+                
+                <h3>Insights</h3>
+                <p>This food raised your glucose by <strong>54 mg/dL</strong> at its peak. The response lasted approximately <strong>2.5 hours</strong> before returning to baseline.</p>
+                
+                <p>Based on your body's response, apples might be a <strong>moderate</strong> glycemic impact food for you. Consider pairing with protein or healthy fats to reduce the spike.</p>
+            </div>
+            
+            <button class="submit-btn">Try Another Food</button>
+        </div>
+    </div>
+</body>
+</html>

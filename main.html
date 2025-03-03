@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Understanding Glucose Response</title>
+    <link rel="icon" type="image/png" href="gleco.png">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f7;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .explainer-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            width: 100%;
+            max-width: 800px;
+        }
+        
+        .section-title {
+            color: #0066CC;
+            font-size: 24px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .graph-container {
+            position: relative;
+            margin: 30px 0;
+            overflow: hidden;
+        }
+        
+        .annotation {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            position: absolute;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-size: 14px;
+            max-width: 200px;
+        }
+        
+        .healthy-range {
+            background: rgba(150, 220, 150, 0.2);
+            border: 1px dashed #4CAF50;
+            position: absolute;
+            top: 120px;
+            height: 60px;
+            width: 100%;
+            z-index: 1;
+        }
+        
+        .meal-marker {
+            position: absolute;
+            top: 0;
+            width: 2px;
+            height: 300px;
+            background: rgba(255, 0, 0, 0.5);
+            z-index: 2;
+        }
+        
+        .meal-label {
+            position: absolute;
+            background: #fff;
+            border: 1px solid #ff6b6b;
+            color: #ff6b6b;
+            padding: 5px 10px;
+            border-radius: 15px;
+            transform: rotate(-45deg);
+            transform-origin: left top;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 3;
+        }
+        
+        .info-box {
+            background: #f0f7ff;
+            border-left: 4px solid #0066CC;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .comparison-table th, .comparison-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .comparison-table th {
+            background-color: #f5f5f7;
+        }
+        
+        .comparison-table tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .food-impact {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+        }
+        
+        .food-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            width: 30%;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .food-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .impact-label {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .impact-high {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+        
+        .impact-medium {
+            background: #fff8e1;
+            color: #ff8f00;
+        }
+        
+        .impact-low {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .nav-button {
+            background: #0066CC;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .nav-button:hover {
+            background: #0055aa;
+        }
+        
+        .nav-button.disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        /* Game-related styles from the second file */
+        .clock-container {
+            position: relative;
+            width: 600px;
+            height: 600px;
+            margin: 40px 0;
+            display: none; /* Hidden by default, shown when game starts */
+        }
+        
+        .prediction-controls {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            width: 100%;
+            max-width: 600px;
+            display: none; /* Hidden by default, shown when game starts */
+        }
+        
+        .food-selection {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .food-option {
+            padding: 10px 15px;
+            background: #e9f5ff;
+            border: 1px solid #b8daff;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .food-option:hover {
+            background: #d0e8ff;
+        }
+        
+        .food-option.selected {
+            background: #2b87ff;
+            color: white;
+        }
+        
+        .time-selector {
+            margin-bottom: 20px;
+        }
+        
+        .submit-btn {
+            background: #0066CC;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .submit-btn:hover {
+            background: #0055aa;
+        }
+        
+        .results-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-top: 30px;
+            width: 100%;
+            max-width: 600px;
+            display: none; /* Hidden by default, shown when results are available */
+        }
+        
+        .score {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .accuracy-meter {
+            height: 30px;
+            background: #f0f0f0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .accuracy-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff4646 0%, #ffaa00 50%, #00cc66 100%);
+            width: 75%;
+        }
+        
+        .feedback {
+            line-height: 1.6;
+        }
+        
+        /* Added for navigation between sections */
+        #explainer-content {
+            display: block;
+        }
+        
+        #game-content {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .food-impact {
+                flex-direction: column;
+            }
+            
+            .food-card {
+                width: 100%;
+                margin-bottom: 15px;
+            }
+            
+            .clock-container {
+                width: 100%;
+                height: auto;
+            }
+        }
+        
+        /* Add styles for the prediction notification */
+        .prediction-notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 102, 204, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            font-weight: bold;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+        
+        /* Ensure tooltip displays properly */
+        #clock-tooltip {
+            position: absolute;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            pointer-events: none;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            display: none;
+        }
+        
+        /* Center all content better */
+        .container {
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+        
+        /* Make sure game content is centered and wider */
+        #game-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 1000px; /* Increased from 800px */
+        }
+        
+        /* Ensure prediction controls are centered and wider */
+        .prediction-controls {
+            margin: 0 auto !important;
+            text-align: center;
+            width: 100%;
+            max-width: 800px; /* Increased from default */
+        }
+        
+        /* Make intro paragraph wider */
+        #game-content > p {
+            max-width: 900px !important; /* Increased width */
+            margin: 0 auto 20px auto;
+        }
+        
+        /* Make instructions wider */
+        .prediction-instructions {
+            max-width: 800px !important; /* Increased from 600px */
+        }
+        
+        /* Improve clock container centering */
+        .clock-container {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            width: 100%;
+        }
+        
+        /* Ensure results panel is centered and wider */
+        .results-panel {
+            margin: 20px auto !important;
+            text-align: left;
+            max-width: 800px !important; /* Increased from default */
+        }
+        
+        /* Improve button centering in results panel */
+        .results-panel .submit-btn {
+            display: block;
+            margin: 20px auto;
+        }
+        
+        /* Make food selection wider */
+        .food-selection {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+            width: 100%;
+        }
+        
+        /* Give more space to time selector */
+        .time-selector {
+            margin: 0 auto 20px;
+            width: 100%;
+            max-width: 500px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Snack & Spike: Understanding Your Glucose Response</h1>
+        
+        <!-- Navigation tabs for switching between explainer and game -->
+        <div style="display: flex; width: 100%; max-width: 800px; margin-bottom: 20px;">
+            <button id="explainer-tab" class="nav-button" style="flex: 1; margin-right: 10px; background: #0066CC;">
+                Learn About Glucose
+            </button>
+            <button id="game-tab" class="nav-button" style="flex: 1; background: #cccccc;">
+                Prediction Game
+            </button>
+        </div>
+        
+        <div id="explainer-content">
+            <div class="explainer-section">
+                <h2 class="section-title">What is Blood Glucose?</h2>
+                
+                <p>Blood glucose (blood sugar) is the main sugar found in your bloodstream and your body's primary energy source. It comes from the food you eat, especially carbohydrates like sugars and starches.</p>
+                
+                <p>Your body carefully regulates blood glucose levels to maintain them within a healthy range:</p>
+                
+                <div class="info-box">
+                    <strong>Normal Blood Glucose Ranges:</strong>
+                    <ul>
+                        <li>Fasting (before meals): 70-99 mg/dL</li>
+                        <li>After meals: Less than 140 mg/dL</li>
+                        <li>Random checks: Less than 140 mg/dL</li>
+                    </ul>
+                </div>
+                
+                <p>When glucose levels rise too high or fall too low, it can affect how you feel and potentially impact your health over time.</p>
+            </div>
+            
+            <div class="explainer-section">
+                <h2 class="section-title">Understanding Glucose Spikes</h2>
+                
+                <p>When you eat, especially foods containing carbohydrates, your blood glucose levels rise. This is called a "glucose spike" or "postprandial spike" (after meal spike).</p>
+                
+                <div class="graph-container" style="height: 350px;">
+                    <!-- Sample glucose graph showing daily pattern with meals -->
+                    <svg width="700" height="300" viewBox="0 0 700 300">
+                        <!-- Background grid -->
+                        <line x1="0" y1="60" x2="700" y2="60" stroke="#eee" stroke-width="1"/>
+                        <line x1="0" y1="120" x2="700" y2="120" stroke="#eee" stroke-width="1"/>
+                        <line x1="0" y1="180" x2="700" y2="180" stroke="#eee" stroke-width="1"/>
+                        <line x1="0" y1="240" x2="700" y2="240" stroke="#eee" stroke-width="1"/>
+                        
+                        <!-- Time markers -->
+                        <line x1="100" y1="240" x2="100" y2="245" stroke="#888" stroke-width="1"/>
+                        <text x="100" y="260" text-anchor="middle" font-size="12">8:00</text>
+                        <line x1="200" y1="240" x2="200" y2="245" stroke="#888" stroke-width="1"/>
+                        <text x="200" y="260" text-anchor="middle" font-size="12">10:00</text>
+                        <line x1="300" y1="240" x2="300" y2="245" stroke="#888" stroke-width="1"/>
+                        <text x="300" y="260" text-anchor="middle" font-size="12">12:00</text>
+                        <line x1="400" y1="240" x2="400" y2="245" stroke="#888" stroke-width="1"/>
+                        <text x="400" y="260" text-anchor="middle" font-size="12">14:00</text>
+                        <line x1="500" y1="240" x2="500" y2="245" stroke="#888" stroke-width="1"/>
+                        <text x="500" y="260" text-anchor="middle" font-size="12">16:00</text>
+                        <line x1="600" y1="240" x2="600" y2="245" stroke="#888" stroke-width="1"/>
+                        <text x="600" y="260" text-anchor="middle" font-size="12">18:00</text>
+                        
+                        <!-- Glucose level markers -->
+                        <text x="30" y="240" text-anchor="end" font-size="12">70</text>
+                        <text x="30" y="180" text-anchor="end" font-size="12">100</text>
+                        <text x="30" y="120" text-anchor="end" font-size="12">130</text>
+                        <text x="30" y="60" text-anchor="end" font-size="12">160</text>
+                        
+                        <!-- Healthy range -->
+                        <rect x="40" y="180" width="660" height="60" fill="rgba(150, 220, 150, 0.2)" stroke="#4CAF50" stroke-width="1" stroke-dasharray="5,5"/>
+                        <text x="50" y="200" font-size="12" fill="#388e3c">Healthy Range</text>
+                        
+                        <!-- Meal markers -->
+                        <line x1="100" y1="40" x2="100" y2="280" stroke="rgba(255, 0, 0, 0.5)" stroke-width="2"/>
+                        <text x="110" y="50" font-size="12" fill="#d32f2f">Breakfast</text>
+                        
+                        <line x1="300" y1="40" x2="300" y2="280" stroke="rgba(255, 0, 0, 0.5)" stroke-width="2"/>
+                        <text x="310" y="50" font-size="12" fill="#d32f2f">Lunch</text>
+                        
+                        <line x1="500" y1="40" x2="500" y2="280" stroke="rgba(255, 0, 0, 0.5)" stroke-width="2"/>
+                        <text x="510" y="50" font-size="12" fill="#d32f2f">Dinner</text>
+                        
+                        <!-- Glucose curve -->
+                        <path d="M40,210 C70,205 90,208 100,210 C110,210 120,160 140,120 C160,80 180,100 200,140 C220,180 270,210 300,210 C330,210 340,100 360,80 C380,70 400,120 420,160 C440,200 480,210 500,210 C520,210 530,110 550,90 C570,80 590,120 620,170 C650,210 670,215 700,220" 
+                              fill="none" stroke="#0066CC" stroke-width="3"/>
+                        
+                        <!-- Annotations -->
+                        <rect x="140" y="80" width="150" height="40" rx="5" fill="rgba(255,255,255,0.9)" stroke="#ddd"/>
+                        <text x="150" y="100" font-size="12" fill="#333">High carb breakfast causes</text>
+                        <text x="150" y="115" font-size="12" fill="#333">steep glucose spike</text>
+                        <line x1="140" y1="100" x2="120" y2="120" stroke="#888" stroke-width="1" stroke-dasharray="2,2"/>
+                        
+                        <rect x="360" y="50" width="150" height="40" rx="5" fill="rgba(255,255,255,0.9)" stroke="#ddd"/>
+                        <text x="370" y="70" font-size="12" fill="#333">Lunch spike with more</text>
+                        <text x="370" y="85" font-size="12" fill="#333">gradual return to baseline</text>
+                        <line x1="360" y1="70" x2="340" y2="85" stroke="#888" stroke-width="1" stroke-dasharray="2,2"/>
+                        
+                        <rect x="550" y="140" width="120" height="40" rx="5" fill="rgba(255,255,255,0.9)" stroke="#ddd"/>
+                        <text x="560" y="160" font-size="12" fill="#333">Dinner with protein</text>
+                        <text x="560" y="175" font-size="12" fill="#333">moderate spike</text>
+                        <line x1="550" y1="160" x2="520" y2="140" stroke="#888" stroke-width="1" stroke-dasharray="2,2"/>
+                    </svg>
+                    
+                    <div class="annotation" style="top: 10px; right: 20px;">
+                        <strong>Glucose levels throughout a day</strong><br>
+                        Notice how each meal causes a different spike pattern based on what was eaten.
+                    </div>
+                </div>
+                
+                <p>The size and duration of glucose spikes depend on several factors:</p>
+                
+                <div class="info-box">
+                    <strong>What affects your glucose spikes:</strong>
+                    <ul>
+                        <li><strong>Carbohydrate content:</strong> Higher carbs typically cause larger spikes</li>
+                        <li><strong>Food composition:</strong> Fiber, protein, and fat can slow digestion and moderate spikes</li>
+                        <li><strong>Time of day:</strong> Many people experience larger spikes in the morning</li>
+                        <li><strong>Individual factors:</strong> Metabolism, insulin sensitivity, and activity level</li>
+                    </ul>
+                </div>
+                
+                <p>Frequent, large glucose spikes followed by crashes can contribute to fatigue, hunger, cravings, and over time, may increase risk for conditions like insulin resistance and type 2 diabetes.</p>
+            </div>
+            
+            <div class="explainer-section">
+                <h2 class="section-title">Different Foods, Different Responses</h2>
+                
+                <p>Not all foods affect your blood glucose the same way. Here's how different foods typically impact glucose levels:</p>
+                
+                <div class="food-category-container" style="display: flex; justify-content: space-between; margin: 20px 0; flex-wrap: wrap;">
+                    <div class="food-category high-glycemic" onclick="selectFoodCategory('high')" style="flex: 1; min-width: 200px; margin: 5px; padding: 20px; border-radius: 10px; border: 2px solid #f0f0f0; cursor: pointer; text-align: center; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="font-size: 40px; margin-bottom: 10px;">🍚</div>
+                        <h3>High Glycemic Foods</h3>
+                        <p>White bread, rice, potatoes, sugary drinks</p>
+                        <div style="background: #ffebee; color: #e53935; padding: 5px 15px; border-radius: 20px; display: inline-block; margin-top: 10px;">Large Spike</div>
+                    </div>
+                    
+                    <div class="food-category medium-glycemic" onclick="selectFoodCategory('medium')" style="flex: 1; min-width: 200px; margin: 5px; padding: 20px; border-radius: 10px; border: 2px solid #f0f0f0; cursor: pointer; text-align: center; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="font-size: 40px; margin-bottom: 10px;">🍎</div>
+                        <h3>Medium Glycemic Foods</h3>
+                        <p>Whole fruit, oatmeal, sweet potatoes</p>
+                        <div style="background: #fff8e1; color: #ff9800; padding: 5px 15px; border-radius: 20px; display: inline-block; margin-top: 10px;">Moderate Spike</div>
+                    </div>
+                    
+                    <div class="food-category low-glycemic" onclick="selectFoodCategory('low')" style="flex: 1; min-width: 200px; margin: 5px; padding: 20px; border-radius: 10px; border: 2px solid #f0f0f0; cursor: pointer; text-align: center; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="font-size: 40px; margin-bottom: 10px;">🥦</div>
+                        <h3>Low Glycemic Foods</h3>
+                        <p>Non-starchy vegetables, beans, nuts</p>
+                        <div style="background: #e8f5e9; color: #4caf50; padding: 5px 15px; border-radius: 20px; display: inline-block; margin-top: 10px;">Minimal Spike</div>
+                    </div>
+                </div>
+                
+                <div class="view-options" style="text-align: center; margin: 20px 0;">
+                    <button onclick="selectFoodCategory('all')" id="view-all-btn" class="food-toggle-btn" style="background: #0066CC; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin: 0 5px;">View All</button>
+                    <button onclick="selectFoodCategory('high')" id="high-btn" class="food-toggle-btn" style="background: #f5f5f7; color: #333; border: 1px solid #ddd; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin: 0 5px;">White Rice</button>
+                    <button onclick="selectFoodCategory('medium')" id="medium-btn" class="food-toggle-btn" style="background: #f5f5f7; color: #333; border: 1px solid #ddd; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin: 0 5px;">Apple</button>
+                    <button onclick="selectFoodCategory('low')" id="low-btn" class="food-toggle-btn" style="background: #f5f5f7; color: #333; border: 1px solid #ddd; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin: 0 5px;">Broccoli</button>
+                </div>
+                
+                <div class="graph-container" style="position: relative; height: 400px; margin: 30px 0; overflow: hidden; border: 1px solid #eee; background: white; border-radius: 8px;">
+                    <svg id="food-comparison-graph" width="100%" height="100%" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid meet">
+                        <!-- X and Y axis -->
+                        <line x1="80" y1="320" x2="750" y2="320" stroke="#333" stroke-width="2"/>
+                        <line x1="80" y1="50" x2="80" y2="320" stroke="#333" stroke-width="2"/>
+                        
+                        <!-- Horizontal guidelines -->
+                        <line x1="80" y1="80" x2="750" y2="80" stroke="#eee" stroke-width="1"/>
+                        <line x1="80" y1="160" x2="750" y2="160" stroke="#eee" stroke-width="1"/>
+                        <line x1="80" y1="240" x2="750" y2="240" stroke="#eee" stroke-width="1"/>
+                        <line x1="80" y1="320" x2="750" y2="320" stroke="#eee" stroke-width="1"/>
+                        
+                        <!-- Vertical guidelines/time markers -->
+                        <line x1="190" y1="320" x2="190" y2="325" stroke="#888" stroke-width="1"/>
+                        <text x="190" y="345" text-anchor="middle" font-size="14">30 min</text>
+                        <line x1="300" y1="320" x2="300" y2="325" stroke="#888" stroke-width="1"/>
+                        <text x="300" y="345" text-anchor="middle" font-size="14">60 min</text>
+                        <line x1="410" y1="320" x2="410" y2="325" stroke="#888" stroke-width="1"/>
+                        <text x="410" y="345" text-anchor="middle" font-size="14">90 min</text>
+                        <line x1="520" y1="320" x2="520" y2="325" stroke="#888" stroke-width="1"/>
+                        <text x="520" y="345" text-anchor="middle" font-size="14">120 min</text>
+                        <line x1="630" y1="320" x2="630" y2="325" stroke="#888" stroke-width="1"/>
+                        <text x="630" y="345" text-anchor="middle" font-size="14">150 min</text>
+                        <line x1="80" y1="320" x2="80" y2="325" stroke="#888" stroke-width="1"/>
+                        <text x="80" y="345" text-anchor="middle" font-size="14">0 min</text>
+                        
+                        <!-- Glucose level markers -->
+                        <text x="70" y="320" text-anchor="end" font-size="14">70</text>
+                        <text x="70" y="240" text-anchor="end" font-size="14">100</text>
+                        <text x="70" y="160" text-anchor="end" font-size="14">130</text>
+                        <text x="70" y="80" text-anchor="end" font-size="14">160</text>
+                        
+                        <!-- Food consumed label -->
+                        <text x="400" y="35" text-anchor="middle" font-size="16" font-weight="bold">Food Consumed</text>
+                        <line x1="140" y1="50" x2="140" y2="320" stroke="#ccc" stroke-width="1" stroke-dasharray="5,5"/>
+                        
+                        <!-- Glucose curves for different foods -->
+                        <!-- White Rice (high glycemic) - red -->
+                        <path id="high-glycemic-curve" d="M80,290 C120,290 150,200 190,120 C230,60 270,80 300,100 C340,150 380,220 410,260 C440,290 520,290 630,290" 
+                              fill="none" stroke="#e53935" stroke-width="3"/>
+                              
+                        <!-- Apple (medium glycemic) - orange -->
+                        <path id="medium-glycemic-curve" d="M80,290 C120,290 150,240 190,180 C230,160 270,170 300,190 C340,220 380,260 410,270 C440,280 520,290 630,290" 
+                              fill="none" stroke="#ff9800" stroke-width="3"/>
+                              
+                        <!-- Broccoli (low glycemic) - green -->
+                        <path id="low-glycemic-curve" d="M80,290 C120,290 150,275 190,260 C230,255 270,260 300,270 C340,280 380,285 410,290 C440,290 520,290 630,290" 
+                              fill="none" stroke="#4caf50" stroke-width="3"/>
+                              
+                        <!-- Annotations - these will be shown/hidden based on selection -->
+                        <!-- White Rice annotation -->
+                        <g id="high-glycemic-annotation">
+                            <rect x="360" y="60" width="200" height="50" rx="5" fill="white" stroke="#ddd" stroke-width="1"/>
+                            <text x="370" y="85" font-size="14" fill="#e53935">White rice causes rapid</text>
+                            <text x="370" y="105" font-size="14" fill="#e53935">high glucose spike</text>
+                            <line x1="300" y1="100" x2="360" y2="85" stroke="#e53935" stroke-width="1" stroke-dasharray="3,3"/>
+                        </g>
+                        
+                        <!-- Apple annotation -->
+                        <g id="medium-glycemic-annotation">
+                            <rect x="450" y="160" width="220" height="50" rx="5" fill="white" stroke="#ddd" stroke-width="1"/>
+                            <text x="460" y="185" font-size="14" fill="#ff9800">Apple causes moderate spike</text>
+                            <text x="460" y="205" font-size="14" fill="#ff9800">due to fiber content</text>
+                            <line x1="350" y1="185" x2="450" y2="185" stroke="#ff9800" stroke-width="1" stroke-dasharray="3,3"/>
+                        </g>
+                        
+                        <!-- Legend -->
+                        <g id="legend" class="legend">
+                            <text x="700" y="100" text-anchor="end" font-size="14" fill="#e53935">White Rice</text>
+                            <line x1="660" y1="96" x2="680" y2="96" stroke="#e53935" stroke-width="3"/>
+                            
+                            <text x="700" y="125" text-anchor="end" font-size="14" fill="#ff9800">Apple</text>
+                            <line x1="660" y1="121" x2="680" y2="121" stroke="#ff9800" stroke-width="3"/>
+                            
+                            <text x="700" y="150" text-anchor="end" font-size="14" fill="#4caf50">Broccoli</text>
+                            <line x1="660" y1="146" x2="680" y2="146" stroke="#4caf50" stroke-width="3"/>
+                        </g>
+                        
+                        <!-- Tooltip line - initially hidden -->
+                        <line id="food-tooltip-line" x1="0" y1="50" x2="0" y2="320" stroke="#0066CC" stroke-width="2" style="display: none;"/>
+                        
+                        <!-- Tooltip glucose points - initially hidden -->
+                        <circle id="high-glucose-point" cx="0" cy="0" r="5" fill="white" stroke="#e53935" stroke-width="2" style="display: none;"/>
+                        <circle id="medium-glucose-point" cx="0" cy="0" r="5" fill="white" stroke="#ff9800" stroke-width="2" style="display: none;"/>
+                        <circle id="low-glucose-point" cx="0" cy="0" r="5" fill="white" stroke="#4caf50" stroke-width="2" style="display: none;"/>
+                    </svg>
+                    
+                    <!-- Tooltip container -->
+                    <div id="food-glucose-tooltip" style="position: absolute; display: none; background: rgba(0,0,0,0.7); color: white; padding: 5px 10px; border-radius: 4px; font-size: 14px; pointer-events: none; z-index: 100;"></div>
+                </div>
+                
+                <p>Understanding how different foods affect your glucose can help you make informed choices for better health and energy levels throughout the day.</p>
+            </div>
+            
+            <div class="explainer-section">
+                <h2 class="section-title">Why Monitor Glucose Patterns?</h2>
+                
+                <p>Understanding your glucose patterns can help you:</p>
+                
+                <ul>
+                    <li><strong>Identify trigger foods</strong> that cause larger spikes than expected</li>
+                    <li><strong>Optimize meal timing</strong> for better energy throughout the day</li>
+                    <li><strong>Discover personal responses</strong> that may differ from typical patterns</li>
+                    <li><strong>Make informed food choices</strong> based on their impact on your body</li>
+                    <li><strong>Reduce energy crashes</strong> that can affect mood and productivity</li>
+                </ul>
+                
+                <div class="info-box">
+                    <p><strong>Did you know?</strong> Glucose responses can vary significantly between individuals, even when eating identical foods. This is due to differences in metabolism, gut microbiome, and other personal factors.</p>
+                </div>
+                
+                <p>Ready to test your understanding? Click the "Start Prediction Game" button below to see if you can predict how different foods will affect glucose levels!</p>
+                
+                <div class="nav-buttons">
+                    <button id="start-game-btn" class="nav-button">Start Prediction Game</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Game content from the second file -->
+        <div id="game-content">
+            <h1 style="text-align: center; width: 100%;">Predict Your Glucose Response</h1>
+            <p style="text-align: center; width: 100%; max-width: 900px; margin: 0 auto 20px auto;">Select a food, choose when you'll eat it, and predict how your blood glucose will respond over the next few hours.</p>
+            
+            <div class="prediction-controls" style="margin: 0 auto; width: 100%; max-width: 800px;">
+                <h2>Make Your Prediction</h2>
+                
+                <div class="food-selection">
+                    <div class="food-option selected">🍎 Apple</div>
+                    <div class="food-option">🍚 White Rice</div>
+                    <div class="food-option">🍗 Chicken</div>
+                    <div class="food-option">🍦 Ice Cream</div>
+                    <div class="food-option">🥗 Salad</div>
+                    <div class="food-option">🍔 Burger</div>
+                    <div class="food-option">🥤 Soda</div>
+                    <div class="food-option">🥐 Croissant</div>
+                </div>
+                
+                <div class="time-selector" style="width: 100%; max-width: 500px; margin: 0 auto 20px;">
+                    <label for="eating-time">When will you eat this? </label>
+                    <select id="eating-time">
+                        <option value="breakfast">Breakfast (7:00 AM)</option>
+                        <option value="lunch">Lunch (12:00 PM)</option>
+                        <option value="dinner">Dinner (6:00 PM)</option>
+                        <option value="snack">Evening Snack (9:00 PM)</option>
+                    </select>
+                </div>
+                
+                <p style="max-width: 800px; margin: 0 auto 15px;">Draw your predicted glucose response on the circular graph by clicking and dragging.</p>
+                
+                <button id="submit-prediction-btn" class="submit-btn">Submit Prediction</button>
+            </div>
+            
+            <!-- Instructions moved before visualization - now wider -->
+            <div class="prediction-instructions" style="background: #e9f5ff; padding: 15px; border-radius: 8px; margin: 20px auto; max-width: 800px; text-align: left; width: 100%;">
+                <h3>How to Make Your Prediction:</h3>
+                <ol>
+                    <li>Hover over the circular graph to see time information</li>
+                    <li>Click where you think your glucose will <strong>peak</strong> after eating the selected food</li>
+                    <li>The system will automatically generate a prediction curve based on your peak point</li>
+                    <li>Click "Submit Prediction" when ready to see how accurate you were</li>
+                </ol>
+            </div>
+            
+            <div class="clock-container" style="margin: 0 auto; display: flex; justify-content: center;">
+                <svg id="glucose-clock" width="600" height="600" viewBox="0 0 600 600">
+                    <!-- Background circles -->
+                    <circle cx="300" cy="300" r="250" fill="none" stroke="#ddd" stroke-width="1"/>
+                    <circle cx="300" cy="300" r="200" fill="none" stroke="#ddd" stroke-width="1"/>
+                    <circle cx="300" cy="300" r="150" fill="none" stroke="#ddd" stroke-width="1"/>
+                    <circle cx="300" cy="300" r="100" fill="none" stroke="#ddd" stroke-width="1"/>
+                    
+                    <!-- Time labels -->
+                    <text x="300" y="40" text-anchor="middle" font-size="14">00:00</text>
+                    <text x="460" y="150" text-anchor="middle" font-size="14">06:00</text>
+                    <text x="560" y="300" text-anchor="middle" font-size="14">09:00</text>
+                    <text x="460" y="460" text-anchor="middle" font-size="14">12:00</text>
+                    <text x="300" y="560" text-anchor="middle" font-size="14">18:00</text>
+                    <text x="150" y="460" text-anchor="middle" font-size="14">21:00</text>
+                    <text x="40" y="300" text-anchor="middle" font-size="14">00:00</text>
+                    <text x="150" y="150" text-anchor="middle" font-size="14">03:00</text>
+                    
+                    <!-- Glucose level labels -->
+                    <text x="310" y="300" text-anchor="start" font-size="10" fill="#888">80</text>
+                    <text x="310" y="250" text-anchor="start" font-size="10" fill="#888">100</text>
+                    <text x="310" y="200" text-anchor="start" font-size="10" fill="#888">120</text>
+                    <text x="310" y="150" text-anchor="start" font-size="10" fill="#888">140</text>
+                    <text x="310" y="100" text-anchor="start" font-size="10" fill="#888">160</text>
+                    
+                    <!-- Time markers -->
+                    <line x1="300" y1="50" x2="300" y2="60" stroke="#aaa" stroke-width="1"/>
+                    <line x1="450" y1="150" x2="440" y2="160" stroke="#aaa" stroke-width="1"/>
+                    <line x1="550" y1="300" x2="540" y2="300" stroke="#aaa" stroke-width="1"/>
+                    <line x1="450" y1="450" x2="440" y2="440" stroke="#aaa" stroke-width="1"/>
+                    <line x1="300" y1="550" x2="300" y2="540" stroke="#aaa" stroke-width="1"/>
+                    <line x1="150" y1="450" x2="160" y2="440" stroke="#aaa" stroke-width="1"/>
+                    <line x1="50" y1="300" x2="60" y2="300" stroke="#aaa" stroke-width="1"/>
+                    <line x1="150" y1="150" x2="160" y2="160" stroke="#aaa" stroke-width="1"/>
+                    
+                    <!-- Meal marker - a red dot representing when meal is consumed -->
+                    <circle id="meal-marker" cx="450" cy="300" r="6" fill="red"/>
+                    <text x="465" y="305" font-size="12" fill="red">🍎</text>
+                    
+                    <!-- This will be populated by JavaScript - clickable area -->
+                    <circle id="clickable-area" cx="300" cy="300" r="250" fill="transparent" />
+                    
+                    <!-- This will be populated by JavaScript - user's prediction peak marker -->
+                    <circle id="prediction-marker" cx="0" cy="0" r="8" fill="#00A5E3" style="display: none;"/>
+                    
+                    <!-- This will be populated by JavaScript - user's predicted glucose curve -->
+                    <path id="user-prediction-curve" d="" fill="none" stroke="#00A5E3" stroke-width="3" stroke-dasharray="5,5"/>
+                    
+                    <!-- This will be populated when showing results - actual glucose response curve -->
+                    <path id="actual-response-curve" d="" fill="none" stroke="#FF6B6B" stroke-width="3" style="display: none;"/>
+                    
+                    <!-- Legend -->
+                    <rect x="400" y="520" width="12" height="3" fill="#00A5E3" stroke="none" stroke-dasharray="5,5"/>
+                    <text x="420" y="525" font-size="12">Your Prediction</text>
+                    <rect x="400" y="540" width="12" height="3" fill="#FF6B6B" stroke="none"/>
+                    <text x="420" y="545" font-size="12">Actual Response</text>
+                </svg>
+                
+                <!-- Tooltip that follows mouse -->
+                <div id="clock-tooltip"></div>
+            </div>
+            
+            <div class="results-panel" style="margin: 30px auto;">
+                <h2>Prediction Results</h2>
+                <div class="score">Score: 78/100</div>
+                
+                <h3>Prediction Accuracy</h3>
+                <div class="accuracy-meter">
+                    <div class="accuracy-fill"></div>
+                </div>
+                
+                <div class="feedback">
+                    <p><strong>Great prediction!</strong> You correctly anticipated the initial glucose spike, but the actual response peaked about 15 minutes earlier than you predicted. The actual glucose levels also stayed elevated longer than you expected.</p>
+                    
+                    <p>Did you know? Apples contain fiber that slows glucose absorption, but their fructose still causes a significant rise in blood sugar.</p>
+                    
+                    <h3>Insights</h3>
+                    <p>This food raised your glucose by <strong>54 mg/dL</strong> at its peak. The response lasted approximately <strong>2.5 hours</strong> before returning to baseline.</p>
+                    
+                    <p>Based on your body's response, apples might be a <strong>moderate</strong> glycemic impact food for you. Consider pairing with protein or healthy fats to reduce the spike.</p>
+                </div>
+                
+                <button id="try-another-btn" class="submit-btn">Try Another Food</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notification for prediction set -->
+    <div id="prediction-notification" class="prediction-notification">
+        Prediction set! Click Submit when ready.
+    </div>
+    
+    <!-- Add JavaScript for navigation functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get references to elements
+            const explainerTab = document.getElementById('explainer-tab');
+            const gameTab = document.getElementById('game-tab');
+            const explainerContent = document.getElementById('explainer-content');
+            const gameContent = document.getElementById('game-content');
+            const startGameBtn = document.getElementById('start-game-btn');
+            const predictionControls = document.querySelector('.prediction-controls');
+            const clockContainer = document.querySelector('.clock-container');
+            const resultsPanel = document.querySelector('.results-panel');
+            const submitPredictionBtn = document.getElementById('submit-prediction-btn');
+            const tryAnotherBtn = document.getElementById('try-another-btn');
+            
+            // New references for interactive clock
+            const glucoseClock = document.getElementById('glucose-clock');
+            const clickableArea = document.getElementById('clickable-area');
+            const predictionMarker = document.getElementById('prediction-marker');
+            const userPredictionCurve = document.getElementById('user-prediction-curve');
+            const actualResponseCurve = document.getElementById('actual-response-curve');
+            const clockTooltip = document.getElementById('clock-tooltip');
+            const mealMarker = document.getElementById('meal-marker');
+            
+            // Initially hide the results panel
+            if (resultsPanel) {
+                resultsPanel.style.display = 'none';
+            }
+            
+            // Function to switch to explainer view
+            function showExplainer() {
+                explainerContent.style.display = 'block';
+                gameContent.style.display = 'none';
+                explainerTab.style.background = '#0066CC';
+                gameTab.style.background = '#cccccc';
+            }
+            
+            // Function to switch to game view
+            function showGame() {
+                explainerContent.style.display = 'none';
+                gameContent.style.display = 'block';
+                predictionControls.style.display = 'block';
+                clockContainer.style.display = 'block';
+                if (resultsPanel) resultsPanel.style.display = 'none';
+                explainerTab.style.background = '#cccccc';
+                gameTab.style.background = '#0066CC';
+                
+                // Reset prediction when switching to game
+                resetPrediction();
+            }
+            
+            // Add event listeners for tab buttons
+            explainerTab.addEventListener('click', showExplainer);
+            gameTab.addEventListener('click', showGame);
+            
+            // Add event listener for "Start Prediction Game" button
+            if (startGameBtn) {
+                startGameBtn.addEventListener('click', showGame);
+            }
+            
+            // Set up food option selection
+            const foodOptions = document.querySelectorAll('.food-option');
+            foodOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    foodOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    // Reset prediction when changing food
+                    resetPrediction();
+                });
+            });
+            
+            // Reset prediction state
+            function resetPrediction() {
+                predictionMarker.style.display = 'none';
+                userPredictionCurve.setAttribute('d', '');
+                actualResponseCurve.style.display = 'none';
+                submitPredictionBtn.disabled = true;
+            }
+            
+            // Helper functions for the clock interactions
+            function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+                const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+                return {
+                    x: centerX + (radius * Math.cos(angleInRadians)),
+                    y: centerY + (radius * Math.sin(angleInRadians))
+                };
+            }
+            
+            function calculateAngle(centerX, centerY, pointX, pointY) {
+                const deltaX = pointX - centerX;
+                const deltaY = pointY - centerY;
+                let angle = Math.atan2(deltaY, deltaX) * 180 / Math.PI + 90;
+                if (angle < 0) angle += 360;
+                return angle;
+            }
+            
+            function calculateDistance(centerX, centerY, pointX, pointY) {
+                const deltaX = pointX - centerX;
+                const deltaY = pointY - centerY;
+                return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+            }
+            
+            function formatTime(angleInDegrees) {
+                // Convert angle to hours (24-hour format)
+                let hours = Math.floor((angleInDegrees / 360) * 24);
+                let minutes = Math.floor(((angleInDegrees / 360) * 24 * 60) % 60);
+                
+                // Format as HH:MM
+                return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+            }
+            
+            function calculateGlucose(distanceFromCenter) {
+                // Map distance from center to glucose value (80-160 mg/dL)
+                // Center (300,300) represents 80 mg/dL
+                // Distance of 200px from center represents 160 mg/dL
+                const maxDistance = 250; // corresponds to outer circle
+                const minGlucose = 80;
+                const maxGlucose = 160;
+                
+                // Invert the calculation: closer to center = higher glucose
+                const distanceRatio = 1 - (Math.min(distanceFromCenter, maxDistance) / maxDistance);
+                const glucose = minGlucose + distanceRatio * (maxGlucose - minGlucose);
+                
+                return Math.round(glucose);
+            }
+            
+            function generatePredictionCurve(peakX, peakY) {
+                // Generate a curve from the meal point to the peak and back down
+                const mealX = parseFloat(mealMarker.getAttribute('cx'));
+                const mealY = parseFloat(mealMarker.getAttribute('cy'));
+                
+                // Control points for the curve
+                const cp1x = mealX + (peakX - mealX) * 0.3;
+                const cp1y = mealY + (peakY - mealY) * 0.8;
+                const cp2x = mealX + (peakX - mealX) * 0.7;
+                const cp2y = peakY;
+                
+                // End point (adjust as needed for realistic curve)
+                const endX = peakX + (peakX - mealX) * 0.5;
+                const endY = mealY + (peakY - mealY) * 0.3;
+                
+                // Create SVG path
+                return `M${mealX},${mealY} C${cp1x},${cp1y} ${cp2x},${cp2y} ${peakX},${peakY} S${endX},${endY} ${endX + 50},${mealY}`;
+            }
+            
+            // Enhanced tooltip handling
+            if (clickableArea && clockTooltip) {
+                clickableArea.addEventListener('mousemove', function(event) {
+                    const svgRect = glucoseClock.getBoundingClientRect();
+                    const mouseX = event.clientX - svgRect.left;
+                    const mouseY = event.clientY - svgRect.top;
+                    
+                    // Calculate position relative to center of clock
+                    const centerX = 300;
+                    const centerY = 300;
+                    const angle = calculateAngle(centerX, centerY, mouseX, mouseY);
+                    const distance = calculateDistance(centerX, centerY, mouseX, mouseY);
+                    
+                    // Only show tooltip if within the clock radius
+                    if (distance <= 250) {
+                        const time = formatTime(angle);
+                        const glucose = calculateGlucose(distance);
+                        
+                        // Update tooltip content
+                        clockTooltip.innerHTML = `Time: ${time}<br>Glucose: ${glucose} mg/dL`;
+                        
+                        // Position tooltip relative to mouse and make sure it's visible
+                        clockTooltip.style.display = 'block';
+                        
+                        // Position relative to the container, not the page
+                        const containerRect = clockContainer.getBoundingClientRect();
+                        const tooltipX = event.clientX - containerRect.left + 15;
+                        const tooltipY = event.clientY - containerRect.top + 15;
+                        
+                        clockTooltip.style.left = tooltipX + 'px';
+                        clockTooltip.style.top = tooltipY + 'px';
+                    } else {
+                        clockTooltip.style.display = 'none';
+                    }
+                });
+                
+                // Make sure to hide tooltip when mouse leaves
+                clickableArea.addEventListener('mouseleave', function() {
+                    clockTooltip.style.display = 'none';
+                });
+                
+                // Enhanced click handling with notification
+                clickableArea.addEventListener('click', function(event) {
+                    const svgRect = glucoseClock.getBoundingClientRect();
+                    const clickX = event.clientX - svgRect.left;
+                    const clickY = event.clientY - svgRect.top;
+                    
+                    // Calculate position relative to center of clock
+                    const centerX = 300;
+                    const centerY = 300;
+                    const distance = calculateDistance(centerX, centerY, clickX, clickY);
+                    
+                    // Only accept clicks within the clock radius
+                    if (distance <= 250) {
+                        // Place marker at click position
+                        predictionMarker.setAttribute('cx', clickX);
+                        predictionMarker.setAttribute('cy', clickY);
+                        predictionMarker.style.display = 'block';
+                        
+                        // Generate prediction curve
+                        const curvePath = generatePredictionCurve(clickX, clickY);
+                        userPredictionCurve.setAttribute('d', curvePath);
+                        
+                        // Enable submit button
+                        submitPredictionBtn.disabled = false;
+                        
+                        // Show notification
+                        showNotification();
+                        
+                        // Get time and glucose values for the clicked point
+                        const angle = calculateAngle(centerX, centerY, clickX, clickY);
+                        const time = formatTime(angle);
+                        const glucose = calculateGlucose(distance);
+                        console.log(`Prediction set at Time: ${time}, Glucose: ${glucose} mg/dL`);
+                    }
+                });
+            }
+            
+            // Function to show a notification when prediction is set
+            function showNotification() {
+                if (clockTooltip) {
+                    clockTooltip.style.display = 'none';
+                }
+                
+                const predictionNotification = document.getElementById('prediction-notification');
+                if (predictionNotification) {
+                    predictionNotification.style.display = 'block';
+                    predictionNotification.style.opacity = '1';
+                    
+                    // Hide notification after 3 seconds
+                    setTimeout(function() {
+                        predictionNotification.style.opacity = '0';
+                        setTimeout(function() {
+                            predictionNotification.style.display = 'none';
+                        }, 500);
+                    }, 2500);
+                }
+            }
+            
+            // Handle prediction submission
+            if (submitPredictionBtn) {
+                submitPredictionBtn.addEventListener('click', function() {
+                    if (predictionMarker.style.display === 'none') {
+                        alert('Please make a prediction by clicking on the clock where you think glucose will peak.');
+                        return;
+                    }
+                    
+                    // Hide the prediction controls
+                    predictionControls.style.display = 'none';
+                    
+                    // Generate actual response curve (in a real app this would be based on actual data)
+                    const mealX = parseFloat(mealMarker.getAttribute('cx'));
+                    const mealY = parseFloat(mealMarker.getAttribute('cy'));
+                    const predX = parseFloat(predictionMarker.getAttribute('cx'));
+                    const predY = parseFloat(predictionMarker.getAttribute('cy'));
+                    
+                    // Create a slightly different curve for "actual" response
+                    const cp1x = mealX + (predX - mealX) * 0.25;
+                    const cp1y = mealY + (predY - mealY) * 0.9;
+                    const cp2x = mealX + (predX - mealX) * 0.6;
+                    const cp2y = predY - 20; // actual peak slightly higher than prediction
+                    const endX = predX + (predX - mealX) * 0.6;
+                    const endY = mealY + (predY - mealY) * 0.2;
+                    
+                    const actualPath = `M${mealX},${mealY} C${cp1x},${cp1y} ${cp2x},${cp2y} ${predX-15},${predY-15} S${endX},${endY} ${endX + 60},${mealY+10}`;
+                    actualResponseCurve.setAttribute('d', actualPath);
+                    actualResponseCurve.style.display = 'block';
+                    
+                    // Show results panel with accuracy analysis
+                    if (resultsPanel) {
+                        resultsPanel.style.display = 'block';
+                        
+                        // Set accuracy meter fill width
+                        const accuracyMeter = resultsPanel.querySelector('.accuracy-meter');
+                        if (accuracyMeter) {
+                            const accuracyFill = accuracyMeter.querySelector('.accuracy-fill');
+                            if (accuracyFill) {
+                                accuracyFill.style.width = '75%';
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Handle "Try Another Food" button
+            if (tryAnotherBtn) {
+                tryAnotherBtn.addEventListener('click', function() {
+                    predictionControls.style.display = 'block';
+                    if (resultsPanel) resultsPanel.style.display = 'none';
+                    resetPrediction();
+                });
+            }
+        });
+    </script>
+    
+    <script>
+        // Add this to your existing script section
+        function selectFoodCategory(category) {
+            // Reset all buttons to inactive state
+            document.querySelectorAll('.food-toggle-btn').forEach(btn => {
+                btn.style.background = '#f5f5f7';
+                btn.style.color = '#333';
+            });
+            
+            // Reset all food category cards
+            document.querySelectorAll('.food-category').forEach(card => {
+                card.style.borderColor = '#f0f0f0';
+                card.style.transform = 'scale(1)';
+                card.style.boxShadow = '0 2px 8px rgba(0,0,0,0.05)';
+            });
+            
+            // Hide all curves initially
+            document.getElementById('high-glycemic-curve').style.display = 'none';
+            document.getElementById('medium-glycemic-curve').style.display = 'none';
+            document.getElementById('low-glycemic-curve').style.display = 'none';
+            
+            // Hide all annotations
+            document.getElementById('high-glycemic-annotation').style.display = 'none';
+            document.getElementById('medium-glycemic-annotation').style.display = 'none';
+            
+            // Set specific button to active
+            if (category !== 'all') {
+                document.getElementById(category + '-btn').style.background = '#0066CC';
+                document.getElementById(category + '-btn').style.color = 'white';
+            } else {
+                document.getElementById('view-all-btn').style.background = '#0066CC';
+                document.getElementById('view-all-btn').style.color = 'white';
+            }
+            
+            // Highlight the selected food category card
+            if (category !== 'all') {
+                const selectedCard = document.querySelector(`.${category}-glycemic`);
+                selectedCard.style.borderColor = category === 'high' ? '#e53935' : 
+                                               category === 'medium' ? '#ff9800' : '#4caf50';
+                selectedCard.style.transform = 'scale(1.05)';
+                selectedCard.style.boxShadow = '0 5px 15px rgba(0,0,0,0.1)';
+            }
+            
+            // Show curves based on selection
+            if (category === 'all') {
+                document.getElementById('high-glycemic-curve').style.display = 'block';
+                document.getElementById('medium-glycemic-curve').style.display = 'block';
+                document.getElementById('low-glycemic-curve').style.display = 'block';
+                document.getElementById('high-glycemic-annotation').style.display = 'block';
+                document.getElementById('medium-glycemic-annotation').style.display = 'block';
+                document.querySelector('.legend').style.display = 'block';
+            } else if (category === 'high') {
+                document.getElementById('high-glycemic-curve').style.display = 'block';
+                document.getElementById('high-glycemic-annotation').style.display = 'block';
+                document.querySelector('.legend').style.display = 'none';
+            } else if (category === 'medium') {
+                document.getElementById('medium-glycemic-curve').style.display = 'block';
+                document.getElementById('medium-glycemic-annotation').style.display = 'block';
+                document.querySelector('.legend').style.display = 'none';
+            } else if (category === 'low') {
+                document.getElementById('low-glycemic-curve').style.display = 'block';
+                document.querySelector('.legend').style.display = 'none';
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize with all graphs showing
+            selectFoodCategory('all');
+            
+            // Add tooltip functionality for the food comparison graph
+            const graphContainer = document.querySelector('.graph-container');
+            const tooltipLine = document.getElementById('food-tooltip-line');
+            const highGlucosePoint = document.getElementById('high-glucose-point');
+            const mediumGlucosePoint = document.getElementById('medium-glucose-point');
+            const lowGlucosePoint = document.getElementById('low-glucose-point');
+            const foodGlucoseTooltip = document.getElementById('food-glucose-tooltip');
+            
+            if (graphContainer && tooltipLine && foodGlucoseTooltip) {
+                const foodComparisonGraph = document.getElementById('food-comparison-graph');
+                
+                graphContainer.addEventListener('mousemove', function(event) {
+                    const rect = graphContainer.getBoundingClientRect();
+                    const svgRect = foodComparisonGraph.getBoundingClientRect();
+                    const x = event.clientX - svgRect.left;
+                    
+                    // Only show tooltip within the graph area (80px - 750px)
+                    if (x >= 80 && x <= 750) {
+                        // Position the tooltip line
+                        tooltipLine.setAttribute('x1', x);
+                        tooltipLine.setAttribute('x2', x);
+                        tooltipLine.style.display = 'block';
+                        
+                        // Calculate time based on x position
+                        const timePos = (x - 80) / 670; // 0 to 1 position
+                        const minutes = Math.round(timePos * 150); // 0 to 150 minutes
+                        
+                        // Get glucose values for each curve at this x position
+                        // These are approximations based on the paths
+                        let highGlucose, mediumGlucose, lowGlucose;
+                        
+                        // Rice (high glycemic)
+                        if (x < 190) { // 0-30 min
+                            highGlucose = 290 - (x - 80) * 5.7;
+                        } else if (x < 300) { // 30-60 min
+                            highGlucose = 120 + (x - 190) * 0.18;
+                        } else if (x < 410) { // 60-90 min
+                            highGlucose = 140 + (x - 300) * 1.09;
+                        } else if (x < 520) { // 90-120 min
+                            highGlucose = 260 + (x - 410) * 0.27;
+                        } else { // 120-150 min
+                            highGlucose = 290;
+                        }
+                        
+                        // Apple (medium glycemic)
+                        if (x < 190) { // 0-30 min
+                            mediumGlucose = 290 - (x - 80) * 3.64;
+                        } else if (x < 300) { // 30-60 min
+                            mediumGlucose = 180 + (x - 190) * 0.09;
+                        } else if (x < 410) { // 60-90 min
+                            mediumGlucose = 190 + (x - 300) * 0.73;
+                        } else if (x < 520) { // 90-120 min
+                            mediumGlucose = 270 + (x - 410) * 0.18;
+                        } else { // 120-150 min
+                            mediumGlucose = 290;
+                        }
+                        
+                        // Broccoli (low glycemic)
+                        if (x < 190) { // 0-30 min
+                            lowGlucose = 290 - (x - 80) * 1.09;
+                        } else if (x < 300) { // 30-60 min
+                            lowGlucose = 260 + (x - 190) * 0.09;
+                        } else if (x < 410) { // 60-90 min
+                            lowGlucose = 270 + (x - 300) * 0.18;
+                        } else { // 90-150 min
+                            lowGlucose = 290;
+                        }
+                        
+                        // Position the tooltip points on the glucose curves
+                        highGlucosePoint.setAttribute('cx', x);
+                        highGlucosePoint.setAttribute('cy', highGlucose);
+                        
+                        mediumGlucosePoint.setAttribute('cx', x);
+                        mediumGlucosePoint.setAttribute('cy', mediumGlucose);
+                        
+                        lowGlucosePoint.setAttribute('cx', x);
+                        lowGlucosePoint.setAttribute('cy', lowGlucose);
+                        
+                        // Show the points based on which curves are visible
+                        highGlucosePoint.style.display = document.getElementById('high-glycemic-curve').style.display !== 'none' ? 'block' : 'none';
+                        mediumGlucosePoint.style.display = document.getElementById('medium-glycemic-curve').style.display !== 'none' ? 'block' : 'none';
+                        lowGlucosePoint.style.display = document.getElementById('low-glycemic-curve').style.display !== 'none' ? 'block' : 'none';
+                        
+                        // Convert SVG y-coordinates to glucose values (320 = 70mg/dL, 80 = 160mg/dL)
+                        const highGlucoseValue = Math.round(70 + (320 - highGlucose) * (160-70)/(320-80));
+                        const mediumGlucoseValue = Math.round(70 + (320 - mediumGlucose) * (160-70)/(320-80));
+                        const lowGlucoseValue = Math.round(70 + (320 - lowGlucose) * (160-70)/(320-80));
+                        
+                        // Update tooltip content based on which curves are visible
+                        let tooltipContent = `Time: ${minutes} min<br>`;
+                        
+                        if (document.getElementById('high-glycemic-curve').style.display !== 'none') {
+                            tooltipContent += `<span style="color: #e53935;">White Rice: ${highGlucoseValue} mg/dL</span><br>`;
+                        }
+                        
+                        if (document.getElementById('medium-glycemic-curve').style.display !== 'none') {
+                            tooltipContent += `<span style="color: #ff9800;">Apple: ${mediumGlucoseValue} mg/dL</span><br>`;
+                        }
+                        
+                        if (document.getElementById('low-glycemic-curve').style.display !== 'none') {
+                            tooltipContent += `<span style="color: #4caf50;">Broccoli: ${lowGlucoseValue} mg/dL</span>`;
+                        }
+                        
+                        foodGlucoseTooltip.innerHTML = tooltipContent;
+                        foodGlucoseTooltip.style.display = 'block';
+                        
+                        // Position tooltip relative to mouse
+                        const tooltipX = event.clientX - rect.left + 15;
+                        const tooltipY = event.clientY - rect.top - 40;
+                        foodGlucoseTooltip.style.left = tooltipX + 'px';
+                        foodGlucoseTooltip.style.top = tooltipY + 'px';
+                    }
+                });
+                
+                graphContainer.addEventListener('mouseleave', function() {
+                    tooltipLine.style.display = 'none';
+                    highGlucosePoint.style.display = 'none';
+                    mediumGlucosePoint.style.display = 'none';
+                    lowGlucosePoint.style.display = 'none';
+                    foodGlucoseTooltip.style.display = 'none';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
