@@ -5,31 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Understanding Glucose Response</title>
     <link rel="icon" type="image/png" href="gleco.png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f5f5f7;
             color: #333;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
             line-height: 1.6;
         }
         
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
         .container {
             display: flex;
             flex-direction: column;
             align-items: center;
+            background-color: rgba(245, 245, 247, 0.9); /* Darker container background */
+            border-radius: 0; /* Remove rounded corners */
+            box-shadow: 0 15px 50px rgba(31, 38, 135, 0.3);
+            backdrop-filter: blur(4px);
+            padding: 30px 20px; /* Reduced padding */
+            margin: 0; /* Remove all margins */
+            width: 100%; /* Full width */
+            max-width: none; /* Remove max-width limitation */
+            min-height: 100vh; /* Make it at least full viewport height */
+            position: absolute; /* Position absolute to cover the entire page */
+            top: 0;
+            left: 0;
+            right: 0;
         }
         
         .explainer-section {
-            background: white;
+            background: rgba(255, 255, 255, 0.8);
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             margin-bottom: 30px;
             width: 100%;
             max-width: 800px;
+            transition: transform 0.3s;
+        }
+        
+        .explainer-section:hover {
+            transform: translateY(-5px);
         }
         
         .section-title {
@@ -421,6 +452,10 @@
     </style>
 </head>
 <body>
+    <div id="canvas"></div>
+    
+    <div id="glucose-counter" style="position: fixed; top: 20px; right: 20px; background-color: #0066CC; color: white; padding: 8px 16px; border-radius: 20px; font-size: 1.2rem; box-shadow: 0 4px 8px rgba(0,0,0,0.1); z-index: 1000;">Glucose: <span id="count">0</span></div>
+    
     <div class="container">
         <h1>Snack & Spike: Understanding Your Glucose Response</h1>
         
@@ -1327,6 +1362,241 @@
                     foodGlucoseTooltip.style.display = 'none';
                 });
             }
+        });
+    </script>
+    
+    <!-- Molecule Animation Script -->
+    <script>
+        // Three.js setup
+        let scene, camera, renderer;
+        let glucoseMolecules = [];
+        let rotationSpeed = 0.01;
+        let glucoseCount = 0;
+        
+        function init() {
+            // Create scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xFFFFFF);
+            
+            // Create camera
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 5;
+            
+            // Create renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById('canvas').appendChild(renderer.domElement);
+            
+            // Add lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(1, 1, 1);
+            scene.add(directionalLight);
+            
+            // Create glucose molecules
+            createGlucoseMolecules(15);
+            
+            // Add event listeners
+            window.addEventListener('resize', onWindowResize);
+            window.addEventListener('click', onMouseClick);
+            
+            // Start animation
+            animate();
+        }
+        
+        function createGlucoseMolecules(count) {
+            for (let i = 0; i < count; i++) {
+                // Main glucose ring (hexagon)
+                const ringGeometry = new THREE.TorusGeometry(0.3, 0.05, 16, 6);
+                const ringMaterial = new THREE.MeshPhongMaterial({ color: 0xFFCC00 });
+                const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+                
+                // Carbon atoms
+                const carbonMaterial = new THREE.MeshPhongMaterial({ color: 0x333333 });
+                const carbonGeometry = new THREE.SphereGeometry(0.08, 16, 16);
+                
+                // Oxygen atoms
+                const oxygenMaterial = new THREE.MeshPhongMaterial({ color: 0xFF5555 });
+                const oxygenGeometry = new THREE.SphereGeometry(0.07, 16, 16);
+                
+                // Hydrogen atoms
+                const hydrogenMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFFFF });
+                const hydrogenGeometry = new THREE.SphereGeometry(0.05, 16, 16);
+                
+                // Create group for the whole molecule
+                const molecule = new THREE.Group();
+                molecule.add(ring);
+                
+                // Add atoms at strategic positions around the ring
+                for (let j = 0; j < 6; j++) {
+                    const angle = (j / 6) * Math.PI * 2;
+                    const x = Math.cos(angle) * 0.3;
+                    const y = Math.sin(angle) * 0.3;
+                    
+                    const carbon = new THREE.Mesh(carbonGeometry, carbonMaterial);
+                    carbon.position.set(x, y, 0);
+                    molecule.add(carbon);
+                    
+                    // Add oxygen to some carbons
+                    if (j % 2 === 0) {
+                        const oxygen = new THREE.Mesh(oxygenGeometry, oxygenMaterial);
+                        oxygen.position.set(x * 1.3, y * 1.3, 0.1);
+                        molecule.add(oxygen);
+                    }
+                    
+                    // Add hydrogens
+                    const hydrogen = new THREE.Mesh(hydrogenGeometry, hydrogenMaterial);
+                    hydrogen.position.set(x * 1.2, y * 1.2, -0.1);
+                    molecule.add(hydrogen);
+                }
+                
+                // Position molecule randomly in space
+                molecule.position.x = (Math.random() - 0.5) * 10;
+                molecule.position.y = (Math.random() - 0.5) * 10;
+                molecule.position.z = (Math.random() - 0.5) * 10;
+                
+                // Random rotation
+                molecule.rotation.x = Math.random() * Math.PI;
+                molecule.rotation.y = Math.random() * Math.PI;
+                
+                // Add velocity for animation
+                molecule.userData = {
+                    velocityX: (Math.random() - 0.5) * 0.02,
+                    velocityY: (Math.random() - 0.5) * 0.02,
+                    velocityZ: (Math.random() - 0.5) * 0.02,
+                    rotationX: (Math.random() - 0.5) * 0.02,
+                    rotationY: (Math.random() - 0.5) * 0.02,
+                    rotationZ: (Math.random() - 0.5) * 0.02,
+                    clickable: true
+                };
+                
+                scene.add(molecule);
+                glucoseMolecules.push(molecule);
+            }
+        }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Animate each molecule
+            glucoseMolecules.forEach(molecule => {
+                if (!molecule.userData.clickable) return;
+                
+                // Apply rotation
+                molecule.rotation.x += molecule.userData.rotationX;
+                molecule.rotation.y += molecule.userData.rotationY;
+                molecule.rotation.z += molecule.userData.rotationZ;
+                
+                // Apply movement
+                molecule.position.x += molecule.userData.velocityX;
+                molecule.position.y += molecule.userData.velocityY;
+                molecule.position.z += molecule.userData.velocityZ;
+                
+                // Bounce off invisible boundaries
+                if (Math.abs(molecule.position.x) > 5) {
+                    molecule.userData.velocityX *= -1;
+                }
+                if (Math.abs(molecule.position.y) > 5) {
+                    molecule.userData.velocityY *= -1;
+                }
+                if (Math.abs(molecule.position.z) > 5) {
+                    molecule.userData.velocityZ *= -1;
+                }
+            });
+            
+            renderer.render(scene, camera);
+        }
+        
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        function onMouseClick(event) {
+            // Calculate mouse position in normalized device coordinates
+            const mouse = new THREE.Vector2();
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            // Raycasting to detect clicks on molecules
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(mouse, camera);
+            
+            const intersects = raycaster.intersectObjects(scene.children, true);
+            
+            if (intersects.length > 0) {
+                // Find the parent molecule
+                let moleculeClicked = false;
+                for (let i = 0; i < glucoseMolecules.length; i++) {
+                    const molecule = glucoseMolecules[i];
+                    if (!molecule.userData.clickable) continue;
+                    
+                    if (molecule.children.some(child => {
+                        return intersects.some(intersect => intersect.object === child);
+                    })) {
+                        // "Collect" the molecule
+                        collectMolecule(molecule);
+                        moleculeClicked = true;
+                        break;
+                    }
+                }
+                
+                // If no molecule was clicked, create a random one
+                if (!moleculeClicked && intersects[0].object.parent === scene) {
+                    createGlucoseMolecules(1);
+                }
+            }
+        }
+        
+        function collectMolecule(molecule) {
+            // Animate collection
+            molecule.userData.clickable = false;
+            
+            // Animation - grow and fade out
+            let scale = 1.0;
+            const fadeInterval = setInterval(() => {
+                scale += 0.1;
+                molecule.scale.set(scale, scale, scale);
+                
+                // Make children start fading
+                molecule.children.forEach(child => {
+                    if (child.material) {
+                        if (!child.material.transparent) {
+                            child.material = child.material.clone();
+                            child.material.transparent = true;
+                        }
+                        child.material.opacity -= 0.1;
+                    }
+                });
+                
+                if (scale >= 2.0) {
+                    clearInterval(fadeInterval);
+                    scene.remove(molecule);
+                    
+                    // Remove from array
+                    const index = glucoseMolecules.indexOf(molecule);
+                    if (index > -1) {
+                        glucoseMolecules.splice(index, 1);
+                    }
+                    
+                    // Create a new molecule
+                    setTimeout(() => {
+                        createGlucoseMolecules(1);
+                    }, 500);
+                }
+            }, 50);
+            
+            // Update counter
+            glucoseCount++;
+            document.getElementById('count').textContent = glucoseCount;
+        }
+        
+        // Initialize the animation when document is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            init();
         });
     </script>
 </body>
