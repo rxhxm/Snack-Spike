@@ -454,8 +454,7 @@
 <body>
     <div id="canvas"></div>
     
-    <div id="glucose-counter" style="position: fixed; top: 20px; right: 20px; background-color: #0066CC; color: white; padding: 8px 16px; border-radius: 20px; font-size: 1.2rem; box-shadow: 0 4px 8px rgba(0,0,0,0.1); z-index: 1000;">Glucose: <span id="count">0</span></div>
-    
+
     <div class="container">
         <h1>Snack & Spike: Understanding Your Glucose Response</h1>
         
@@ -893,6 +892,17 @@
             const actualResponseCurve = document.getElementById('actual-response-curve');
             const clockTooltip = document.getElementById('clock-tooltip');
             const mealMarker = document.getElementById('meal-marker');
+            
+            // Make sure proper content is shown on initial page load
+            explainerContent.style.display = 'block';
+            gameContent.style.display = 'none';
+            explainerTab.style.background = '#0066CC';
+            gameTab.style.background = '#cccccc';
+            
+            // Initially hide the game elements
+            if (predictionControls) predictionControls.style.display = 'none';
+            if (clockContainer) clockContainer.style.display = 'none';
+            if (resultsPanel) resultsPanel.style.display = 'none';
             
             // Initially hide the results panel
             if (resultsPanel) {
