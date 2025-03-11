@@ -806,9 +806,157 @@
             display: block;
             opacity: 1;
         }
+        
+        /* Loading screen styling */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+        }
+        
+        .loading-content {
+            text-align: center;
+            width: 300px;
+        }
+        
+        .loading-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0066CC;
+            margin-bottom: 15px;
+        }
+        
+        .candy-wrapper {
+            width: 100%;
+            height: 30px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 40px;
+            border: 2px solid #0066CC;
+            box-shadow: 0 4px 10px rgba(0, 102, 204, 0.2);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .candy-filling {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(45deg, 
+                #0066CC 0%, 
+                #4A90E2 25%, 
+                #0066CC 50%,
+                #4A90E2 75%,
+                #0066CC 100%);
+            background-size: 200% 100%;
+            border-radius: 40px;
+            transition: width 0.2s ease-out;
+            animation: candy-stripe 2s linear infinite;
+            position: relative;
+        }
+        
+        .candy-filling::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(255, 255, 255, 0.1),
+                rgba(255, 255, 255, 0.1) 10px,
+                rgba(255, 255, 255, 0.3) 10px,
+                rgba(255, 255, 255, 0.3) 20px
+            );
+            border-radius: 40px;
+        }
+        
+        .glucose-dots {
+            position: absolute;
+            top: -10px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-sizing: border-box;
+            opacity: 0;
+            transition: opacity 0.3s ease-out;
+        }
+        
+        .glucose-dot {
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border: 2px solid #0066CC;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        .glucose-dot:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+        
+        .glucose-dot:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+        
+        .loading-text {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #555;
+        }
+        
+        .loading-percentage {
+            font-weight: bold;
+            color: #0066CC;
+        }
+        
+        @keyframes candy-stripe {
+            0% {
+                background-position: 0% 0;
+            }
+            100% {
+                background-position: 200% 0;
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                background-color: white;
+            }
+            50% {
+                transform: scale(1.2);
+                background-color: rgba(0, 102, 204, 0.7);
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Add this right after the opening body tag -->
+    <div class="loading-screen" id="loading-screen">
+        <div class="loading-content">
+            <div class="loading-title">Snack & Spike</div>
+            <div class="candy-wrapper">
+                <div class="candy-filling" id="candy-filling"></div>
+                <div class="glucose-dots">
+                    <div class="glucose-dot"></div>
+                    <div class="glucose-dot"></div>
+                    <div class="glucose-dot"></div>
+                </div>
+            </div>
+            <div class="loading-text">Analyzing glucose data... <span class="loading-percentage" id="loading-percentage">0%</span></div>
+        </div>
+    </div>
+    
     <div id="canvas"></div>
     
 
@@ -2252,6 +2400,58 @@
                     funFactButton.classList.remove('highlight');
                 }, 1000);
             }, 8000);
+        });
+    </script>
+    
+    <!-- Add this to your JavaScript section -->
+    <script>
+        // Loading screen animation
+        document.addEventListener('DOMContentLoaded', function() {
+            const loadingScreen = document.getElementById('loading-screen');
+            const candyFilling = document.getElementById('candy-filling');
+            const loadingPercentage = document.getElementById('loading-percentage');
+            const glucoseDots = document.querySelector('.glucose-dots');
+            
+            let progress = 0;
+            
+            // Show loading screen
+            loadingScreen.style.opacity = 1;
+            loadingScreen.style.visibility = 'visible';
+            
+            // Start loading animation
+            setTimeout(() => {
+                glucoseDots.style.opacity = 1;
+            }, 500);
+            
+            // Simulate loading progress
+            const interval = setInterval(() => {
+                progress += Math.random() * 10;
+                
+                if (progress > 100) progress = 100;
+                
+                // Update candy bar filling
+                candyFilling.style.width = `${progress}%`;
+                
+                // Update percentage text
+                loadingPercentage.textContent = `${Math.round(progress)}%`;
+                
+                // When loading is complete
+                if (progress === 100) {
+                    clearInterval(interval);
+                    
+                    // Wait a moment at 100% before hiding
+                    setTimeout(() => {
+                        // Hide loading screen
+                        loadingScreen.style.opacity = 0;
+                        loadingScreen.style.visibility = 'hidden';
+                        
+                        // Remove loading screen from DOM after transition
+                        setTimeout(() => {
+                            loadingScreen.remove();
+                        }, 500);
+                    }, 800);
+                }
+            }, 150);
         });
     </script>
 </body>
