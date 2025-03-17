@@ -191,7 +191,7 @@ function drawD3Graph() {
             .on("click", function (event, d) {
                 // Toggle the filter state for the clicked legend item 
                 filters[d.category] = !filters[d.category];
-                updateFilters(); 
+                updateFilters();
             });
 
         legendItems.append("rect")
@@ -207,6 +207,135 @@ function drawD3Graph() {
             .style("font-size", "12px");
 
         updateFilters();
+
+        // 1) Circles for each line
+        const wrCircle = svg.append("circle")
+            .attr("r", 4)
+            .attr("fill", "#fff")           // White fill
+            .attr("stroke", "#e53935")      // Red stroke for White Rice
+            .attr("stroke-width", 2)
+            .style("display", "none");
+
+        const appleCircle = svg.append("circle")
+            // White fill, orange stroke
+            .attr("r", 4)
+            .attr("fill", "#fff")
+            .attr("stroke", "#ff9800")
+            .attr("stroke-width", 2)
+            .style("display", "none");
+
+        const brocCircle = svg.append("circle")
+            // White fill, green stroke
+            .attr("r", 4)
+            .attr("fill", "#fff")
+            .attr("stroke", "#4caf50")
+            .attr("stroke-width", 2)
+            .style("display", "none");
+
+        // 2) Tooltip div
+        const tooltip = d3.select("body").append("div")
+            .style("position", "absolute")
+            .style("background", "rgba(0,0,0,0.7)")
+            .style("color", "#fff")
+            .style("padding", "6px 10px")
+            .style("border-radius", "4px")
+            .style("font-size", "12px")
+            .style("pointer-events", "none")
+            .style("display", "none");
+
+        // 3) Vertical hover line
+        const hoverLine = svg.append("line")
+            .attr("stroke", "#0066CC")
+            .attr("stroke-width", 2)
+            .attr("y1", 0)
+            .attr("y2", height)
+            .style("display", "none");
+
+        // 4) Large invisible rect for mouse events
+        svg.append("rect")
+            .attr("class", "hover-capture")
+            .attr("width", width)
+            .attr("height", height)
+            .style("fill", "none")
+            .style("pointer-events", "all")
+            .on("mousemove", function (event) {
+                const mouseX = d3.pointer(event, this)[0];
+                const time = xScale.invert(mouseX);
+
+                // Helper: find data point in an array with closest MinutesSinceFood
+                function findClosest(arr, t) {
+                    let closest = arr[0];
+                    let minDist = Math.abs(t - arr[0].MinutesSinceFood);
+                    for (let i = 1; i < arr.length; i++) {
+                        const dist = Math.abs(t - arr[i].MinutesSinceFood);
+                        if (dist < minDist) {
+                            minDist = dist;
+                            closest = arr[i];
+                        }
+                    }
+                    return closest;
+                }
+
+                const wrPoint = findClosest(whiteRice.Response, time);
+                const applePoint = findClosest(apple.Response, time);
+                const brocPoint = findClosest(broccoli.Response, time);
+
+                // Position circles (only show if that line is visible)
+                if (filters.high) {
+                    wrCircle
+                        .attr("cx", xScale(wrPoint.MinutesSinceFood))
+                        .attr("cy", yScale(wrPoint.Value))
+                        .style("display", "block");
+                } else {
+                    wrCircle.style("display", "none");
+                }
+                if (filters.medium) {
+                    appleCircle
+                        .attr("cx", xScale(applePoint.MinutesSinceFood))
+                        .attr("cy", yScale(applePoint.Value))
+                        .style("display", "block");
+                } else {
+                    appleCircle.style("display", "none");
+                }
+                if (filters.low) {
+                    brocCircle
+                        .attr("cx", xScale(brocPoint.MinutesSinceFood))
+                        .attr("cy", yScale(brocPoint.Value))
+                        .style("display", "block");
+                } else {
+                    brocCircle.style("display", "none");
+                }
+
+                // Build tooltip content with color-coded lines
+                const displayTime = wrPoint.MinutesSinceFood;
+                let tooltipContent = `Time: ${Math.round(displayTime)} min<br>`;
+                if (filters.high) {
+                    tooltipContent += `<span style="color: #e53935;">White Rice: ${Math.round(wrPoint.Value)} mg/dL</span><br>`;
+                }
+                if (filters.medium) {
+                    tooltipContent += `<span style="color: #ff9800;">Apple: ${Math.round(applePoint.Value)} mg/dL</span><br>`;
+                }
+                if (filters.low) {
+                    tooltipContent += `<span style="color: #4caf50;">Broccoli: ${Math.round(brocPoint.Value)} mg/dL</span>`;
+                }
+
+                tooltip.html(tooltipContent)
+                    .style("left", (event.pageX + 15) + "px")
+                    .style("top", (event.pageY - 40) + "px")
+                    .style("display", "block");
+
+                hoverLine
+                    .attr("x1", mouseX)
+                    .attr("x2", mouseX)
+                    .style("display", "block");
+            })
+            .on("mouseleave", function () {
+                tooltip.style("display", "none");
+                hoverLine.style("display", "none");
+                wrCircle.style("display", "none");
+                appleCircle.style("display", "none");
+                brocCircle.style("display", "none");
+            });
     }).catch(function (error) {
         console.error("Error loading JSON data:", error);
     });
