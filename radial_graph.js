@@ -48,8 +48,8 @@ d3.json("./processed_data/spike_events.json").then(data => {
     // Outer ring is 160 mg/dL, choose some padding so circles fit
     const minTime = d3.min(responseCurve, d => d.ParsedTime);
     const maxTime = d3.max(responseCurve, d => d.ParsedTime);
-    const minGlucose = d3.min(responseCurve, d => d.Value);
-    const maxGlucose = d3.max(responseCurve, d => d.Value) + 10;
+    const minGlucose = 110; //d3.min(responseCurve, d => d.Value);
+    const maxGlucose = 180; // d3.max(responseCurve, d => d.Value) + 10;
     const innerRadius = 0;
     const outerRadius = 250;
     const glucoseTicks = d3.ticks(minGlucose, maxGlucose, 6);
@@ -91,7 +91,7 @@ d3.json("./processed_data/spike_events.json").then(data => {
 
     // Add top-aligned labels for each tick
     glucoseTicks.forEach((tickValue, i) => {
-        if (i === 0) return;
+        if ((tickValue === minGlucose) || (tickValue === maxGlucose)) return;
 
         const radius = rScale(tickValue);
         // Place label at angle=0 (the top)
@@ -120,7 +120,7 @@ d3.json("./processed_data/spike_events.json").then(data => {
     // Draw time ticks for every 3 hours: 0,3,6,9,...,21
     // We want 0 => top, 6 => right, 12 => bottom, 18 => left
     // We'll do angle = hour*15 - 90
-    const hourTicks = d3.range(0, 24, 3);
+    const hourTicks = d3.range(0, 24, 0.4);
 
     hourTicks.forEach(hour => {
         // Convert hour to angle
@@ -131,8 +131,9 @@ d3.json("./processed_data/spike_events.json").then(data => {
         const angleDeg = hour * 15 - 90;
 
         // We'll draw a small tick line from outerRadius to outerRadius+10
-        const tickStart = polarToCartesian(outerRadius, angleDeg);
-        const tickEnd = polarToCartesian(outerRadius + 10, angleDeg);
+        const tickStart = polarToCartesian(outerRadius - 10, angleDeg);
+        const tickEnd = polarToCartesian(outerRadius + (hour % 1 != 0 ? 5 : 10), angleDeg);
+        const smallTick = hour % 1 != 0 ? 1 : 2;
 
         g.append("line")
             .attr("x1", tickStart.x)
@@ -140,25 +141,38 @@ d3.json("./processed_data/spike_events.json").then(data => {
             .attr("x2", tickEnd.x)
             .attr("y2", tickEnd.y)
             .attr("stroke", "#333")
-            .attr("stroke-width", 2);
+            .attr("stroke-width", smallTick);
 
         // Add the hour label slightly beyond the tick
         const labelPos = polarToCartesian(outerRadius + 25, angleDeg);
 
         // Format hour: e.g., 0 => 00:00, 3 => 03:00, etc.
-        const hourStr = String(hour).padStart(2, "0");
-        g.append("text")
-            .attr("x", labelPos.x)
-            .attr("y", labelPos.y + 4)
-            .attr("text-anchor", "middle")
-            .attr("font-size", "14px")
-            .attr("fill", "#333")
-            .text(`${hourStr}:00`);
+        if (hour % 1 == 0) {
+            const hourStr = String(hour).padStart(2, "0");
+            g.append("text")
+                .attr("x", labelPos.x)
+                .attr("y", labelPos.y + 4)
+                .attr("text-anchor", "middle")
+                .attr("font-size", "14px")
+                .attr("fill", "#333")
+                .text(`${hourStr}:00`);
+
+        }
+
+        // Outerclock Tick
+        g.append("circle")
+            .attr("r", outerRadius - 6) // Slightly bigger than the inner elements
+            .attr("fill", "none") // No fill to make it an outline
+            .attr("stroke", "#888") // Gray border
+            .attr("stroke-width", 0.5); // Adjust thickness as needed
 
         // Optional: draw a small center circle
         g.append("circle")
-            .attr("r", 5)
-            .attr("fill", "#333");
+            .attr("r", 20)
+            .attr("fill", "none") // Makes the circle transparent
+            .attr("stroke", "blue") // Sets the outline color to blue
+            .attr("stroke-width", 2) // Adjusts the thickness of the outline
+            .attr("stroke-dasharray", "4 4"); // Creates a dotted line effect
 
         // Compute the maximum data point (assumes a single maximum)
         const maxDataPoint = event.ResponseCurve.reduce((max, d) => d.Value > max.Value ? d : max, event.ResponseCurve[0]);
@@ -179,13 +193,14 @@ d3.json("./processed_data/spike_events.json").then(data => {
             .attr("fill", "red");
 
         // Add a text label next to the dot (offset as needed)
-        g.append("text")
-            .attr("x", maxPos.x + 6) // shift a bit to the right
-            .attr("y", maxPos.y)
-            .attr("font-size", "12px")
-            .attr("fill", "red")
-            .attr("alignment-baseline", "middle")
-            .text(`Max: ${maxDataPoint.Value} mg/dL`);
+        g.append("foreignObject")
+            .attr("x", maxPos.x + 6)
+            .attr("y", maxPos.y - 15)
+            .attr("width", 100)
+            .attr("height", 25)
+            .append("xhtml:div")
+            .attr("class", "max-label")
+            .html(`Max: ${maxDataPoint.Value} mg/dL`);
 
         // Global elements for the clock hand and popup on the graph
         const clockHand = g.append("line")
