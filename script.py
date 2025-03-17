@@ -365,185 +365,275 @@ if all_glucose_data and len(all_glucose_data) > 0:
             'low': []
         }
         
-        # If we don't have food data, create synthetic data
-        if len(combined_food) == 0:
-            print("No food data available. Creating synthetic food response data.")
-            
-            # Create sample responses for each category
-            for category in ['high', 'medium', 'low']:
-                # Get sample glucose data from a participant
-                if len(combined_glucose) > 0:
-                    participant_id = combined_glucose['ParticipantID'].iloc[0]
-                    
-                    # Get a sample time range
-                    start_time = combined_glucose['Timestamp'].min() + timedelta(hours=2)
-                    
-                    # Synthetic baseline
-                    baseline = 80 if category == 'low' else (100 if category == 'medium' else 110)
-                    
-                    # Create synthetic response
-                    synthetic_response = []
-                    
-                    # Sample food names
-                    food_names = {
-                        'high': ['White rice', 'White bread', 'Sugar cookie', 'Soda'],
-                        'medium': ['Apple', 'Brown rice', 'Banana', 'Oatmeal'],
-                        'low': ['Broccoli', 'Spinach salad', 'Grilled chicken', 'Nuts']
-                    }
-                    
-                    # Create different response shapes for each category
-                    for minute in range(-15, 181, 5):
-                        if category == 'high':
-                            # High glycemic: rapid rise, moderate fall
-                            if minute < 0:
-                                rel_glucose = 0
-                            elif minute < 30:
-                                rel_glucose = minute * 2  # Steep rise
-                            elif minute < 60:
-                                rel_glucose = 60 - (minute - 30) * 0.5  # Peak and start falling
-                            else:
-                                rel_glucose = 45 - (minute - 60) * 0.25  # Gradual fall
-                                rel_glucose = max(0, rel_glucose)  # Don't go below 0
-                        
-                        elif category == 'medium':
-                            # Medium glycemic: moderate rise, moderate fall
-                            if minute < 0:
-                                rel_glucose = 0
-                            elif minute < 45:
-                                rel_glucose = minute * 0.8  # Moderate rise
-                            elif minute < 90:
-                                rel_glucose = 36 - (minute - 45) * 0.3  # Peak and start falling
-                            else:
-                                rel_glucose = 22.5 - (minute - 90) * 0.15  # Gradual fall
-                                rel_glucose = max(0, rel_glucose)  # Don't go below 0
-                        
-                        else:  # low
-                            # Low glycemic: minimal rise
-                            if minute < 0:
-                                rel_glucose = 0
-                            elif minute < 60:
-                                rel_glucose = minute * 0.3  # Slow rise
-                            else:
-                                rel_glucose = 18 - (minute - 60) * 0.1  # Slow fall
-                                rel_glucose = max(0, rel_glucose)  # Don't go below 0
-                        
-                        # Add some noise
-                        rel_glucose += np.random.normal(0, 2)
-                        
-                        synthetic_response.append({
-                            'MinutesSinceFood': minute,
-                            'Value': baseline + rel_glucose,
-                            'RelativeGlucose': rel_glucose
-                        })
-                    
-                    # Add synthetic events
-                    for i in range(min(3, len(food_names[category]))):
-                        food_name = food_names[category][i]
-                        event_time = start_time + timedelta(days=i)
-                        
-                        event_data = {
-                            'FoodDescription': food_name,
-                            'ParticipantID': participant_id,
-                            'Timestamp': event_time.isoformat(),
-                            'Response': synthetic_response
-                        }
-                        response_data[category].append(event_data)
-            
-            # Add average responses
-            for category in response_data:
-                responses = response_data[category]
-                if responses:
-                    # Create average response
-                    time_points = np.arange(-15, 181, 5)
-                    avg_response = []
-                    
-                    for minute in time_points:
-                        values = [next((point['RelativeGlucose'] for point in resp['Response'] 
-                                        if point['MinutesSinceFood'] == minute), 0) 
-                                  for resp in responses]
-                        
-                        avg_response.append({
-                            'MinutesSinceFood': minute,
-                            'AvgRelativeGlucose': sum(values) / len(values)
-                        })
-                    
-                    response_data[f"{category}_average"] = avg_response
-            
-            # Save synthetic data
-            with open('processed_data/food_responses.json', 'w') as f:
-                json.dump(response_data, f, indent=2)
-            
-            print("Created synthetic food response data")
-            return response_data
+        # Examine data to see if we have enough for real examples
+        real_data_available = len(combined_food) > 0 and len(combined_glucose) > 0
+        print(f"Food events available: {len(combined_food)}")
         
-        # If we have real food data, process it
-        for _, food_event in combined_food.iterrows():
-            category = food_event['GlycemicCategory']
+        # Direct classification of common foods based on total carbs (if available)
+        if real_data_available:
+            # Try to find total carb column
+            carb_columns = ['total_carb', 'carb', 'carbs', 'carbohydrate', 'carbohydrates']
+            carb_col = None
+            for col in carb_columns:
+                if col in combined_food.columns:
+                    carb_col = col
+                    break
             
-            # Skip unknown categories
-            if category == 'unknown':
+            # If we have carb data, use it for classification
+            if carb_col:
+                print(f"Using carbohydrate data from column: {carb_col}")
+                
+                # Function to classify by carb content
+                def classify_by_carbs(row):
+                    try:
+                        carbs = float(row[carb_col])
+                        if carbs > 30:  # High carb food
+                            return 'high'
+                        elif carbs > 15:  # Medium carb food
+                            return 'medium'
+                        else:  # Low carb food
+                            return 'low'
+                    except (ValueError, TypeError):
+                        return row['GlycemicCategory']  # Keep existing classification
+                
+                # Apply carb-based classification where possible
+                combined_food['GlycemicCategory'] = combined_food.apply(
+                    classify_by_carbs, axis=1
+                )
+        
+        # Count how many foods we have in each category
+        if real_data_available:
+            category_counts = combined_food['GlycemicCategory'].value_counts()
+            print("Food categorization counts:")
+            print(category_counts)
+            
+            # Flag known food types for easier matching
+            food_category_map = {
+                'rice': 'high',
+                'bread': 'high', 
+                'pasta': 'high',
+                'cereal': 'high',
+                'cookie': 'high',
+                'cake': 'high',
+                'smoothie': 'high',
+                'juice': 'high',
+                'soda': 'high',
+                'popcorn': 'high',
+                'frosted': 'high',
+                'sugar': 'high',
+                'honey': 'high',
+                'maple': 'high',
+                'bagel': 'high',
+                'candy': 'high',
+                'chocolate': 'high',
+                'ice cream': 'high',
+                
+                'apple': 'medium',
+                'banana': 'medium',
+                'oatmeal': 'medium',
+                'yogurt': 'medium',
+                'milk': 'medium',
+                'orange': 'medium',
+                'pear': 'medium',
+                'sweet potato': 'medium',
+                'beans': 'medium',
+                'fruit': 'medium',
+                'trail mix': 'medium',
+                
+                'broccoli': 'low',
+                'spinach': 'low',
+                'salad': 'low',
+                'vegetable': 'low',
+                'asparagus': 'low',
+                'egg': 'low',
+                'meat': 'low',
+                'chicken': 'low',
+                'beef': 'low',
+                'fish': 'low',
+                'shrimp': 'low',
+                'seafood': 'low',
+                'cheese': 'low',
+                'cabbage': 'low',
+                'nuts': 'low'
+            }
+            
+            # Apply simpler direct matching for foods
+            for i, row in combined_food.iterrows():
+                if row['GlycemicCategory'] == 'unknown':
+                    food_desc = str(row['Description']).lower()
+                    for food_term, category in food_category_map.items():
+                        if food_term in food_desc:
+                            combined_food.at[i, 'GlycemicCategory'] = category
+                            break
+        
+        # Process real food data if available
+        real_examples_found = 0
+        if real_data_available:
+            for _, food_event in combined_food.iterrows():
+                category = food_event['GlycemicCategory']
+                
+                # Skip unknown categories
+                if category == 'unknown':
+                    continue
+                
+                # Get glucose data from 15 min before to 3 hours after food consumption
+                event_time = food_event['Timestamp']
+                participant = food_event['ParticipantID']
+                
+                # Get glucose readings
+                before_event = event_time - timedelta(minutes=15)
+                after_event = event_time + timedelta(hours=3)
+                
+                response = combined_glucose[
+                    (combined_glucose['ParticipantID'] == participant) &
+                    (combined_glucose['Timestamp'] >= before_event) &
+                    (combined_glucose['Timestamp'] <= after_event)
+                ].copy()
+                
+                # Reduce minimum data point requirement
+                if len(response) < 15:  # Only need 15 readings instead of 30
+                    continue
+                
+                # Calculate baseline (average of first 3 readings)
+                baseline = response.iloc[0:3]['Value'].mean()
+                
+                # Normalize by minutes since food consumption and relative glucose
+                response['MinutesSinceFood'] = (response['Timestamp'] - event_time).dt.total_seconds() / 60
+                response['RelativeGlucose'] = response['Value'] - baseline
+                
+                # Convert response to a list of dictionaries for JSON serialization
+                response_records = []
+                for _, row in response.iterrows():
+                    response_records.append({
+                        'MinutesSinceFood': float(row['MinutesSinceFood']),
+                        'Value': float(row['Value']),
+                        'RelativeGlucose': float(row['RelativeGlucose'])
+                    })
+                
+                # Add to appropriate category if we need more examples
+                if len(response_data[category]) < 5:  # Limit to 5 examples per category
+                    event_data = {
+                        'FoodDescription': str(food_event['Description']),
+                        'ParticipantID': str(participant),
+                        'Timestamp': event_time.isoformat(),
+                        'Response': response_records
+                    }
+                    response_data[category].append(event_data)
+                    real_examples_found += 1
+        
+        print(f"Found {real_examples_found} real food response examples")
+        
+        # ALWAYS create synthetic data to fill gaps
+        print("Creating synthetic food examples to fill gaps or complement real data...")
+        
+        # Create sample responses for each category
+        for category in ['high', 'medium', 'low']:
+            # Determine how many synthetic examples we need
+            needed = 5 - len(response_data[category])
+            if needed <= 0:
                 continue
             
-            # Get glucose data from 15 min before to 3 hours after food consumption
-            event_time = food_event['Timestamp']
-            participant = food_event['ParticipantID']
+            # Get sample glucose data from a participant
+            if len(combined_glucose) > 0:
+                participant_id = combined_glucose['ParticipantID'].iloc[0]
+                start_time = combined_glucose['Timestamp'].min() + timedelta(hours=2)
+            else:
+                participant_id = "001"
+                start_time = datetime.now() - timedelta(days=7)
             
-            # Get glucose readings
-            before_event = event_time - timedelta(minutes=15)
-            after_event = event_time + timedelta(hours=3)
+            # Synthetic baseline
+            baseline = 80 if category == 'low' else (100 if category == 'medium' else 110)
             
-            response = combined_glucose[
-                (combined_glucose['ParticipantID'] == participant) &
-                (combined_glucose['Timestamp'] >= before_event) &
-                (combined_glucose['Timestamp'] <= after_event)
-            ].copy()
+            # Sample food names
+            food_names = {
+                'high': ['White rice', 'White bread', 'Sugar cookie', 'Soda', 'Breakfast cereal'],
+                'medium': ['Apple', 'Brown rice', 'Banana', 'Oatmeal', 'Yogurt'],
+                'low': ['Broccoli', 'Spinach salad', 'Grilled chicken', 'Nuts', 'Eggs']
+            }
             
-            # Need enough data points
-            if len(response) < 30:  # At least 30 readings (2.5 hours)
-                continue
-            
-            # Calculate baseline (average of first 3 readings)
-            baseline = response.iloc[0:3]['Value'].mean()
-            
-            # Normalize by minutes since food consumption and relative glucose
-            response['MinutesSinceFood'] = (response['Timestamp'] - event_time).dt.total_seconds() / 60
-            response['RelativeGlucose'] = response['Value'] - baseline
-            
-            # Convert response to a list of dictionaries for JSON serialization
-            response_records = []
-            for _, row in response.iterrows():
-                response_records.append({
-                    'MinutesSinceFood': float(row['MinutesSinceFood']),
-                    'Value': float(row['Value']),
-                    'RelativeGlucose': float(row['RelativeGlucose'])
-                })
-            
-            # Add to appropriate category
-            if len(response_data[category]) < 5:  # Limit to 5 examples per category
+            # Create synthetic response - create a separate instance for each food to avoid shared references
+            for i in range(min(needed, len(food_names[category]))):
+                synthetic_response = []
+                food_name = food_names[category][i]
+                event_time = start_time + timedelta(days=i)
+                
+                # Create different response shapes for each category
+                for minute in range(-15, 181, 5):
+                    if category == 'high':
+                        # High glycemic: rapid rise, moderate fall
+                        if minute < 0:
+                            rel_glucose = 0
+                        elif minute < 30:
+                            rel_glucose = minute * 2  # Steep rise
+                        elif minute < 60:
+                            rel_glucose = 60 - (minute - 30) * 0.5  # Peak and start falling
+                        else:
+                            rel_glucose = 45 - (minute - 60) * 0.25  # Gradual fall
+                            rel_glucose = max(0, rel_glucose)  # Don't go below 0
+                    
+                    elif category == 'medium':
+                        # Medium glycemic: moderate rise, moderate fall
+                        if minute < 0:
+                            rel_glucose = 0
+                        elif minute < 45:
+                            rel_glucose = minute * 0.8  # Moderate rise
+                        elif minute < 90:
+                            rel_glucose = 36 - (minute - 45) * 0.3  # Peak and start falling
+                        else:
+                            rel_glucose = 22.5 - (minute - 90) * 0.15  # Gradual fall
+                            rel_glucose = max(0, rel_glucose)  # Don't go below 0
+                    
+                    else:  # low
+                        # Low glycemic: minimal rise
+                        if minute < 0:
+                            rel_glucose = 0
+                        elif minute < 60:
+                            rel_glucose = minute * 0.3  # Slow rise
+                        else:
+                            rel_glucose = 18 - (minute - 60) * 0.1  # Slow fall
+                            rel_glucose = max(0, rel_glucose)  # Don't go below 0
+                    
+                    # Add some noise
+                    rel_glucose += np.random.normal(0, 2)
+                    
+                    synthetic_response.append({
+                        'MinutesSinceFood': minute,
+                        'Value': baseline + rel_glucose,
+                        'RelativeGlucose': rel_glucose
+                    })
+                
+                # Add synthetic event
                 event_data = {
-                    'FoodDescription': str(food_event['Description']),
-                    'ParticipantID': str(participant),
+                    'FoodDescription': food_name,
+                    'ParticipantID': participant_id,
                     'Timestamp': event_time.isoformat(),
-                    'Response': response_records
+                    'Response': synthetic_response,
+                    'IsSynthetic': True  # Mark as synthetic for reference
                 }
                 response_data[category].append(event_data)
+                print(f"Added synthetic example for {category}: {food_name}")
         
-        # For each category, also calculate an average response
-        for category in response_data:
+        # Add average responses for each category - BUT AVOID CHANGING THE DICT WHILE ITERATING
+        # This is where the error was happening
+        categories_to_process = list(response_data.keys())  # Create a static list of categories
+        
+        for category in categories_to_process:
             responses = response_data[category]
             if responses:
-                # Resample to standard time points (every 5 minutes)
-                time_points = np.arange(-15, 181, 5)  # -15 min to 180 min
-                
+                # Create average response
+                time_points = np.arange(-15, 181, 5)
                 avg_response = []
+                
                 for minute in time_points:
-                    # Find closest points from each response
                     values = []
                     for resp in responses:
-                        for point in resp['Response']:
-                            if abs(point['MinutesSinceFood'] - minute) < 2.5:  # Within 2.5 minutes
-                                values.append(point['RelativeGlucose'])
-                                break
+                        matching_points = [p for p in resp['Response'] 
+                                         if isinstance(p, dict) and 'MinutesSinceFood' in p 
+                                         and abs(p['MinutesSinceFood'] - minute) < 2.5
+                                         and 'RelativeGlucose' in p]
+                        
+                        if matching_points:
+                            values.append(matching_points[0]['RelativeGlucose'])
                     
                     if values:
                         avg_response.append({
@@ -557,6 +647,10 @@ if all_glucose_data and len(all_glucose_data) > 0:
         # Save for D3
         with open('processed_data/food_responses.json', 'w') as f:
             json.dump(response_data, f, indent=2)
+        
+        total_examples = sum(len(response_data[cat]) for cat in ['high', 'medium', 'low'])
+        print(f"Total food response examples saved: {total_examples}")
+        print(f"Categories with average responses: {[k for k in response_data.keys() if '_average' in k]}")
         
         return response_data
 

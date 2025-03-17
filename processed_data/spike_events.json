@@ -1,581 +1,5 @@
 [
   {
-    "ParticipantID": "006",
-    "FoodEvent": {
-      "Timestamp": "2020-03-04T00:00:00",
-      "Description": "2020-03-04 00:45:00",
-      "GlycemicCategory": "unknown",
-      "ParticipantID": "006"
-    },
-    "SpikeTime": "2020-03-04T00:18:05",
-    "SpikeValue": 153.0,
-    "BaselineValue": 105.33333333333333,
-    "ResponseCurve": [
-      {
-        "Timestamp": "2020-03-03T23:48:05",
-        "Value": 103.0
-      },
-      {
-        "Timestamp": "2020-03-03T23:53:05",
-        "Value": 105.0
-      },
-      {
-        "Timestamp": "2020-03-03T23:58:05",
-        "Value": 108.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:03:05",
-        "Value": 114.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:08:05",
-        "Value": 124.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:13:05",
-        "Value": 137.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:18:05",
-        "Value": 153.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:23:05",
-        "Value": 165.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:28:05",
-        "Value": 170.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:33:05",
-        "Value": 169.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:38:05",
-        "Value": 161.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:43:05",
-        "Value": 150.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:48:05",
-        "Value": 141.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:53:05",
-        "Value": 135.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:58:05",
-        "Value": 133.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:03:05",
-        "Value": 132.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:08:04",
-        "Value": 133.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:13:05",
-        "Value": 136.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:18:04",
-        "Value": 140.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:23:05",
-        "Value": 146.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:28:05",
-        "Value": 147.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:33:04",
-        "Value": 144.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:38:04",
-        "Value": 138.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:43:05",
-        "Value": 134.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:48:05",
-        "Value": 132.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:53:05",
-        "Value": 135.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:58:04",
-        "Value": 139.0
-      },
-      {
-        "Timestamp": "2020-03-04T02:03:04",
-        "Value": 144.0
-      },
-      {
-        "Timestamp": "2020-03-04T02:08:05",
-        "Value": 149.0
-      },
-      {
-        "Timestamp": "2020-03-04T02:13:05",
-        "Value": 153.0
-      },
-      {
-        "Timestamp": "2020-03-04T02:18:05",
-        "Value": 153.0
-      }
-    ]
-  },
-  {
-    "ParticipantID": "006",
-    "FoodEvent": {
-      "Timestamp": "2020-03-04T00:00:00",
-      "Description": "2020-03-04 00:45:00",
-      "GlycemicCategory": "unknown",
-      "ParticipantID": "006"
-    },
-    "SpikeTime": "2020-03-04T00:23:05",
-    "SpikeValue": 165.0,
-    "BaselineValue": 105.33333333333333,
-    "ResponseCurve": [
-      {
-        "Timestamp": "2020-03-03T23:48:05",
-        "Value": 103.0
-      },
-      {
-        "Timestamp": "2020-03-03T23:53:05",
-        "Value": 105.0
-      },
-      {
-        "Timestamp": "2020-03-03T23:58:05",
-        "Value": 108.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:03:05",
-        "Value": 114.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:08:05",
-        "Value": 124.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:13:05",
-        "Value": 137.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:18:05",
-        "Value": 153.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:23:05",
-        "Value": 165.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:28:05",
-        "Value": 170.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:33:05",
-        "Value": 169.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:38:05",
-        "Value": 161.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:43:05",
-        "Value": 150.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:48:05",
-        "Value": 141.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:53:05",
-        "Value": 135.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:58:05",
-        "Value": 133.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:03:05",
-        "Value": 132.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:08:04",
-        "Value": 133.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:13:05",
-        "Value": 136.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:18:04",
-        "Value": 140.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:23:05",
-        "Value": 146.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:28:05",
-        "Value": 147.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:33:04",
-        "Value": 144.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:38:04",
-        "Value": 138.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:43:05",
-        "Value": 134.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:48:05",
-        "Value": 132.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:53:05",
-        "Value": 135.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:58:04",
-        "Value": 139.0
-      },
-      {
-        "Timestamp": "2020-03-04T02:03:04",
-        "Value": 144.0
-      },
-      {
-        "Timestamp": "2020-03-04T02:08:05",
-        "Value": 149.0
-      },
-      {
-        "Timestamp": "2020-03-04T02:13:05",
-        "Value": 153.0
-      },
-      {
-        "Timestamp": "2020-03-04T02:18:05",
-        "Value": 153.0
-      },
-      {
-        "Timestamp": "2020-03-04T02:23:05",
-        "Value": 152.0
-      }
-    ]
-  },
-  {
-    "ParticipantID": "006",
-    "FoodEvent": {
-      "Timestamp": "2020-03-04T00:00:00",
-      "Description": "2020-03-04 00:45:00",
-      "GlycemicCategory": "unknown",
-      "ParticipantID": "006"
-    },
-    "SpikeTime": "2020-03-04T00:28:05",
-    "SpikeValue": 170.0,
-    "BaselineValue": 105.33333333333333,
-    "ResponseCurve": [
-      {
-        "Timestamp": "2020-03-03T23:48:05",
-        "Value": 103.0
-      },
-      {
-        "Timestamp": "2020-03-03T23:53:05",
-        "Value": 105.0
-      },
-      {
-        "Timestamp": "2020-03-03T23:58:05",
-        "Value": 108.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:03:05",
-        "Value": 114.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:08:05",
-        "Value": 124.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:13:05",
-        "Value": 137.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:18:05",
-        "Value": 153.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:23:05",
-        "Value": 165.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:28:05",
-        "Value": 170.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:33:05",
-        "Value": 169.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:38:05",
-        "Value": 161.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:43:05",
-        "Value": 150.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:48:05",
-        "Value": 141.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:53:05",
-        "Value": 135.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:58:05",
-        "Value": 133.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:03:05",
-        "Value": 132.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:08:04",
-        "Value": 133.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:13:05",
-        "Value": 136.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:18:04",
-        "Value": 140.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:23:05",
-        "Value": 146.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:28:05",
-        "Value": 147.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:33:04",
-        "Value": 144.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:38:04",
-        "Value": 138.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:43:05",
-        "Value": 134.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:48:05",
-        "Value": 132.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:53:05",
-        "Value": 135.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:58:04",
-        "Value": 139.0
-      },
-      {
-        "Timestamp": "2020-03-04T02:03:04",
-        "Value": 144.0
-      },
-      {
-        "Timestamp": "2020-03-04T02:08:05",
-        "Value": 149.0
-      },
-      {
-        "Timestamp": "2020-03-04T02:13:05",
-        "Value": 153.0
-      },
-      {
-        "Timestamp": "2020-03-04T02:18:05",
-        "Value": 153.0
-      },
-      {
-        "Timestamp": "2020-03-04T02:23:05",
-        "Value": 152.0
-      },
-      {
-        "Timestamp": "2020-03-04T02:28:05",
-        "Value": 148.0
-      }
-    ]
-  },
-  {
-    "ParticipantID": "006",
-    "FoodEvent": {
-      "Timestamp": "2020-03-04T00:00:00",
-      "Description": "2020-03-04 00:45:00",
-      "GlycemicCategory": "unknown",
-      "ParticipantID": "006"
-    },
-    "SpikeTime": "2020-03-04T00:33:05",
-    "SpikeValue": 169.0,
-    "BaselineValue": 105.33333333333333,
-    "ResponseCurve": [
-      {
-        "Timestamp": "2020-03-03T23:48:05",
-        "Value": 103.0
-      },
-      {
-        "Timestamp": "2020-03-03T23:53:05",
-        "Value": 105.0
-      },
-      {
-        "Timestamp": "2020-03-03T23:58:05",
-        "Value": 108.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:03:05",
-        "Value": 114.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:08:05",
-        "Value": 124.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:13:05",
-        "Value": 137.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:18:05",
-        "Value": 153.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:23:05",
-        "Value": 165.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:28:05",
-        "Value": 170.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:33:05",
-        "Value": 169.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:38:05",
-        "Value": 161.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:43:05",
-        "Value": 150.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:48:05",
-        "Value": 141.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:53:05",
-        "Value": 135.0
-      },
-      {
-        "Timestamp": "2020-03-04T00:58:05",
-        "Value": 133.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:03:05",
-        "Value": 132.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:08:04",
-        "Value": 133.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:13:05",
-        "Value": 136.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:18:04",
-        "Value": 140.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:23:05",
-        "Value": 146.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:28:05",
-        "Value": 147.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:33:04",
-        "Value": 144.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:38:04",
-        "Value": 138.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:43:05",
-        "Value": 134.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:48:05",
-        "Value": 132.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:53:05",
-        "Value": 135.0
-      },
-      {
-        "Timestamp": "2020-03-04T01:58:04",
-        "Value": 139.0
-      },
-      {
-        "Timestamp": "2020-03-04T02:03:04",
-        "Value": 144.0
-      },
-      {
-        "Timestamp": "2020-03-04T02:08:05",
-        "Value": 149.0
-      },
-      {
-        "Timestamp": "2020-03-04T02:13:05",
-        "Value": 153.0
-      },
-      {
-        "Timestamp": "2020-03-04T02:18:05",
-        "Value": 153.0
-      },
-      {
-        "Timestamp": "2020-03-04T02:23:05",
-        "Value": 152.0
-      },
-      {
-        "Timestamp": "2020-03-04T02:28:05",
-        "Value": 148.0
-      },
-      {
-        "Timestamp": "2020-03-04T02:33:05",
-        "Value": 145.0
-      }
-    ]
-  },
-  {
     "ParticipantID": "003",
     "FoodEvent": {
       "Timestamp": "2020-02-24T00:00:00",
@@ -1160,6 +584,582 @@
       {
         "Timestamp": "2020-02-24T02:31:42",
         "Value": 118.0
+      }
+    ]
+  },
+  {
+    "ParticipantID": "006",
+    "FoodEvent": {
+      "Timestamp": "2020-03-04T00:00:00",
+      "Description": "2020-03-04 00:45:00",
+      "GlycemicCategory": "unknown",
+      "ParticipantID": "006"
+    },
+    "SpikeTime": "2020-03-04T00:18:05",
+    "SpikeValue": 153.0,
+    "BaselineValue": 105.33333333333333,
+    "ResponseCurve": [
+      {
+        "Timestamp": "2020-03-03T23:48:05",
+        "Value": 103.0
+      },
+      {
+        "Timestamp": "2020-03-03T23:53:05",
+        "Value": 105.0
+      },
+      {
+        "Timestamp": "2020-03-03T23:58:05",
+        "Value": 108.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:03:05",
+        "Value": 114.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:08:05",
+        "Value": 124.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:13:05",
+        "Value": 137.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:18:05",
+        "Value": 153.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:23:05",
+        "Value": 165.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:28:05",
+        "Value": 170.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:33:05",
+        "Value": 169.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:38:05",
+        "Value": 161.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:43:05",
+        "Value": 150.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:48:05",
+        "Value": 141.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:53:05",
+        "Value": 135.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:58:05",
+        "Value": 133.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:03:05",
+        "Value": 132.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:08:04",
+        "Value": 133.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:13:05",
+        "Value": 136.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:18:04",
+        "Value": 140.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:23:05",
+        "Value": 146.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:28:05",
+        "Value": 147.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:33:04",
+        "Value": 144.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:38:04",
+        "Value": 138.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:43:05",
+        "Value": 134.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:48:05",
+        "Value": 132.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:53:05",
+        "Value": 135.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:58:04",
+        "Value": 139.0
+      },
+      {
+        "Timestamp": "2020-03-04T02:03:04",
+        "Value": 144.0
+      },
+      {
+        "Timestamp": "2020-03-04T02:08:05",
+        "Value": 149.0
+      },
+      {
+        "Timestamp": "2020-03-04T02:13:05",
+        "Value": 153.0
+      },
+      {
+        "Timestamp": "2020-03-04T02:18:05",
+        "Value": 153.0
+      }
+    ]
+  },
+  {
+    "ParticipantID": "006",
+    "FoodEvent": {
+      "Timestamp": "2020-03-04T00:00:00",
+      "Description": "2020-03-04 00:45:00",
+      "GlycemicCategory": "unknown",
+      "ParticipantID": "006"
+    },
+    "SpikeTime": "2020-03-04T00:23:05",
+    "SpikeValue": 165.0,
+    "BaselineValue": 105.33333333333333,
+    "ResponseCurve": [
+      {
+        "Timestamp": "2020-03-03T23:48:05",
+        "Value": 103.0
+      },
+      {
+        "Timestamp": "2020-03-03T23:53:05",
+        "Value": 105.0
+      },
+      {
+        "Timestamp": "2020-03-03T23:58:05",
+        "Value": 108.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:03:05",
+        "Value": 114.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:08:05",
+        "Value": 124.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:13:05",
+        "Value": 137.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:18:05",
+        "Value": 153.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:23:05",
+        "Value": 165.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:28:05",
+        "Value": 170.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:33:05",
+        "Value": 169.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:38:05",
+        "Value": 161.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:43:05",
+        "Value": 150.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:48:05",
+        "Value": 141.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:53:05",
+        "Value": 135.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:58:05",
+        "Value": 133.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:03:05",
+        "Value": 132.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:08:04",
+        "Value": 133.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:13:05",
+        "Value": 136.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:18:04",
+        "Value": 140.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:23:05",
+        "Value": 146.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:28:05",
+        "Value": 147.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:33:04",
+        "Value": 144.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:38:04",
+        "Value": 138.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:43:05",
+        "Value": 134.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:48:05",
+        "Value": 132.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:53:05",
+        "Value": 135.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:58:04",
+        "Value": 139.0
+      },
+      {
+        "Timestamp": "2020-03-04T02:03:04",
+        "Value": 144.0
+      },
+      {
+        "Timestamp": "2020-03-04T02:08:05",
+        "Value": 149.0
+      },
+      {
+        "Timestamp": "2020-03-04T02:13:05",
+        "Value": 153.0
+      },
+      {
+        "Timestamp": "2020-03-04T02:18:05",
+        "Value": 153.0
+      },
+      {
+        "Timestamp": "2020-03-04T02:23:05",
+        "Value": 152.0
+      }
+    ]
+  },
+  {
+    "ParticipantID": "006",
+    "FoodEvent": {
+      "Timestamp": "2020-03-04T00:00:00",
+      "Description": "2020-03-04 00:45:00",
+      "GlycemicCategory": "unknown",
+      "ParticipantID": "006"
+    },
+    "SpikeTime": "2020-03-04T00:28:05",
+    "SpikeValue": 170.0,
+    "BaselineValue": 105.33333333333333,
+    "ResponseCurve": [
+      {
+        "Timestamp": "2020-03-03T23:48:05",
+        "Value": 103.0
+      },
+      {
+        "Timestamp": "2020-03-03T23:53:05",
+        "Value": 105.0
+      },
+      {
+        "Timestamp": "2020-03-03T23:58:05",
+        "Value": 108.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:03:05",
+        "Value": 114.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:08:05",
+        "Value": 124.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:13:05",
+        "Value": 137.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:18:05",
+        "Value": 153.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:23:05",
+        "Value": 165.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:28:05",
+        "Value": 170.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:33:05",
+        "Value": 169.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:38:05",
+        "Value": 161.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:43:05",
+        "Value": 150.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:48:05",
+        "Value": 141.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:53:05",
+        "Value": 135.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:58:05",
+        "Value": 133.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:03:05",
+        "Value": 132.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:08:04",
+        "Value": 133.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:13:05",
+        "Value": 136.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:18:04",
+        "Value": 140.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:23:05",
+        "Value": 146.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:28:05",
+        "Value": 147.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:33:04",
+        "Value": 144.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:38:04",
+        "Value": 138.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:43:05",
+        "Value": 134.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:48:05",
+        "Value": 132.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:53:05",
+        "Value": 135.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:58:04",
+        "Value": 139.0
+      },
+      {
+        "Timestamp": "2020-03-04T02:03:04",
+        "Value": 144.0
+      },
+      {
+        "Timestamp": "2020-03-04T02:08:05",
+        "Value": 149.0
+      },
+      {
+        "Timestamp": "2020-03-04T02:13:05",
+        "Value": 153.0
+      },
+      {
+        "Timestamp": "2020-03-04T02:18:05",
+        "Value": 153.0
+      },
+      {
+        "Timestamp": "2020-03-04T02:23:05",
+        "Value": 152.0
+      },
+      {
+        "Timestamp": "2020-03-04T02:28:05",
+        "Value": 148.0
+      }
+    ]
+  },
+  {
+    "ParticipantID": "006",
+    "FoodEvent": {
+      "Timestamp": "2020-03-04T00:00:00",
+      "Description": "2020-03-04 00:45:00",
+      "GlycemicCategory": "unknown",
+      "ParticipantID": "006"
+    },
+    "SpikeTime": "2020-03-04T00:33:05",
+    "SpikeValue": 169.0,
+    "BaselineValue": 105.33333333333333,
+    "ResponseCurve": [
+      {
+        "Timestamp": "2020-03-03T23:48:05",
+        "Value": 103.0
+      },
+      {
+        "Timestamp": "2020-03-03T23:53:05",
+        "Value": 105.0
+      },
+      {
+        "Timestamp": "2020-03-03T23:58:05",
+        "Value": 108.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:03:05",
+        "Value": 114.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:08:05",
+        "Value": 124.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:13:05",
+        "Value": 137.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:18:05",
+        "Value": 153.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:23:05",
+        "Value": 165.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:28:05",
+        "Value": 170.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:33:05",
+        "Value": 169.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:38:05",
+        "Value": 161.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:43:05",
+        "Value": 150.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:48:05",
+        "Value": 141.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:53:05",
+        "Value": 135.0
+      },
+      {
+        "Timestamp": "2020-03-04T00:58:05",
+        "Value": 133.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:03:05",
+        "Value": 132.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:08:04",
+        "Value": 133.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:13:05",
+        "Value": 136.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:18:04",
+        "Value": 140.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:23:05",
+        "Value": 146.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:28:05",
+        "Value": 147.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:33:04",
+        "Value": 144.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:38:04",
+        "Value": 138.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:43:05",
+        "Value": 134.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:48:05",
+        "Value": 132.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:53:05",
+        "Value": 135.0
+      },
+      {
+        "Timestamp": "2020-03-04T01:58:04",
+        "Value": 139.0
+      },
+      {
+        "Timestamp": "2020-03-04T02:03:04",
+        "Value": 144.0
+      },
+      {
+        "Timestamp": "2020-03-04T02:08:05",
+        "Value": 149.0
+      },
+      {
+        "Timestamp": "2020-03-04T02:13:05",
+        "Value": 153.0
+      },
+      {
+        "Timestamp": "2020-03-04T02:18:05",
+        "Value": 153.0
+      },
+      {
+        "Timestamp": "2020-03-04T02:23:05",
+        "Value": 152.0
+      },
+      {
+        "Timestamp": "2020-03-04T02:28:05",
+        "Value": 148.0
+      },
+      {
+        "Timestamp": "2020-03-04T02:33:05",
+        "Value": 145.0
       }
     ]
   }
