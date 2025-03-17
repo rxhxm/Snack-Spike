@@ -1,0 +1,981 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f5f5f7;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    line-height: 1.6;
+}
+
+#canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: rgba(245, 245, 247, 0.9);
+    /* Darker container background */
+    border-radius: 0;
+    /* Remove rounded corners */
+    box-shadow: 0 15px 50px rgba(31, 38, 135, 0.3);
+    backdrop-filter: blur(4px);
+    padding: 30px 20px;
+    /* Reduced padding */
+    margin: 0;
+    /* Remove all margins */
+    width: 100%;
+    /* Full width */
+    max-width: none;
+    /* Remove max-width limitation */
+    min-height: 100vh;
+    /* Make it at least full viewport height */
+    position: absolute;
+    /* Position absolute to cover the entire page */
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+.explainer-section {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    margin-bottom: 30px;
+    width: 100%;
+    max-width: 800px;
+    transition: transform 0.3s;
+}
+
+.explainer-section:hover {
+    transform: translateY(-5px);
+}
+
+.section-title {
+    color: #0066CC;
+    font-size: 24px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.graph-container {
+    position: relative;
+    margin: 30px 0;
+    overflow: hidden;
+}
+
+.annotation {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    position: absolute;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+    max-width: 200px;
+}
+
+.healthy-range {
+    background: rgba(150, 220, 150, 0.2);
+    border: 1px dashed #4CAF50;
+    position: absolute;
+    top: 120px;
+    height: 60px;
+    width: 100%;
+    z-index: 1;
+}
+
+.meal-marker {
+    position: absolute;
+    top: 0;
+    width: 2px;
+    height: 300px;
+    background: rgba(255, 0, 0, 0.5);
+    z-index: 2;
+}
+
+.meal-label {
+    position: absolute;
+    background: #fff;
+    border: 1px solid #ff6b6b;
+    color: #ff6b6b;
+    padding: 5px 10px;
+    border-radius: 15px;
+    transform: rotate(-45deg);
+    transform-origin: left top;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 3;
+}
+
+.info-box {
+    background: #f0f7ff;
+    border-left: 4px solid #0066CC;
+    padding: 15px;
+    margin: 20px 0;
+}
+
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+.comparison-table th,
+.comparison-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.comparison-table th {
+    background-color: #f5f5f7;
+}
+
+.comparison-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+.food-impact {
+    display: flex;
+    justify-content: space-between;
+    margin: 30px 0;
+}
+
+.food-card {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 15px;
+    width: 30%;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.food-icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.impact-label {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.impact-high {
+    background: #ffebee;
+    color: #d32f2f;
+}
+
+.impact-medium {
+    background: #fff8e1;
+    color: #ff8f00;
+}
+
+.impact-low {
+    background: #e8f5e9;
+    color: #388e3c;
+}
+
+.nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.nav-button {
+    background: #0066CC;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.nav-button:hover {
+    background: #0055aa;
+}
+
+.nav-button.disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+}
+
+/* Game-related styles from the second file */
+.clock-container {
+    position: relative;
+    width: 600px;
+    height: 600px;
+    margin: 40px 0;
+    display: none;
+    /* Hidden by default, shown when game starts */
+    background: linear-gradient(145deg, #f5f5f7, #ffffff);
+    border-radius: 50%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), inset 0 -5px 15px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+}
+
+/* Clock face styling */
+.clock-face {
+    fill: white;
+    stroke: #e0e0e5;
+    stroke-width: 1;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+/* Clock hour markers */
+.hour-marker {
+    stroke: #555;
+    stroke-width: 2;
+}
+
+/* Clock minute markers */
+.minute-marker {
+    stroke: #aaa;
+    stroke-width: 1;
+}
+
+/* Time labels styling */
+.time-label {
+    font-size: 14px;
+    font-weight: 500;
+    fill: #444;
+    text-anchor: middle;
+}
+
+/* Glucose level indicator styling */
+.glucose-level-circle {
+    fill: none;
+    stroke-width: 1;
+    stroke-dasharray: 3, 3;
+}
+
+/* Glucose level label styling */
+.glucose-label {
+    font-size: 12px;
+    fill: #888;
+    text-anchor: start;
+}
+
+.prediction-controls {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+    width: 100%;
+    max-width: 600px;
+    display: none;
+    /* Hidden by default, shown when game starts */
+}
+
+/* Food drag and drop styles */
+.food-selection {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.food-option {
+    padding: 10px 15px;
+    background: #e9f5ff;
+    border: 1px solid #b8daff;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+}
+
+.food-option:hover {
+    background: #d0e8ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.food-option.selected {
+    background: #2b87ff;
+    color: white;
+}
+
+.food-option.draggable {
+    cursor: grab;
+}
+
+.food-option.dragging {
+    cursor: grabbing;
+    opacity: 0.8;
+    position: absolute;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+/* Time indicator */
+.time-indicator {
+    position: absolute;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.time-indicator-line {
+    stroke: #0066CC;
+    stroke-width: 2;
+    stroke-dasharray: 5, 3;
+}
+
+.time-indicator-label {
+    background: rgba(0, 102, 204, 0.9);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    position: absolute;
+    transform: translate(-50%, -100%);
+    margin-top: -10px;
+}
+
+/* Drop target indicator */
+.drop-target {
+    fill: rgba(0, 102, 204, 0.2);
+    stroke: #0066CC;
+    stroke-width: 2;
+    stroke-dasharray: 5, 3;
+    display: none;
+}
+
+/* Placed food marker styles */
+.placed-food {
+    position: absolute;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 5;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    width: 48px;
+    height: 48px;
+    pointer-events: none;
+}
+
+/* Patient profile card */
+.patient-profile {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 0 auto 30px;
+    max-width: 800px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.patient-profile h3 {
+    color: #0066CC;
+    margin-top: 0;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.vital-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 15px;
+}
+
+.stat-item {
+    background: #f5f7fa;
+    padding: 10px 15px;
+    border-radius: 8px;
+    flex: 1;
+    min-width: 100px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Alert box for glucose event */
+.glucose-alert {
+    background: #fff8e1;
+    border-left: 4px solid #ffab00;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 0 8px 8px 0;
+}
+
+.glucose-alert h4 {
+    color: #f57c00;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.results-panel {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-top: 30px;
+    width: 100%;
+    max-width: 600px;
+    display: none;
+    /* Hidden by default, shown when results are available */
+}
+
+.score {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.accuracy-meter {
+    height: 30px;
+    background: #f0f0f0;
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.accuracy-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff4646 0%, #ffaa00 50%, #00cc66 100%);
+    width: 75%;
+}
+
+.feedback {
+    line-height: 1.6;
+}
+
+/* Added for navigation between sections */
+#explainer-content {
+    display: block;
+}
+
+#game-content {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .food-impact {
+        flex-direction: column;
+    }
+
+    .food-card {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
+    .clock-container {
+        width: 100%;
+        height: auto;
+    }
+}
+
+/* Add styles for the prediction notification */
+.prediction-notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 102, 204, 0.9);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: none;
+    font-weight: bold;
+    pointer-events: none;
+    transition: opacity 0.5s;
+}
+
+/* Ensure tooltip displays properly */
+#clock-tooltip {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    pointer-events: none;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    display: none;
+}
+
+/* Center all content better */
+.container {
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+/* Make sure game content is centered and wider */
+#game-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 1000px;
+    /* Increased from 800px */
+}
+
+/* Ensure prediction controls are centered and wider */
+.prediction-controls {
+    margin: 0 auto !important;
+    text-align: center;
+    width: 100%;
+    max-width: 800px;
+    /* Increased from default */
+}
+
+/* Make intro paragraph wider */
+#game-content>p {
+    max-width: 900px !important;
+    /* Increased width */
+    margin: 0 auto 20px auto;
+}
+
+/* Make instructions wider */
+.prediction-instructions {
+    max-width: 800px !important;
+    /* Increased from 600px */
+}
+
+/* Improve clock container centering */
+.clock-container {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100%;
+}
+
+/* Ensure results panel is centered and wider */
+.results-panel {
+    margin: 20px auto !important;
+    text-align: left;
+    max-width: 800px !important;
+    /* Increased from default */
+}
+
+/* Improve button centering in results panel */
+.results-panel .submit-btn {
+    display: block;
+    margin: 20px auto;
+}
+
+/* Make food selection wider */
+.food-selection {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: center;
+    width: 100%;
+}
+
+/* Give more space to time selector */
+.time-selector {
+    margin: 0 auto 20px;
+    width: 100%;
+    max-width: 500px;
+}
+
+/* Add the following CSS rule for the submit button */
+.submit-btn {
+    display: none;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.3s;
+}
+
+.submit-btn:hover {
+    background-color: #45a049;
+}
+
+/* Submit button styling */
+.submit-analysis-btn {
+    padding: 12px 24px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 20px auto;
+    display: none;
+    /* Hidden by default, shown after food placement */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.submit-analysis-btn:hover {
+    background: #45a049;
+    transform: translateY(-2px);
+}
+
+/* Game header styling */
+.game-header {
+    max-width: 800px;
+    margin: 0 auto 30px;
+    text-align: center;
+}
+
+.game-header h2 {
+    color: #0066CC;
+    margin-bottom: 15px;
+}
+
+.challenge-box {
+    background: #f0f8ff;
+    border-left: 5px solid #0066CC;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    border-radius: 0 8px 8px 0;
+    text-align: left;
+}
+
+/* Add CSS for the fun facts feature */
+.fun-fact-button {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    z-index: 1000;
+    transition: transform 0.3s, box-shadow 0.3s;
+    animation: vibrate 3s infinite;
+    transform-origin: center center;
+}
+
+.fun-fact-button:hover {
+    transform: scale(1.2);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+    animation-play-state: paused;
+}
+
+@keyframes vibrate {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    90% {
+        transform: scale(1);
+    }
+
+    92% {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    94% {
+        transform: scale(1.15) rotate(-5deg);
+    }
+
+    96% {
+        transform: scale(1.2) rotate(5deg);
+    }
+
+    98% {
+        transform: scale(1.15) rotate(-5deg);
+    }
+}
+
+.fun-fact-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 500px;
+    width: 90%;
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    z-index: 1001;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+    animation: pop-in 0.5s forwards;
+}
+
+@keyframes pop-in {
+    0% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0;
+    }
+
+    70% {
+        transform: translate(-50%, -50%) scale(1.05);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+.fun-fact-modal.show {
+    display: block;
+    opacity: 1;
+}
+
+.fun-fact-modal h3 {
+    color: #FF5722;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+}
+
+.fun-fact-modal h3 span {
+    margin-right: 10px;
+}
+
+.fun-fact-content {
+    font-size: 18px;
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+.fun-fact-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.fun-fact-button-next {
+    padding: 8px 16px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.fun-fact-button-next:hover {
+    background: #45a049;
+}
+
+.fun-fact-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 22px;
+    color: #999;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.fun-fact-close:hover {
+    color: #333;
+}
+
+.fun-fact-counter {
+    font-size: 14px;
+    color: #777;
+}
+
+.fun-fact-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.fun-fact-overlay.show {
+    display: block;
+    opacity: 1;
+}
+
+/* Loading screen styling */
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #f8f9fa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+}
+
+.loading-content {
+    text-align: center;
+    width: 300px;
+}
+
+.loading-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #0066CC;
+    margin-bottom: 15px;
+}
+
+.candy-wrapper {
+    width: 100%;
+    height: 30px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 40px;
+    border: 2px solid #0066CC;
+    box-shadow: 0 4px 10px rgba(0, 102, 204, 0.2);
+    overflow: hidden;
+    position: relative;
+}
+
+.candy-filling {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(45deg,
+            #0066CC 0%,
+            #4A90E2 25%,
+            #0066CC 50%,
+            #4A90E2 75%,
+            #0066CC 100%);
+    background-size: 200% 100%;
+    border-radius: 40px;
+    transition: width 0.2s ease-out;
+    animation: candy-stripe 2s linear infinite;
+    position: relative;
+}
+
+.candy-filling::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(45deg,
+            rgba(255, 255, 255, 0.1),
+            rgba(255, 255, 255, 0.1) 10px,
+            rgba(255, 255, 255, 0.3) 10px,
+            rgba(255, 255, 255, 0.3) 20px);
+    border-radius: 40px;
+}
+
+.glucose-dots {
+    position: absolute;
+    top: -10px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    box-sizing: border-box;
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+}
+
+.glucose-dot {
+    width: 20px;
+    height: 20px;
+    background-color: white;
+    border: 2px solid #0066CC;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.glucose-dot:nth-child(2) {
+    animation-delay: 0.3s;
+}
+
+.glucose-dot:nth-child(3) {
+    animation-delay: 0.6s;
+}
+
+.loading-text {
+    margin-top: 20px;
+    font-size: 16px;
+    color: #555;
+}
+
+.loading-percentage {
+    font-weight: bold;
+    color: #0066CC;
+}
+
+@keyframes candy-stripe {
+    0% {
+        background-position: 0% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        background-color: white;
+    }
+
+    50% {
+        transform: scale(1.2);
+        background-color: rgba(0, 102, 204, 0.7);
+    }
+}
