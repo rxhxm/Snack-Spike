@@ -1,4 +1,6 @@
 let whiteRiceLine, appleLine, broccoliLine;
+let filters = { high: true, medium: true, low: true };
+let legendItems;
 
 function selectFoodCategory(category) {
     // Reset all buttons to inactive state
@@ -32,25 +34,32 @@ function selectFoodCategory(category) {
         selectedCard.style.boxShadow = '0 5px 15px rgba(0,0,0,0.1)';
     }
 
-    // Filter D3 lines based on the selected category:
+    // Update our filters based on the selected view option
+    if (category === 'all') {
+        filters = { high: true, medium: true, low: true };
+    } else if (category === 'high') {
+        filters = { high: true, medium: false, low: false };
+    } else if (category === 'medium') {
+        filters = { high: false, medium: true, low: false };
+    } else if (category === 'low') {
+        filters = { high: false, medium: false, low: true };
+    }
+    updateFilters();
+}
+
+function updateFilters() {
+    // Update the display of each line based on the filters object.
     if (whiteRiceLine && appleLine && broccoliLine) {
-        if (category === 'all') {
-            whiteRiceLine.style("display", "block");
-            appleLine.style("display", "block");
-            broccoliLine.style("display", "block");
-        } else if (category === 'high') {
-            whiteRiceLine.style("display", "block");
-            appleLine.style("display", "none");
-            broccoliLine.style("display", "none");
-        } else if (category === 'medium') {
-            whiteRiceLine.style("display", "none");
-            appleLine.style("display", "block");
-            broccoliLine.style("display", "none");
-        } else if (category === 'low') {
-            whiteRiceLine.style("display", "none");
-            appleLine.style("display", "none");
-            broccoliLine.style("display", "block");
-        }
+        whiteRiceLine.style("display", filters.high ? "block" : "none");
+        appleLine.style("display", filters.medium ? "block" : "none");
+        broccoliLine.style("display", filters.low ? "block" : "none");
+    }
+    // Update legend item appearance.
+    if (legendItems) {
+        legendItems.select("rect")
+            .attr("fill-opacity", d => filters[d.category] ? 1 : 0.3);
+        legendItems.select("text")
+            .style("opacity", d => filters[d.category] ? 1 : 0.3);
     }
 }
 
@@ -160,6 +169,44 @@ function drawD3Graph() {
             .style("font-size", "16px")
             .style("font-weight", "bold")
             .text("Glucose Levels Over Time");
+
+        // Create a legend group
+        const legendData = [
+            { name: "White Rice", color: "#e53935", category: "high" },
+            { name: "Apple", color: "#ff9800", category: "medium" },
+            { name: "Broccoli", color: "#4caf50", category: "low" }
+        ];
+
+        const legend = svg.append("g")
+            .attr("class", "legend")
+            .attr("transform", `translate(${width - 150}, 20)`);
+
+        legendItems = legend.selectAll(".legend-item")
+            .data(legendData)
+            .enter()
+            .append("g")
+            .attr("class", "legend-item")
+            .attr("transform", (d, i) => `translate(0, ${i * 25})`)
+            .style("cursor", "pointer")
+            .on("click", function (event, d) {
+                // Toggle the filter state for the clicked legend item 
+                filters[d.category] = !filters[d.category];
+                updateFilters(); 
+            });
+
+        legendItems.append("rect")
+            .attr("width", 20)
+            .attr("height", 20)
+            .attr("fill", d => d.color)
+            .attr("stroke", "#ccc");
+
+        legendItems.append("text")
+            .attr("x", 30)
+            .attr("y", 15)
+            .text(d => d.name)
+            .style("font-size", "12px");
+
+        updateFilters();
     }).catch(function (error) {
         console.error("Error loading JSON data:", error);
     });
