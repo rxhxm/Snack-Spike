@@ -1,14 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="UTF-8" />
     <title>Radial Glucose Chart</title>
     <link rel="stylesheet" href="style.css" />
     <!-- Load D3 -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
-  </head>
-  <body>
+</head>
+
+<body>
+    <div class="food-selection" style="margin: 0 auto 20px; width: 100%;">
+        <div class="food-option draggable" data-food="apple" data-impact="medium" data-timing="30-45">🍎
+            Apple</div>
+        <div class="food-option draggable" data-food="rice" data-impact="high" data-timing="45-60">🍚
+            White Rice</div>
+        <div class="food-option draggable" data-food="chicken" data-impact="low" data-timing="60-90">🍗
+            Chicken</div>
+        <div class="food-option draggable" data-food="ice-cream" data-impact="high" data-timing="30-45">
+            🍦 Ice Cream</div>
+        <div class="food-option draggable" data-food="salad" data-impact="low" data-timing="minimal">🥗
+            Salad</div>
+        <div class="food-option draggable" data-food="burger" data-impact="high" data-timing="60-90">🍔
+            Burger</div>
+    </div>
+
     <div id="radial-chart"></div>
     <script src="radial_graph.js"></script>
-  </body>
+</body>
+
 </html>

@@ -49,10 +49,10 @@ d3.json("./processed_data/spike_events.json").then(data => {
     const minTime = d3.min(responseCurve, d => d.ParsedTime);
     const maxTime = d3.max(responseCurve, d => d.ParsedTime);
     const minGlucose = d3.min(responseCurve, d => d.Value);
-    const maxGlucose = d3.max(responseCurve, d => d.Value);
+    const maxGlucose = d3.max(responseCurve, d => d.Value) + 10;
     const innerRadius = 0;
     const outerRadius = 250;
-    const glucoseTicks = d3.ticks(minGlucose, maxGlucose, 5);
+    const glucoseTicks = d3.ticks(minGlucose, maxGlucose, 6);
 
     const rScale = d3.scaleLinear()
         .domain([minGlucose, maxGlucose])
@@ -187,7 +187,7 @@ d3.json("./processed_data/spike_events.json").then(data => {
             .attr("alignment-baseline", "middle")
             .text(`Max: ${maxDataPoint.Value} mg/dL`);
 
-        // Create a clock hand line and a popup text element, initially hidden.
+        // Global elements for the clock hand and popup on the graph
         const clockHand = g.append("line")
             .attr("id", "clock-hand")
             .attr("stroke", "blue")
@@ -202,12 +202,8 @@ d3.json("./processed_data/spike_events.json").then(data => {
             .attr("text-anchor", "middle")
             .style("display", "none");
 
-        // Create a time scale to map 0 to 360 degrees to a 24-hour period.
-        const timeScale = d3.scaleLinear()
-            .domain([0, 360])
-            .range([0, 24]);  // hours
-
-        // Helper to format fractional hours into "HH:MM"
+        // Create a time scale mapping degrees (0-360) to hours (0-24)
+        const timeScale = d3.scaleLinear().domain([0, 360]).range([0, 24]);
         function formatTime(hours) {
             const totalMinutes = Math.round(hours * 60);
             const hh = Math.floor(totalMinutes / 60);
@@ -215,64 +211,121 @@ d3.json("./processed_data/spike_events.json").then(data => {
             return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
         }
 
-        // Variable to track when the mouse is down.
-        let isMouseDown = false;
+        // Variables to track drag state
+        let currentDraggedOption = null;
+        let dragIcon = null;
+        let droppedFood = null;
 
-        // Listen for mouse events on the window.
-        d3.select(window)
-            .on("mousedown", function (event) {
-                isMouseDown = true;
-                clockHand.style("display", null);
-                timePopup.style("display", null);
-            })
-            .on("mouseup", function (event) {
-                isMouseDown = false;
-                clockHand.style("display", "none");
-                timePopup.style("display", "none");
-            })
-            .on("mousemove", function (event) {
-                if (!isMouseDown) return;
+        // Apply drag behavior to the food options
+        d3.selectAll(".food-option.draggable")
+            .call(d3.drag()
+                .on("start", function (event, d) {
+                    currentDraggedOption = d3.select(this);
+                    // If an icon is already dropped on the graph, remove it and reinsert its original option
+                    if (droppedFood) {
+                        d3.select(".food-selection").node().appendChild(droppedFood.node());
+                        droppedFood.remove();
+                        droppedFood = null;
+                    }
+                    // Fade out and hide the original option
+                    currentDraggedOption.style("opacity", 0.5).style("display", "none");
 
-                // Get the mouse position relative to the SVG element.
-                const [mx, my] = d3.pointer(event, svg.node());
-                // Compute the vector from the center of the chart to the mouse position.
-                const dx = mx - centerX;
-                const dy = my - centerY;
+                    // Create a floating drag icon in the body using only the first character (emoji)
+                    let foodText = currentDraggedOption.text().trim().split(" ")[0];
+                    dragIcon = d3.select("body")
+                        .append("div")
+                        .attr("class", "drag-icon")
+                        .style("position", "absolute")
+                        .style("pointer-events", "none")
+                        .style("width", "40px")
+                        .style("height", "40px")
+                        .style("border-radius", "50%")
+                        .style("background", "#fff")
+                        .style("box-shadow", "0 2px 6px rgba(0,0,0,0.3)")
+                        .style("display", "flex")
+                        .style("align-items", "center")
+                        .style("justify-content", "center")
+                        .style("font-size", "24px")
+                        .html(foodText);
 
-                // Calculate the angle in radians using Math.atan2.
-                // Adjust so that 0° is at the top.
-                let angleRad = Math.atan2(dy, dx);
-                let angleDeg = angleRad * (180 / Math.PI);
-                if (angleDeg < 0) angleDeg += 360;
+                    // Show the blue dotted clock hand and the time popup
+                    clockHand.style("display", null);
+                    timePopup.style("display", null);
+                })
+                .on("drag", function (event, d) {
+                    // Update the drag icon position
+                    dragIcon.style("left", (event.sourceEvent.pageX - 20) + "px")
+                        .style("top", (event.sourceEvent.pageY - 20) + "px");
 
-                // Set the hand length (for example, slightly beyond outerRadius)
-                const handLength = outerRadius + 20;
-                const handEnd = polarToCartesian(handLength, angleDeg);
+                    // Get mouse coordinates relative to the SVG
+                    const [mx, my] = d3.pointer(event, svg.node());
+                    // Compute vector from chart center to mouse
+                    const dx = mx - centerX;
+                    const dy = my - centerY;
+                    let angleRad = Math.atan2(dy, dx);
+                    let angleDeg = angleRad * (180 / Math.PI);
+                    if (angleDeg < 0) angleDeg += 360;
 
-                // Update the clock hand line (starts at the center (0,0) since we translated the group)
-                clockHand
-                    .attr("x1", 0)
-                    .attr("y1", 0)
-                    .attr("x2", handEnd.x)
-                    .attr("y2", handEnd.y);
+                    // Set a fixed hand length (e.g., slightly beyond outerRadius)
+                    const handLength = outerRadius + 20;
+                    const handEnd = polarToCartesian(handLength, angleDeg);
+                    // Update clock hand position (g is already centered at (centerX, centerY))
+                    clockHand.attr("x1", 0)
+                        .attr("y1", 0)
+                        .attr("x2", handEnd.x)
+                        .attr("y2", handEnd.y);
 
-                // Convert the angle into a time value (using the timeScale)
-                const hours = timeScale(angleDeg);
-                const timeText = formatTime(hours);
+                    // Convert the angle into a time string using timeScale
+                    const hours = timeScale(angleDeg);
+                    const timeText = formatTime(hours);
+                    // Position the time popup further out (e.g., handLength + 20)
+                    const popupPos = polarToCartesian(handLength + 20, angleDeg);
+                    timePopup.attr("x", popupPos.x)
+                        .attr("y", popupPos.y)
+                        .text(timeText);
+                })
+                .on("end", function (event, d) {
+                    // Get mouse coordinates relative to the SVG
+                    const [mx, my] = d3.pointer(event, svg.node());
+                    const dx = mx - centerX;
+                    const dy = my - centerY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
 
-                // Position the popup text a bit further from the hand's end.
-                const popupOffset = 30;
-                const popupPos = polarToCartesian(handLength + popupOffset, angleDeg);
-
-                timePopup
-                    .attr("x", popupPos.x)
-                    .attr("y", popupPos.y)
-                    .text(timeText);
-
-                // Optionally: rotate the popup if you want it to align with the hand
-                // .attr("transform", `translate(${popupPos.x},${popupPos.y}) rotate(${angleDeg})`);
-            });
-
+                    if (distance <= outerRadius) {
+                        // If dropped within the graph, remove the drag icon and create a dropped food element
+                        dragIcon.remove();
+                        dragIcon = null;
+                        droppedFood = g.append("g")
+                            .attr("class", "dropped-food")
+                            .attr("transform", `translate(${mx - centerX}, ${my - centerY})`);
+                        droppedFood.append("circle")
+                            .attr("r", 20)
+                            .attr("fill", "#fff")
+                            .attr("stroke", "#333")
+                            .attr("stroke-width", 1);
+                        // Use the first character (emoji) for the dropped icon
+                        let foodText = currentDraggedOption.text().trim().split(" ")[0];
+                        droppedFood.append("text")
+                            .attr("text-anchor", "middle")
+                            .attr("alignment-baseline", "middle")
+                            .attr("font-size", "24px")
+                            .text(foodText);
+                    } else {
+                        // If not dropped on the graph, remove the drag icon and restore the food option
+                        dragIcon.remove();
+                        dragIcon = null;
+                        currentDraggedOption.style("display", null)
+                            .style("opacity", 1);
+                    }
+                    // Hide the clock hand and popup
+                    clockHand.style("display", "none");
+                    timePopup.style("display", "none");
+                    d3.selectAll(".food-selection .food-option.draggable")
+                        .style("display", null)
+                        .style("opacity", 1);
+                    currentDraggedOption = null;
+                })
+            );
     });
 });
 
