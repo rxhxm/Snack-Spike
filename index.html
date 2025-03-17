@@ -34,7 +34,7 @@
 
     <div class="container">
         <h1>Snack & Spike: Understanding Your Glucose Response</h1>
-        
+
         <!-- Navigation tabs for switching between explainer and game -->
         <div style="display: flex; width: 100%; max-width: 800px; margin-bottom: 20px;">
             <button id="explainer-tab" class="nav-button" style="flex: 1; margin-right: 10px; background: #0066CC;">
@@ -44,17 +44,17 @@
                 Prediction Game
             </button>
         </div>
-        
+
         <div id="explainer-content">
             <div class="explainer-section">
                 <h2 class="section-title">What is Blood Glucose?</h2>
-                
+
                 <p>Blood glucose (blood sugar) is the main sugar found in your bloodstream and your body's primary
                     energy source. It comes from the food you eat, especially carbohydrates like sugars and starches.
                 </p>
-                
+
                 <p>Your body carefully regulates blood glucose levels to maintain them within a healthy range:</p>
-                
+
                 <div class="info-box">
                     <strong>Normal Blood Glucose Ranges:</strong>
                     <ul>
@@ -63,17 +63,17 @@
                         <li>Random checks: Less than 140 mg/dL</li>
                     </ul>
                 </div>
-                
+
                 <p>When glucose levels rise too high or fall too low, it can affect how you feel and potentially impact
                     your health over time.</p>
             </div>
-            
+
             <div class="explainer-section">
                 <h2 class="section-title">Understanding Glucose Spikes</h2>
-                
+
                 <p>When you eat, especially foods containing carbohydrates, your blood glucose levels rise. This is
                     called a "glucose spike" or "postprandial spike" (after meal spike).</p>
-                
+
                 <div class="graph-container" style="height: 350px;">
                     <!-- Sample glucose graph showing daily pattern with meals -->
                     <svg width="700" height="300" viewBox="0 0 700 300">
@@ -82,7 +82,7 @@
                         <line x1="0" y1="120" x2="700" y2="120" stroke="#eee" stroke-width="1" />
                         <line x1="0" y1="180" x2="700" y2="180" stroke="#eee" stroke-width="1" />
                         <line x1="0" y1="240" x2="700" y2="240" stroke="#eee" stroke-width="1" />
-                        
+
                         <!-- Time markers -->
                         <line x1="100" y1="240" x2="100" y2="245" stroke="#888" stroke-width="1" />
                         <text x="100" y="260" text-anchor="middle" font-size="12">8:00</text>
@@ -96,33 +96,33 @@
                         <text x="500" y="260" text-anchor="middle" font-size="12">16:00</text>
                         <line x1="600" y1="240" x2="600" y2="245" stroke="#888" stroke-width="1" />
                         <text x="600" y="260" text-anchor="middle" font-size="12">18:00</text>
-                        
+
                         <!-- Glucose level markers -->
                         <text x="30" y="240" text-anchor="end" font-size="12">70</text>
                         <text x="30" y="180" text-anchor="end" font-size="12">100</text>
                         <text x="30" y="120" text-anchor="end" font-size="12">130</text>
                         <text x="30" y="60" text-anchor="end" font-size="12">160</text>
-                        
+
                         <!-- Healthy range -->
                         <rect x="40" y="180" width="660" height="60" fill="rgba(150, 220, 150, 0.2)" stroke="#4CAF50"
                             stroke-width="1" stroke-dasharray="5,5" />
                         <text x="50" y="200" font-size="12" fill="#388e3c">Healthy Range</text>
-                        
+
                         <!-- Meal markers -->
                         <line x1="100" y1="40" x2="100" y2="280" stroke="rgba(255, 0, 0, 0.5)" stroke-width="2" />
                         <text x="110" y="50" font-size="12" fill="#d32f2f">Breakfast</text>
-                        
+
                         <line x1="300" y1="40" x2="300" y2="280" stroke="rgba(255, 0, 0, 0.5)" stroke-width="2" />
                         <text x="310" y="50" font-size="12" fill="#d32f2f">Lunch</text>
-                        
+
                         <line x1="500" y1="40" x2="500" y2="280" stroke="rgba(255, 0, 0, 0.5)" stroke-width="2" />
                         <text x="510" y="50" font-size="12" fill="#d32f2f">Dinner</text>
-                        
+
                         <!-- Glucose curve -->
                         <path
                             d="M40,210 C70,205 90,208 100,210 C110,210 120,160 140,120 C160,80 180,100 200,140 C220,180 270,210 300,210 C330,210 340,100 360,80 C380,70 400,120 420,160 C440,200 480,210 500,210 C520,210 530,110 550,90 C570,80 590,120 620,170 C650,210 670,215 700,220"
                             fill="none" stroke="#0066CC" stroke-width="3" />
-                        
+
                         <!-- Annotations -->
                         <rect x="140" y="80" width="150" height="40" rx="5" fill="rgba(255,255,255,0.9)"
                             stroke="#ddd" />
@@ -130,13 +130,13 @@
                         <text x="150" y="115" font-size="12" fill="#333">steep glucose spike</text>
                         <line x1="140" y1="100" x2="120" y2="120" stroke="#888" stroke-width="1"
                             stroke-dasharray="2,2" />
-                        
+
                         <rect x="360" y="50" width="150" height="40" rx="5" fill="rgba(255,255,255,0.9)"
                             stroke="#ddd" />
                         <text x="370" y="70" font-size="12" fill="#333">Lunch spike with more</text>
                         <text x="370" y="85" font-size="12" fill="#333">gradual return to baseline</text>
                         <line x1="360" y1="70" x2="340" y2="85" stroke="#888" stroke-width="1" stroke-dasharray="2,2" />
-                        
+
                         <rect x="550" y="140" width="120" height="40" rx="5" fill="rgba(255,255,255,0.9)"
                             stroke="#ddd" />
                         <text x="560" y="160" font-size="12" fill="#333">Dinner with protein</text>
@@ -144,15 +144,15 @@
                         <line x1="550" y1="160" x2="520" y2="140" stroke="#888" stroke-width="1"
                             stroke-dasharray="2,2" />
                     </svg>
-                    
+
                     <div class="annotation" style="top: 10px; right: 20px;">
                         <strong>Glucose levels throughout a day</strong><br>
                         Notice how each meal causes a different spike pattern based on what was eaten.
                     </div>
                 </div>
-                
+
                 <p>The size and duration of glucose spikes depend on several factors:</p>
-                
+
                 <div class="info-box">
                     <strong>What affects your glucose spikes:</strong>
                     <ul>
@@ -164,14 +164,14 @@
                         </li>
                     </ul>
                 </div>
-                
+
                 <p>Frequent, large glucose spikes followed by crashes can contribute to fatigue, hunger, cravings, and
                     over time, may increase risk for conditions like insulin resistance and type 2 diabetes.</p>
             </div>
-            
+
             <div class="explainer-section">
                 <h2 class="section-title">Different Foods, Different Responses</h2>
-                
+
                 <p>Not all foods affect your blood glucose the same way. Here's how different foods typically impact
                     glucose levels:</p>
 
@@ -186,7 +186,7 @@
                             style="background: #ffebee; color: #e53935; padding: 5px 15px; border-radius: 20px; display: inline-block; margin-top: 10px;">
                             Large Spike</div>
                     </div>
-                    
+
                     <div class="food-category medium-glycemic" onclick="selectFoodCategory('medium')"
                         style="flex: 1; min-width: 200px; margin: 5px; padding: 20px; border-radius: 10px; border: 2px solid #f0f0f0; cursor: pointer; text-align: center; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
                         <div style="font-size: 40px; margin-bottom: 10px;">🍎</div>
@@ -196,7 +196,7 @@
                             style="background: #fff8e1; color: #ff9800; padding: 5px 15px; border-radius: 20px; display: inline-block; margin-top: 10px;">
                             Moderate Spike</div>
                     </div>
-                    
+
                     <div class="food-category low-glycemic" onclick="selectFoodCategory('low')"
                         style="flex: 1; min-width: 200px; margin: 5px; padding: 20px; border-radius: 10px; border: 2px solid #f0f0f0; cursor: pointer; text-align: center; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
                         <div style="font-size: 40px; margin-bottom: 10px;">🥦</div>
@@ -207,7 +207,7 @@
                             Minimal Spike</div>
                     </div>
                 </div>
-                
+
                 <div class="view-options" style="text-align: center; margin: 20px 0;">
                     <button onclick="selectFoodCategory('all')" id="view-all-btn" class="food-toggle-btn"
                         style="background: #0066CC; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin: 0 5px;">View
@@ -220,7 +220,8 @@
                     <button onclick="selectFoodCategory('low')" id="low-btn" class="food-toggle-btn"
                         style="background: #f5f5f7; color: #333; border: 1px solid #ddd; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin: 0 5px;">Broccoli</button>
                 </div>
-                
+
+                <!-- NEW GRAPH HERE -->
                 <div class="graph-container"
                     style="position: relative; height: 400px; margin: 30px 0; overflow: hidden; border: 1px solid #eee; background: white; border-radius: 8px;">
                     <svg id="food-comparison-graph" width="100%" height="100%" viewBox="0 0 800 400"
@@ -228,13 +229,13 @@
                         <!-- X and Y axis -->
                         <line x1="80" y1="320" x2="750" y2="320" stroke="#333" stroke-width="2" />
                         <line x1="80" y1="50" x2="80" y2="320" stroke="#333" stroke-width="2" />
-                        
+
                         <!-- Horizontal guidelines -->
                         <line x1="80" y1="80" x2="750" y2="80" stroke="#eee" stroke-width="1" />
                         <line x1="80" y1="160" x2="750" y2="160" stroke="#eee" stroke-width="1" />
                         <line x1="80" y1="240" x2="750" y2="240" stroke="#eee" stroke-width="1" />
                         <line x1="80" y1="320" x2="750" y2="320" stroke="#eee" stroke-width="1" />
-                        
+
                         <!-- Vertical guidelines/time markers -->
                         <line x1="190" y1="320" x2="190" y2="325" stroke="#888" stroke-width="1" />
                         <text x="190" y="345" text-anchor="middle" font-size="14">30 min</text>
@@ -248,34 +249,34 @@
                         <text x="630" y="345" text-anchor="middle" font-size="14">150 min</text>
                         <line x1="80" y1="320" x2="80" y2="325" stroke="#888" stroke-width="1" />
                         <text x="80" y="345" text-anchor="middle" font-size="14">0 min</text>
-                        
+
                         <!-- Glucose level markers -->
                         <text x="70" y="320" text-anchor="end" font-size="14">70</text>
                         <text x="70" y="240" text-anchor="end" font-size="14">100</text>
                         <text x="70" y="160" text-anchor="end" font-size="14">130</text>
                         <text x="70" y="80" text-anchor="end" font-size="14">160</text>
-                        
+
                         <!-- Food consumed label -->
                         <text x="400" y="35" text-anchor="middle" font-size="16" font-weight="bold">Food Consumed</text>
                         <line x1="140" y1="50" x2="140" y2="320" stroke="#ccc" stroke-width="1"
                             stroke-dasharray="5,5" />
-                        
+
                         <!-- Glucose curves for different foods -->
                         <!-- White Rice (high glycemic) - red -->
                         <path id="high-glycemic-curve"
                             d="M80,290 C120,290 150,200 190,120 C230,60 270,80 300,100 C340,150 380,220 410,260 C440,290 520,290 630,290"
                             fill="none" stroke="#e53935" stroke-width="3" />
-                              
+
                         <!-- Apple (medium glycemic) - orange -->
                         <path id="medium-glycemic-curve"
                             d="M80,290 C120,290 150,240 190,180 C230,160 270,170 300,190 C340,220 380,260 410,270 C440,280 520,290 630,290"
                             fill="none" stroke="#ff9800" stroke-width="3" />
-                              
+
                         <!-- Broccoli (low glycemic) - green -->
                         <path id="low-glycemic-curve"
                             d="M80,290 C120,290 150,275 190,260 C230,255 270,260 300,270 C340,280 380,285 410,290 C440,290 520,290 630,290"
                             fill="none" stroke="#4caf50" stroke-width="3" />
-                              
+
                         <!-- Annotations - these will be shown/hidden based on selection -->
                         <!-- White Rice annotation -->
                         <g id="high-glycemic-annotation">
@@ -286,7 +287,7 @@
                             <line x1="300" y1="100" x2="360" y2="85" stroke="#e53935" stroke-width="1"
                                 stroke-dasharray="3,3" />
                         </g>
-                        
+
                         <!-- Apple annotation -->
                         <g id="medium-glycemic-annotation">
                             <rect x="450" y="160" width="220" height="50" rx="5" fill="white" stroke="#ddd"
@@ -296,23 +297,23 @@
                             <line x1="350" y1="185" x2="450" y2="185" stroke="#ff9800" stroke-width="1"
                                 stroke-dasharray="3,3" />
                         </g>
-                        
+
                         <!-- Legend -->
                         <g id="legend" class="legend">
                             <text x="700" y="100" text-anchor="end" font-size="14" fill="#e53935">White Rice</text>
                             <line x1="660" y1="96" x2="680" y2="96" stroke="#e53935" stroke-width="3" />
-                            
+
                             <text x="700" y="125" text-anchor="end" font-size="14" fill="#ff9800">Apple</text>
                             <line x1="660" y1="121" x2="680" y2="121" stroke="#ff9800" stroke-width="3" />
-                            
+
                             <text x="700" y="150" text-anchor="end" font-size="14" fill="#4caf50">Broccoli</text>
                             <line x1="660" y1="146" x2="680" y2="146" stroke="#4caf50" stroke-width="3" />
                         </g>
-                        
+
                         <!-- Tooltip line - initially hidden -->
                         <line id="food-tooltip-line" x1="0" y1="50" x2="0" y2="320" stroke="#0066CC" stroke-width="2"
                             style="display: none;" />
-                        
+
                         <!-- Tooltip glucose points - initially hidden -->
                         <circle id="high-glucose-point" cx="0" cy="0" r="5" fill="white" stroke="#e53935"
                             stroke-width="2" style="display: none;" />
@@ -321,22 +322,22 @@
                         <circle id="low-glucose-point" cx="0" cy="0" r="5" fill="white" stroke="#4caf50"
                             stroke-width="2" style="display: none;" />
                     </svg>
-                    
+
                     <!-- Tooltip container -->
                     <div id="food-glucose-tooltip"
                         style="position: absolute; display: none; background: rgba(0,0,0,0.7); color: white; padding: 5px 10px; border-radius: 4px; font-size: 14px; pointer-events: none; z-index: 100;">
                     </div>
                 </div>
-                
+
                 <p>Understanding how different foods affect your glucose can help you make informed choices for better
                     health and energy levels throughout the day.</p>
             </div>
-            
+
             <div class="explainer-section">
                 <h2 class="section-title">Why Monitor Glucose Patterns?</h2>
-                
+
                 <p>Understanding your glucose patterns can help you:</p>
-                
+
                 <ul>
                     <li><strong>Identify trigger foods</strong> that cause larger spikes than expected</li>
                     <li><strong>Optimize meal timing</strong> for better energy throughout the day</li>
@@ -344,22 +345,22 @@
                     <li><strong>Make informed food choices</strong> based on their impact on your body</li>
                     <li><strong>Reduce energy crashes</strong> that can affect mood and productivity</li>
                 </ul>
-                
+
                 <div class="info-box">
                     <p><strong>Did you know?</strong> Glucose responses can vary significantly between individuals, even
                         when eating identical foods. This is due to differences in metabolism, gut microbiome, and other
                         personal factors.</p>
                 </div>
-                
+
                 <p>Ready to test your understanding? Click the "Start Prediction Game" button below to see if you can
                     predict how different foods will affect glucose levels!</p>
-                
+
                 <div class="nav-buttons">
                     <button id="start-game-btn" class="nav-button">Start Prediction Game</button>
                 </div>
             </div>
         </div>
-        
+
         <!-- Game content from the second file -->
         <div id="game-content">
             <!-- Move patient profile and challenge description above the clock -->
@@ -369,29 +370,29 @@
                     <div class="stat-item">
                         <div class="stat-label">Age</div>
                         <div class="stat-value">34</div>
-                </div>
+                    </div>
                     <div class="stat-item">
                         <div class="stat-label">BMI</div>
                         <div class="stat-value">24.5</div>
-                </div>
+                    </div>
                     <div class="stat-item">
                         <div class="stat-label">A1C</div>
                         <div class="stat-value">5.6%</div>
-            </div>
+                    </div>
                     <div class="stat-item">
                         <div class="stat-label">Fasting Glucose</div>
                         <div class="stat-value">95 mg/dL</div>
                     </div>
-            </div>
-            
+                </div>
+
                 <div class="glucose-alert">
                     <h4>Glucose Event Detected</h4>
                     <p>Sarah experienced a <strong>glucose spike of 152 mg/dL at 2:00 PM</strong> today. She reported
                         feeling fatigued, mildly thirsty, and had difficulty concentrating around this time.</p>
                     <p>She's using continuous glucose monitoring to understand how different foods affect her levels,
                         but doesn't remember exactly when she ate before this spike occurred.</p>
-            </div>
-            
+                </div>
+
                 <div class="challenge-box">
                     <h4 style="margin-top: 0;">Your Challenge</h4>
                     <p>Look at Sarah's glucose spike at 2:00 PM. When do you think she ate something that caused this
@@ -399,7 +400,7 @@
                     <p><strong>Instructions:</strong> Drag a food from below and drop it on the clock to indicate when
                         you think Sarah ate it.</p>
                 </div>
-                
+
 
                 <!-- Food options moved above the clock -->
                 <div class="food-selection" style="margin: 0 auto 30px; max-width: 800px;">
@@ -418,7 +419,7 @@
                     <div class="food-option draggable" data-food="croissant" data-impact="high" data-timing="30-45">🥐
                         Croissant</div>
                 </div>
-                
+
                 <!-- Explanation of timing moved to after the submit button -->
                 <div
                     style="background: #fff; padding: 15px; border-radius: 8px; max-width: 800px; margin: 20px auto; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
@@ -428,9 +429,9 @@
                         <li><strong>Mixed meals</strong> (sandwich, rice): Spike in 30-60 minutes</li>
                         <li><strong>High-fat meals</strong> (burgers, pizza): Delayed spike, 1-2 hours</li>
                     </ul>
-        </div>
-    </div>
-    
+                </div>
+            </div>
+
 
 
             <div class="clock-container" style="margin: 0 auto; display: flex; justify-content: center;">
