@@ -1101,7 +1101,8 @@ body {
 } */
 
 #dailyPattern-tooltip.show {
-    display: block; /* Make it visible */
+    display: block;
+    /* Make it visible */
 }
 
 /* .healthy-range {
@@ -1134,3 +1135,14 @@ body {
     font-weight: bold;
     z-index: 3;
 } */
+
+/* For Radial Time Series Max Label */
+.max-label {
+    background: white;
+    border: 2px solid #888;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 12px;
+    color: red;
+    display: inline-block;
+}
