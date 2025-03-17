@@ -1,4 +1,5 @@
-// Add this to your existing script section
+let whiteRiceLine, appleLine, broccoliLine;
+
 function selectFoodCategory(category) {
     // Reset all buttons to inactive state
     document.querySelectorAll('.food-toggle-btn').forEach(btn => {
@@ -12,15 +13,6 @@ function selectFoodCategory(category) {
         card.style.transform = 'scale(1)';
         card.style.boxShadow = '0 2px 8px rgba(0,0,0,0.05)';
     });
-
-    // Hide all curves initially
-    document.getElementById('high-glycemic-curve').style.display = 'none';
-    document.getElementById('medium-glycemic-curve').style.display = 'none';
-    document.getElementById('low-glycemic-curve').style.display = 'none';
-
-    // Hide all annotations
-    document.getElementById('high-glycemic-annotation').style.display = 'none';
-    document.getElementById('medium-glycemic-annotation').style.display = 'none';
 
     // Set specific button to active
     if (category !== 'all') {
@@ -40,152 +32,142 @@ function selectFoodCategory(category) {
         selectedCard.style.boxShadow = '0 5px 15px rgba(0,0,0,0.1)';
     }
 
-    // Show curves based on selection
-    if (category === 'all') {
-        document.getElementById('high-glycemic-curve').style.display = 'block';
-        document.getElementById('medium-glycemic-curve').style.display = 'block';
-        document.getElementById('low-glycemic-curve').style.display = 'block';
-        document.getElementById('high-glycemic-annotation').style.display = 'block';
-        document.getElementById('medium-glycemic-annotation').style.display = 'block';
-        document.querySelector('.legend').style.display = 'block';
-    } else if (category === 'high') {
-        document.getElementById('high-glycemic-curve').style.display = 'block';
-        document.getElementById('high-glycemic-annotation').style.display = 'block';
-        document.querySelector('.legend').style.display = 'none';
-    } else if (category === 'medium') {
-        document.getElementById('medium-glycemic-curve').style.display = 'block';
-        document.getElementById('medium-glycemic-annotation').style.display = 'block';
-        document.querySelector('.legend').style.display = 'none';
-    } else if (category === 'low') {
-        document.getElementById('low-glycemic-curve').style.display = 'block';
-        document.querySelector('.legend').style.display = 'none';
+    // Filter D3 lines based on the selected category:
+    if (whiteRiceLine && appleLine && broccoliLine) {
+        if (category === 'all') {
+            whiteRiceLine.style("display", "block");
+            appleLine.style("display", "block");
+            broccoliLine.style("display", "block");
+        } else if (category === 'high') {
+            whiteRiceLine.style("display", "block");
+            appleLine.style("display", "none");
+            broccoliLine.style("display", "none");
+        } else if (category === 'medium') {
+            whiteRiceLine.style("display", "none");
+            appleLine.style("display", "block");
+            broccoliLine.style("display", "none");
+        } else if (category === 'low') {
+            whiteRiceLine.style("display", "none");
+            appleLine.style("display", "none");
+            broccoliLine.style("display", "block");
+        }
     }
 }
 
+function drawD3Graph() {
+    d3.json("food_responses.json").then(function (data) {
+        // Filter for the three foods:
+        const whiteRice = data.high.find(d => d.FoodDescription.toLowerCase() === "white rice");
+        const apple = data.medium.find(d => d.FoodDescription.toLowerCase() === "apple");
+        const broccoli = data.low.find(d => d.FoodDescription.toLowerCase() === "broccoli");
+
+        // Check that we have data for each food before plotting
+        if (!whiteRice || !apple || !broccoli) {
+            console.error("Missing one or more food items from the JSON data.");
+            return;
+        }
+
+        // Set up SVG dimensions and margins
+        const margin = { top: 20, right: 30, bottom: 40, left: 60 },
+            width = 800 - margin.left - margin.right,
+            height = 400 - margin.top - margin.bottom;
+
+        // Create SVG element inside the container with id "food-comparison-graph"
+        const svg = d3.select("#food-comparison-graph")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Combine the Response arrays from all three foods to set common domains
+        const combinedData = whiteRice.Response.concat(apple.Response, broccoli.Response);
+
+        // Set the x domain using MinutesSinceFood
+        const xExtent = d3.extent(combinedData, d => d.MinutesSinceFood);
+        const xScale = d3.scaleLinear()
+            .domain(xExtent)
+            .range([0, width]);
+
+        // Set the y domain using the Value field (with padding)
+        const yExtent = d3.extent(combinedData, d => d.Value);
+        const yScale = d3.scaleLinear()
+            .domain([yExtent[0] - 10, yExtent[1] + 10])
+            .range([height, 0]);
+
+        // Add x-axis
+        svg.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(xScale).ticks(10).tickFormat(d => d + " min"));
+
+        // Add y-axis
+        svg.append("g")
+            .call(d3.axisLeft(yScale));
+
+        // Add x-axis label
+        svg.append("text")
+            .attr("class", "x-axis-label")
+            .attr("x", width / 2)
+            .attr("y", height + margin.bottom - 5)
+            .attr("text-anchor", "middle")
+            .style("font-size", "14px")
+            .text("Time (min)");
+
+        // Add y-axis label
+        svg.append("text")
+            .attr("class", "y-axis-label")
+            .attr("transform", "rotate(-90)")
+            .attr("x", -height / 2)
+            .attr("y", -margin.left + 20)
+            .attr("text-anchor", "middle")
+            .style("font-size", "14px")
+            .text("Glucose Level (mg/dL)");
+
+        // Define a line generator function
+        const lineGenerator = d3.line()
+            .x(d => xScale(d.MinutesSinceFood))
+            .y(d => yScale(d.Value));
+
+        // Draw the White rice line (high glycemic) in red
+        whiteRiceLine = svg.append("path")
+            .datum(whiteRice.Response)
+            .attr("fill", "none")
+            .attr("stroke", "#e53935")
+            .attr("stroke-width", 2)
+            .attr("d", lineGenerator);
+
+        // Draw the Apple line (medium glycemic) in orange
+        appleLine = svg.append("path")
+            .datum(apple.Response)
+            .attr("fill", "none")
+            .attr("stroke", "#ff9800")
+            .attr("stroke-width", 2)
+            .attr("d", lineGenerator);
+
+        // Draw the Broccoli line (low glycemic) in green
+        broccoliLine = svg.append("path")
+            .datum(broccoli.Response)
+            .attr("fill", "none")
+            .attr("stroke", "#4caf50")
+            .attr("stroke-width", 2)
+            .attr("d", lineGenerator);
+
+        // Add a chart title at the top
+        svg.append("text")
+            .attr("x", width / 2)
+            .attr("y", 10)
+            .attr("text-anchor", "middle")
+            .style("font-size", "16px")
+            .style("font-weight", "bold")
+            .text("Glucose Levels Over Time");
+    }).catch(function (error) {
+        console.error("Error loading JSON data:", error);
+    });
+}
+
+// FOOD CONSUMPTION GRAPH INITALIZATION
 document.addEventListener('DOMContentLoaded', function () {
     // Initialize with all graphs showing
+    drawD3Graph();
     selectFoodCategory('all');
-
-    // Add tooltip functionality for the food comparison graph
-    const graphContainer = document.querySelector('.graph-container');
-    const tooltipLine = document.getElementById('food-tooltip-line');
-    const highGlucosePoint = document.getElementById('high-glucose-point');
-    const mediumGlucosePoint = document.getElementById('medium-glucose-point');
-    const lowGlucosePoint = document.getElementById('low-glucose-point');
-    const foodGlucoseTooltip = document.getElementById('food-glucose-tooltip');
-
-    if (graphContainer && tooltipLine && foodGlucoseTooltip) {
-        const foodComparisonGraph = document.getElementById('food-comparison-graph');
-
-        graphContainer.addEventListener('mousemove', function (event) {
-            const rect = graphContainer.getBoundingClientRect();
-            const svgRect = foodComparisonGraph.getBoundingClientRect();
-            const x = event.clientX - svgRect.left;
-
-            // Only show tooltip within the graph area (80px - 750px)
-            if (x >= 80 && x <= 750) {
-                // Position the tooltip line
-                tooltipLine.setAttribute('x1', x);
-                tooltipLine.setAttribute('x2', x);
-                tooltipLine.style.display = 'block';
-
-                // Calculate time based on x position
-                const timePos = (x - 80) / 670; // 0 to 1 position
-                const minutes = Math.round(timePos * 150); // 0 to 150 minutes
-
-                // Get glucose values for each curve at this x position
-                // These are approximations based on the paths
-                let highGlucose, mediumGlucose, lowGlucose;
-
-                // Rice (high glycemic)
-                if (x < 190) { // 0-30 min
-                    highGlucose = 290 - (x - 80) * 5.7;
-                } else if (x < 300) { // 30-60 min
-                    highGlucose = 120 + (x - 190) * 0.18;
-                } else if (x < 410) { // 60-90 min
-                    highGlucose = 140 + (x - 300) * 1.09;
-                } else if (x < 520) { // 90-120 min
-                    highGlucose = 260 + (x - 410) * 0.27;
-                } else { // 120-150 min
-                    highGlucose = 290;
-                }
-
-                // Apple (medium glycemic)
-                if (x < 190) { // 0-30 min
-                    mediumGlucose = 290 - (x - 80) * 3.64;
-                } else if (x < 300) { // 30-60 min
-                    mediumGlucose = 180 + (x - 190) * 0.09;
-                } else if (x < 410) { // 60-90 min
-                    mediumGlucose = 190 + (x - 300) * 0.73;
-                } else if (x < 520) { // 90-120 min
-                    mediumGlucose = 270 + (x - 410) * 0.18;
-                } else { // 120-150 min
-                    mediumGlucose = 290;
-                }
-
-                // Broccoli (low glycemic)
-                if (x < 190) { // 0-30 min
-                    lowGlucose = 290 - (x - 80) * 1.09;
-                } else if (x < 300) { // 30-60 min
-                    lowGlucose = 260 + (x - 190) * 0.09;
-                } else if (x < 410) { // 60-90 min
-                    lowGlucose = 270 + (x - 300) * 0.18;
-                } else { // 90-150 min
-                    lowGlucose = 290;
-                }
-
-                // Position the tooltip points on the glucose curves
-                highGlucosePoint.setAttribute('cx', x);
-                highGlucosePoint.setAttribute('cy', highGlucose);
-
-                mediumGlucosePoint.setAttribute('cx', x);
-                mediumGlucosePoint.setAttribute('cy', mediumGlucose);
-
-                lowGlucosePoint.setAttribute('cx', x);
-                lowGlucosePoint.setAttribute('cy', lowGlucose);
-
-                // Show the points based on which curves are visible
-                highGlucosePoint.style.display = document.getElementById('high-glycemic-curve').style.display !== 'none' ? 'block' : 'none';
-                mediumGlucosePoint.style.display = document.getElementById('medium-glycemic-curve').style.display !== 'none' ? 'block' : 'none';
-                lowGlucosePoint.style.display = document.getElementById('low-glycemic-curve').style.display !== 'none' ? 'block' : 'none';
-
-                // Convert SVG y-coordinates to glucose values (320 = 70mg/dL, 80 = 160mg/dL)
-                const highGlucoseValue = Math.round(70 + (320 - highGlucose) * (160 - 70) / (320 - 80));
-                const mediumGlucoseValue = Math.round(70 + (320 - mediumGlucose) * (160 - 70) / (320 - 80));
-                const lowGlucoseValue = Math.round(70 + (320 - lowGlucose) * (160 - 70) / (320 - 80));
-
-                // Update tooltip content based on which curves are visible
-                let tooltipContent = `Time: ${minutes} min<br>`;
-
-                if (document.getElementById('high-glycemic-curve').style.display !== 'none') {
-                    tooltipContent += `<span style="color: #e53935;">White Rice: ${highGlucoseValue} mg/dL</span><br>`;
-                }
-
-                if (document.getElementById('medium-glycemic-curve').style.display !== 'none') {
-                    tooltipContent += `<span style="color: #ff9800;">Apple: ${mediumGlucoseValue} mg/dL</span><br>`;
-                }
-
-                if (document.getElementById('low-glycemic-curve').style.display !== 'none') {
-                    tooltipContent += `<span style="color: #4caf50;">Broccoli: ${lowGlucoseValue} mg/dL</span>`;
-                }
-
-                foodGlucoseTooltip.innerHTML = tooltipContent;
-                foodGlucoseTooltip.style.display = 'block';
-
-                // Position tooltip relative to mouse
-                const tooltipX = event.clientX - rect.left + 15;
-                const tooltipY = event.clientY - rect.top - 40;
-                foodGlucoseTooltip.style.left = tooltipX + 'px';
-                foodGlucoseTooltip.style.top = tooltipY + 'px';
-            }
-        });
-
-        graphContainer.addEventListener('mouseleave', function () {
-            tooltipLine.style.display = 'none';
-            highGlucosePoint.style.display = 'none';
-            mediumGlucosePoint.style.display = 'none';
-            lowGlucosePoint.style.display = 'none';
-            foodGlucoseTooltip.style.display = 'none';
-        });
-    }
 });
