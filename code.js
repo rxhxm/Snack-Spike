@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let userScore = 0;
     let gameScenarios = [];
     let mockScenariosArray = [];
-    
+
     // Load the spike events data from JSON
     fetch('processed_data/spike_events.json')
         .then(response => response.json())
@@ -40,30 +40,30 @@ document.addEventListener('DOMContentLoaded', function () {
             // Fallback to mock data if loading fails
             createMockScenarios();
         });
-    
+
     // Prepare game scenarios from the loaded data
     function prepareGameScenarios() {
         if (spikeEventsData.length === 0) {
             createMockScenarios();
             return;
         }
-        
+
         // Filter for interesting spike events (significant rise, clear pattern)
         const goodScenarios = spikeEventsData.filter(event => {
             // Ensure we have a meaningful spike
             const spikeValue = event.SpikeValue;
             const baselineValue = event.BaselineValue;
             const spike = spikeValue - baselineValue;
-            
+
             // Only use events with significant spikes (>40 mg/dL) and complete response curve
             return spike > 40 && event.ResponseCurve && event.ResponseCurve.length > 10;
         });
-        
+
         if (goodScenarios.length === 0) {
             createMockScenarios();
             return;
         }
-        
+
         // Group scenarios by participant ID
         const participantGroups = {};
         goodScenarios.forEach(scenario => {
@@ -73,11 +73,11 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             participantGroups[id].push(scenario);
         });
-        
+
         // Select one scenario from each of three different participants if possible
         const selectedScenarios = [];
         const participantIds = Object.keys(participantGroups);
-        
+
         // Get at least 3 scenarios from different participants if possible
         for (let i = 0; i < Math.min(3, participantIds.length); i++) {
             const scenarios = participantGroups[participantIds[i]];
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const randomIndex = Math.floor(Math.random() * scenarios.length);
             selectedScenarios.push(scenarios[randomIndex]);
         }
-        
+
         // If we don't have 3 scenarios yet, add more from available participants
         while (selectedScenarios.length < 3 && participantIds.length > 0) {
             for (let i = 0; selectedScenarios.length < 3 && i < participantIds.length; i++) {
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             break; // Prevent infinite loop
         }
-        
+
         // If we still don't have 3 scenarios, create mock ones
         if (selectedScenarios.length < 3) {
             const mockScenarios = createMockScenariosArray();
@@ -110,13 +110,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 selectedScenarios.push(mockScenarios[selectedScenarios.length]);
             }
         }
-        
+
         gameScenarios = selectedScenarios;
-        
+
         // Set first scenario
         loadScenario(0);
     }
-    
+
     // Create a separate function to return mock scenarios without setting them
     function createMockScenariosArray() {
         return [
@@ -164,23 +164,23 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         ];
     }
-    
+
     // Create mock scenarios if no data is available
     function createMockScenarios() {
         console.log('Creating mock scenarios');
         gameScenarios = createMockScenariosArray();
-        
+
         // Load first scenario
         loadScenario(0);
     }
-    
+
     // Load a specific scenario
     function loadScenario(index) {
         console.log("Loading scenario at index:", index);
-        
+
         // Update the current scenario index
         currentScenarioIndex = index;
-        
+
         if (spikeEventsData && spikeEventsData.length > 0) {
             // Use real data if available
             currentScenario = gameScenarios[index % gameScenarios.length];
@@ -193,12 +193,12 @@ document.addEventListener('DOMContentLoaded', function () {
             currentScenario = mockScenariosArray[index % mockScenariosArray.length];
             console.log("Loaded mock scenario:", currentScenario);
         }
-        
+
         // Update the UI with the new scenario data
         updatePatientProfile();
         updateGlucoseSpike();
         updateFoodOptions();
-        
+
         // Ensure the submit button is properly configured
         const submitButton = document.getElementById('submit-analysis-btn');
         if (submitButton) {
@@ -206,11 +206,11 @@ document.addEventListener('DOMContentLoaded', function () {
             submitButton.classList.remove('active');
         }
     }
-    
+
     // Update patient profile based on current scenario
     function updatePatientProfile() {
         let name, age, bmi, a1c, fasting;
-        
+
         // Map patient IDs to real names
         const patientNames = {
             '001': 'Sarah Johnson',
@@ -221,15 +221,15 @@ document.addEventListener('DOMContentLoaded', function () {
             '012': 'Noah Thompson',
             '014': 'Sophia Martinez'
         };
-        
+
         if (currentScenario.FoodEvent) {
             // Using real data
             const participantId = currentScenario.ParticipantID;
             // Use mapped name or fallback to a generated name if ID not in map
             name = patientNames[participantId] || `Alex Patient-${participantId}`;
-            age = 30 + Math.floor(participantId.charCodeAt(participantId.length-1) % 20); // Generate consistent age
-            bmi = 22 + (participantId.charCodeAt(participantId.length-1) % 8); // Generate consistent BMI
-            a1c = (5.3 + (participantId.charCodeAt(participantId.length-1) % 10) / 10).toFixed(1) + "%";
+            age = 30 + Math.floor(participantId.charCodeAt(participantId.length - 1) % 20); // Generate consistent age
+            bmi = 22 + (participantId.charCodeAt(participantId.length - 1) % 8); // Generate consistent BMI
+            a1c = (5.3 + (participantId.charCodeAt(participantId.length - 1) % 10) / 10).toFixed(1) + "%";
             fasting = Math.floor(currentScenario.BaselineValue);
         } else {
             // Using mock data
@@ -239,7 +239,7 @@ document.addEventListener('DOMContentLoaded', function () {
             a1c = currentScenario.patientA1C;
             fasting = currentScenario.baselineValue;
         }
-        
+
         // Update the DOM
         document.querySelector('.patient-profile h3').textContent = `Patient Profile: ${name}`;
         document.querySelectorAll('.stat-item').forEach(item => {
@@ -254,11 +254,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 item.querySelector('.stat-value').textContent = `${fasting} mg/dL`;
             }
         });
-        
+
         // Update glucose alert
         const spikeTime = getSpikeTimeFormatted();
         const spikeValue = getSpikeValue();
-        
+
         const alertElement = document.querySelector('.glucose-alert p');
         if (alertElement) {
             alertElement.innerHTML = `
@@ -294,7 +294,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     p.innerHTML = p.innerHTML.replace(/\btheir\b/g, 'his');
                 }
             });
-            
+
             // Also update recommendation header
             const recommendationHeader = feedbackDiv.querySelector('div h4');
             if (recommendationHeader) {
@@ -302,7 +302,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     }
-    
+
     // Get formatted spike time for display
     function getSpikeTimeFormatted() {
         if (currentScenario.FoodEvent) {
@@ -319,26 +319,26 @@ document.addEventListener('DOMContentLoaded', function () {
             return currentScenario.spikeTime;
         }
     }
-    
+
     // Get spike value
     function getSpikeValue() {
-        return currentScenario.FoodEvent ? 
-            Math.round(currentScenario.SpikeValue) : 
+        return currentScenario.FoodEvent ?
+            Math.round(currentScenario.SpikeValue) :
             currentScenario.spikeValue;
     }
-    
+
     // Get baseline value
     function getBaselineValue() {
-        return currentScenario.FoodEvent ? 
-            Math.round(currentScenario.BaselineValue) : 
+        return currentScenario.FoodEvent ?
+            Math.round(currentScenario.BaselineValue) :
             currentScenario.baselineValue;
     }
-    
+
     // Update glucose spike visualization on the clock
     function updateGlucoseSpike() {
         const spikeTime = getSpikeTimeFormatted();
         const spikeValue = getSpikeValue();
-        
+
         // Convert time to angle
         let angle = 0;
         if (currentScenario.FoodEvent) {
@@ -353,48 +353,48 @@ document.addEventListener('DOMContentLoaded', function () {
                 let hours = parseInt(timeMatch[1]);
                 const minutes = parseInt(timeMatch[2]);
                 const ampm = timeMatch[3].toUpperCase();
-                
+
                 if (ampm === 'PM' && hours < 12) hours += 12;
                 if (ampm === 'AM' && hours === 12) hours = 0;
-                
+
                 angle = ((hours % 12) * 30) + (minutes / 2);
             }
         }
-        
+
         // Update the spike visualization
         const spikePath = document.getElementById('glucose-spike');
         const spikeMarker = document.querySelector('#glucose-event circle');
         const spikeLabel = document.querySelector('#glucose-event text');
-        
+
         // Calculate position for spike peak
         const point = polarToCartesian(300, 300, 270, angle);
-        
+
         // Update spike visualization
         let pathD = `M300,300 L${point.x},${point.y}`;
-        
+
         // Add a curve to make it look like a spike
         const controlPoints = generateSpikeControlPoints(300, 300, point.x, point.y);
         pathD += ` C${controlPoints[0].x},${controlPoints[0].y} ${controlPoints[1].x},${controlPoints[1].y} ${controlPoints[2].x},${controlPoints[2].y}`;
         pathD += ` C${controlPoints[3].x},${controlPoints[3].y} ${controlPoints[4].x},${controlPoints[4].y} 320,280 Z`;
-        
+
         spikePath.setAttribute('d', pathD);
         spikePath.setAttribute('fill', 'rgba(255, 107, 107, 0.2)');
         spikePath.setAttribute('stroke', '#FF6B6B');
-        
+
         // Update marker and label
         spikeMarker.setAttribute('cx', point.x);
         spikeMarker.setAttribute('cy', point.y);
         spikeLabel.setAttribute('x', point.x);
         spikeLabel.setAttribute('y', point.y - 15);
         spikeLabel.textContent = `${spikeValue} mg/dL`;
-        
+
         // Update legend text outside the SVG
         const legendTexts = document.querySelectorAll('.clock-container + div span:nth-child(2)');
         if (legendTexts.length >= 1) {
             legendTexts[0].textContent = `Glucose Spike (${spikeTime})`;
         }
     }
-    
+
     // Helper function to generate control points for the spike curve
     function generateSpikeControlPoints(cx, cy, peakX, peakY) {
         // Calculate distance and angle from center to peak
@@ -402,7 +402,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const dy = peakY - cy;
         const distance = Math.sqrt(dx * dx + dy * dy);
         const angle = Math.atan2(dy, dx);
-        
+
         // Create control points at various distances along the curve
         return [
             { x: cx + Math.cos(angle) * distance * 0.5, y: cy + Math.sin(angle) * distance * 0.5 - 50 },
@@ -412,7 +412,7 @@ document.addEventListener('DOMContentLoaded', function () {
             { x: cx + Math.cos(angle) * distance * 0.2, y: cy + Math.sin(angle) * distance * 0.2 - 10 }
         ];
     }
-    
+
     // Update available food options based on data
     function updateFoodOptions() {
         // If we have real food data
@@ -420,7 +420,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // Try to extract food name or use default options
             let foodName = currentScenario.FoodEvent.Description;
             let category = currentScenario.FoodEvent.GlycemicCategory || 'unknown';
-            
+
             // Clean up food name if it's just a date
             if (foodName.match(/^\d{4}-\d{2}-\d{2}/)) {
                 // Use category to determine food type
@@ -448,27 +448,27 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 }
             }
-            
+
             // Ensure food options include the relevant food
             // No need to modify UI here - the standard food options work fine
         }
     }
-    
+
     // Function to calculate score based on food placement
     function calculateScore(placedFood) {
         // Get the expected optimal time window
         let optimalTimeWindow, placedTimeValue;
-        
+
         // Get ideal timing window based on scenario
         if (currentScenario.FoodEvent) {
             // For real data, calculate time difference between food and spike
             const spikeTime = new Date(currentScenario.SpikeTime);
             const spikeHours = spikeTime.getHours();
             const spikeMinutes = spikeTime.getMinutes();
-            
+
             // Get food type from placed food
             const foodType = placedFood.dataset.food;
-            
+
             // Determine expected delay based on food and spike rise
             let expectedDelayMinutes;
             const foodTiming = placedFood.dataset.timing;
@@ -485,14 +485,14 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 expectedDelayMinutes = 45; // Default
             }
-            
+
             // Calculate optimal placement time by going back from spike time
             const optimalTime = new Date(spikeTime);
             optimalTime.setMinutes(optimalTime.getMinutes() - expectedDelayMinutes);
-            
+
             // Create time windows for scoring
             optimalTimeWindow = {
-                best: { 
+                best: {
                     start: expectedDelayMinutes - 10,
                     end: expectedDelayMinutes + 10
                 },
@@ -505,7 +505,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     end: expectedDelayMinutes + 30
                 }
             };
-            
+
             // Parse placed time
             const placedTime = placedFood.dataset.time; // Format: "1:40 PM"
             const placedTimeParts = placedTime.match(/(\d+):(\d+)\s*(AM|PM)/i);
@@ -513,23 +513,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 let hours = parseInt(placedTimeParts[1]);
                 const minutes = parseInt(placedTimeParts[2]);
                 const ampm = placedTimeParts[3].toUpperCase();
-                
+
                 if (ampm === 'PM' && hours < 12) hours += 12;
                 if (ampm === 'AM' && hours === 12) hours = 0;
-                
+
                 // Calculate minutes difference between placed time and spike time
                 const placedTimeObj = new Date();
                 placedTimeObj.setHours(hours, minutes, 0, 0);
-                
+
                 const spikeTimeObj = new Date();
                 spikeTimeObj.setHours(spikeHours, spikeMinutes, 0, 0);
-                
+
                 // Calculate time difference in minutes (spike time - placed time)
                 placedTimeValue = (spikeTimeObj - placedTimeObj) / (1000 * 60);
-                
+
                 // Handle edge case around midnight
-                if (placedTimeValue < -12*60) placedTimeValue += 24*60;
-                if (placedTimeValue > 12*60) placedTimeValue -= 24*60;
+                if (placedTimeValue < -12 * 60) placedTimeValue += 24 * 60;
+                if (placedTimeValue > 12 * 60) placedTimeValue -= 24 * 60;
             }
         } else {
             // For mock data
@@ -538,9 +538,9 @@ document.addEventListener('DOMContentLoaded', function () {
             const timingWindow = currentScenario.timingWindow.split('-');
             const minTiming = parseInt(timingWindow[0]);
             const maxTiming = parseInt(timingWindow[1]);
-            
+
             optimalTimeWindow = {
-                best: { 
+                best: {
                     start: minTiming - 5,
                     end: maxTiming + 5
                 },
@@ -553,34 +553,34 @@ document.addEventListener('DOMContentLoaded', function () {
                     end: maxTiming + 15
                 }
             };
-            
+
             // Calculate time difference
             const spikeTime = parseTimeString(currentScenario.spikeTime);
             const placedTime = parseTimeString(placedFood.dataset.time);
             placedTimeValue = (spikeTime - placedTime) / (1000 * 60);
         }
-        
+
         // Calculate score based on how close the placed time is to optimal
         let score = 0;
         let feedbackMessage = '';
-        
+
         // First, make sure the food was placed BEFORE the spike (positive placedTimeValue)
         if (placedTimeValue <= 0) {
             // Food placed after or at the spike time - doesn't make sense chronologically
             score = 0;
             feedbackMessage = "Food must be placed BEFORE the glucose spike. This timing is impossible.";
-        } else if (placedTimeValue >= optimalTimeWindow.best.start && 
-                  placedTimeValue <= optimalTimeWindow.best.end) {
+        } else if (placedTimeValue >= optimalTimeWindow.best.start &&
+            placedTimeValue <= optimalTimeWindow.best.end) {
             // Excellent placement
             score = 85 + Math.floor(Math.random() * 16); // 85-100
             feedbackMessage = "Excellent timing! This is very likely what caused the glucose spike.";
-        } else if (placedTimeValue >= optimalTimeWindow.good.start && 
-                  placedTimeValue <= optimalTimeWindow.good.end) {
+        } else if (placedTimeValue >= optimalTimeWindow.good.start &&
+            placedTimeValue <= optimalTimeWindow.good.end) {
             // Good placement
             score = 70 + Math.floor(Math.random() * 15); // 70-84
             feedbackMessage = "Good timing! Your placement is reasonably close to when the food likely caused the spike.";
-        } else if (placedTimeValue >= optimalTimeWindow.acceptable.start && 
-                  placedTimeValue <= optimalTimeWindow.acceptable.end) {
+        } else if (placedTimeValue >= optimalTimeWindow.acceptable.start &&
+            placedTimeValue <= optimalTimeWindow.acceptable.end) {
             // Acceptable placement
             score = 55 + Math.floor(Math.random() * 15); // 55-69
             feedbackMessage = "Acceptable timing. This food might have contributed to the spike at this time.";
@@ -598,23 +598,23 @@ document.addEventListener('DOMContentLoaded', function () {
             score = Math.max(10, 30 - Math.floor((placedTimeValue - 180) / 30) * 5);
             feedbackMessage = "This timing is unlikely to have caused the observed spike.";
         }
-        
+
         // Check if food type is appropriate for the spike
         const foodImpact = placedFood.dataset.impact;
         const spikeSize = getSpikeValue() - getBaselineValue();
-        
+
         let impactScore = 0;
         let impactFeedback = "";
-        
-        if ((spikeSize > 60 && foodImpact === 'high') || 
+
+        if ((spikeSize > 60 && foodImpact === 'high') ||
             (spikeSize > 30 && spikeSize <= 60 && foodImpact === 'medium') ||
             (spikeSize <= 30 && foodImpact === 'low')) {
             // Food impact matches spike size
             impactScore = 15;
             impactFeedback = "This type of food is a good match for the observed glucose response.";
         } else if ((spikeSize > 60 && foodImpact === 'medium') ||
-                  (spikeSize > 30 && spikeSize <= 60 && (foodImpact === 'high' || foodImpact === 'low')) ||
-                  (spikeSize <= 30 && foodImpact === 'medium')) {
+            (spikeSize > 30 && spikeSize <= 60 && (foodImpact === 'high' || foodImpact === 'low')) ||
+            (spikeSize <= 30 && foodImpact === 'medium')) {
             // Food impact is close to matching spike size
             impactScore = 8;
             impactFeedback = "This food could cause this kind of response, though other foods might be more typical.";
@@ -623,10 +623,10 @@ document.addEventListener('DOMContentLoaded', function () {
             impactScore = 0;
             impactFeedback = "This type of food typically causes a different glucose response pattern.";
         }
-        
+
         // Final score combines timing and food type
         const finalScore = Math.min(100, score + impactScore);
-        
+
         return {
             score: finalScore,
             feedbackMessage: feedbackMessage,
@@ -634,7 +634,7 @@ document.addEventListener('DOMContentLoaded', function () {
             placedTimeValue: placedTimeValue
         };
     }
-    
+
     // Helper function to parse time string like "1:40 PM"
     function parseTimeString(timeStr) {
         const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
@@ -642,51 +642,51 @@ document.addEventListener('DOMContentLoaded', function () {
             let hours = parseInt(match[1]);
             const minutes = parseInt(match[2]);
             const ampm = match[3].toUpperCase();
-            
+
             if (ampm === 'PM' && hours < 12) hours += 12;
             if (ampm === 'AM' && hours === 12) hours = 0;
-            
+
             const time = new Date();
             time.setHours(hours, minutes, 0, 0);
             return time;
         }
         return null;
     }
-    
+
     // Function to show the results after a food has been placed and submitted
     function showResults(food, time, impact, timing) {
         console.log("Showing results for", food, "at", time);
-        
+
         const resultsPanel = document.querySelector('.results-panel');
         if (!resultsPanel) {
             console.error("Results panel not found");
             return;
         }
-        
+
         // Replace the hardcoded score with the proper calculation
         // Calculate score based on food placement
         const placedFood = document.querySelector('.placed-food');
         const scoreData = calculateScore(placedFood);
         let score = scoreData.score; // Get the dynamic score
-        
+
         // Get current patient name
         const patientName = document.querySelector('.patient-profile h3').textContent.replace('Patient Profile: ', '');
         const spikeTime = document.querySelector('.glucose-alert p strong').textContent.split(' at ')[1].split('</strong>')[0];
         const spikeValue = parseInt(document.querySelector('.glucose-alert p strong').textContent.split(' of ')[1].split(' mg')[0]);
         const baselineValue = parseInt(document.querySelector('.stat-item:nth-child(4) .stat-value').textContent);
-        
+
         // Update results content
         document.getElementById('placed-food-name').textContent = food.charAt(0).toUpperCase() + food.slice(1);
         document.getElementById('placed-food-time').textContent = time;
         document.getElementById('food-timing').textContent = timing;
         document.getElementById('glycemic-impact').textContent = impact;
-        
+
         // Calculate glucose delta
         const glucoseDelta = spikeValue - baselineValue;
-        
+
         // Update score
         document.querySelector('.score').textContent = `Score: ${score}/100`;
-        
+
         // Update feedback text based on score
         let feedbackMessage = '';
         if (score >= 85) {
@@ -698,70 +698,70 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             feedbackMessage = "Not quite right. The timing doesn't align well with typical glucose responses.";
         }
-        
+
         // Update feedback based on food timing and score
-        document.querySelector('.feedback p:nth-child(1)').innerHTML = 
+        document.querySelector('.feedback p:nth-child(1)').innerHTML =
             `<strong>${feedbackMessage}</strong>`;
-        
-        document.querySelector('.feedback p:nth-child(2)').innerHTML = 
+
+        document.querySelector('.feedback p:nth-child(2)').innerHTML =
             `The ${food} you placed at ${time} typically causes glucose to rise within ${timing} minutes, 
             which ${score >= 70 ? 'aligns well with' : "doesn't align perfectly with"} the ${spikeTime} spike ${patientName} experienced.`;
-        
+
         // Update insights
-        document.querySelector('.feedback p:nth-child(4)').innerHTML = 
+        document.querySelector('.feedback p:nth-child(4)').innerHTML =
             `This food raised ${patientName}'s glucose by approximately <strong>${glucoseDelta} mg/dL</strong> 
             at its peak (from baseline of ${baselineValue} mg/dL to ${spikeValue} mg/dL). 
             The response lasted about <strong>2.5 hours</strong> before returning to baseline.`;
-        
+
         // Update impact info
-        const pronouns = patientName.split(' ')[0].toLowerCase() === 'sarah' || 
-                         patientName.split(' ')[0].toLowerCase() === 'emma' ? 
-                         { pronoun: 'she', possessive: 'her' } : 
-                         { pronoun: 'he', possessive: 'his' };
-        
-        document.querySelector('.feedback p:nth-child(5)').innerHTML = 
+        const pronouns = patientName.split(' ')[0].toLowerCase() === 'sarah' ||
+            patientName.split(' ')[0].toLowerCase() === 'emma' ?
+            { pronoun: 'she', possessive: 'her' } :
+            { pronoun: 'he', possessive: 'his' };
+
+        document.querySelector('.feedback p:nth-child(5)').innerHTML =
             `For ${patientName}, this food is a <strong>${impact}</strong> glycemic impact food.
             ${pronouns.pronoun.charAt(0).toUpperCase() + pronouns.pronoun.slice(1)} might consider pairing it with protein or healthy fats to reduce the spike in the future.
             ${scoreData.impactFeedback || 'This food could cause this kind of response, though other foods might be more typical.'}`;
-        
+
         // Update recommendations header
         document.querySelector('.feedback div h4').textContent = `Recommendations for ${patientName}:`;
-        
+
         // Show results panel
         resultsPanel.style.display = 'block';
-        
+
         // Hide submit button
         const submitButton = document.getElementById('submit-analysis-btn');
         if (submitButton) {
             submitButton.style.display = 'none';
         }
-        
+
         // Scroll to results
         resultsPanel.scrollIntoView({ behavior: 'smooth' });
-        
+
         console.log("Results displayed with score:", score);
     }
-    
+
     // Reset game state for a new scenario
     function resetGameState() {
         console.log("Resetting game state"); // Debug log
-        
+
         // Use the cleanup function to remove all food elements
         cleanupOrphanedFoodElements();
-        
+
         // Reset food options - make them all draggable again
         const foodOptions = document.querySelectorAll('.food-option');
         foodOptions.forEach(option => {
             option.classList.add('draggable');
             option.style.opacity = '1';
         });
-        
+
         // Hide time indicator
         const timeIndicatorLine = document.getElementById('time-indicator-line');
         const timeIndicatorLabel = document.getElementById('time-indicator-label');
         if (timeIndicatorLine) timeIndicatorLine.style.display = 'none';
         if (timeIndicatorLabel) timeIndicatorLabel.style.display = 'none';
-        
+
         // Reset drop target
         const dropTarget = document.getElementById('drop-target');
         if (dropTarget) dropTarget.style.display = 'none';
@@ -840,14 +840,14 @@ document.addEventListener('DOMContentLoaded', function () {
         } else if (hours >= 24) {
             hours = hours - 12; // Convert 24+ to 12 AM, etc.
         }
-        
+
         // Calculate minutes (each degree = 2 minutes)
         let minutes = Math.floor((angleInDegrees % 30) * 2);
-        
+
         // Format with AM/PM
         const ampm = hours >= 12 ? 'PM' : 'AM';
         hours = hours > 12 ? hours - 12 : hours;
-        
+
         return `${hours}:${minutes.toString().padStart(2, '0')} ${ampm}`;
     }
 
@@ -859,14 +859,14 @@ document.addEventListener('DOMContentLoaded', function () {
     function startDrag(e) {
         console.log("Start drag", e.target);
         e.preventDefault();
-        
+
         // Clean up any orphaned food elements before starting a new drag
         cleanupOrphanedFoodElements();
-        
+
         // Remember which item is being dragged
         draggedItem = e.target;
         draggedItem.classList.add('dragging');
-        
+
         // Create a clone for dragging
         const clone = draggedItem.cloneNode(true);
         clone.id = 'drag-clone';
@@ -876,24 +876,24 @@ document.addEventListener('DOMContentLoaded', function () {
         clone.style.opacity = '0.8';
         clone.style.transform = 'scale(1.2)';
         document.body.appendChild(clone);
-        
+
         // Position the clone at the cursor
         const rect = draggedItem.getBoundingClientRect();
         const offsetX = e.clientX - rect.left;
         const offsetY = e.clientY - rect.top;
         clone.style.left = (e.clientX - offsetX) + 'px';
         clone.style.top = (e.clientY - offsetY) + 'px';
-        
+
         // Add global event listeners for drag
         document.addEventListener('mousemove', moveDrag);
         document.addEventListener('mouseup', endDrag);
-        
+
         // Show the drop target on the clock
         const dropTarget = document.getElementById('drop-target');
         if (dropTarget) {
             dropTarget.style.display = 'block';
         }
-        
+
         // Initial position update
         moveDrag(e);
     }
@@ -905,19 +905,19 @@ document.addEventListener('DOMContentLoaded', function () {
             clone.style.left = (e.clientX - 20) + 'px';  // Offset slightly for better visibility
             clone.style.top = (e.clientY - 20) + 'px';
         }
-        
+
         // Show time indicator when hovering over clock
         if (!clockContainer) return;
-        
+
         const clockRect = clockContainer.getBoundingClientRect();
         const clockCenterX = clockRect.left + clockRect.width / 2;
         const clockCenterY = clockRect.top + clockRect.height / 2;
-        
+
         const distance = Math.sqrt(
             Math.pow(e.clientX - clockCenterX, 2) +
             Math.pow(e.clientY - clockCenterY, 2)
         );
-        
+
         // If mouse is over the clock
         if (distance <= clockRect.width / 2) {
             // Calculate angle
@@ -927,44 +927,44 @@ document.addEventListener('DOMContentLoaded', function () {
                 e.clientX,
                 e.clientY
             );
-            
+
             // Format time string
             const timeStr = formatTime(angle);
-            
+
             // Update time indicator
             const timeIndicatorLine = document.getElementById('time-indicator-line');
             const timeIndicatorLabel = document.getElementById('time-indicator-label');
-            
+
             if (timeIndicatorLine) {
                 // Calculate endpoint for the time indicator line
                 const point = polarToCartesian(300, 300, 250, angle);
-                
+
                 // Set line endpoints
                 timeIndicatorLine.setAttribute('x1', '300');
                 timeIndicatorLine.setAttribute('y1', '300');
                 timeIndicatorLine.setAttribute('x2', point.x);
                 timeIndicatorLine.setAttribute('y2', point.y);
-                
+
                 // Show the line
                 timeIndicatorLine.style.display = 'block';
             }
-            
+
             if (timeIndicatorLabel) {
                 // Calculate position for the time label
                 const point = polarToCartesian(300, 300, 270, angle);
-                
+
                 // Convert SVG point to screen coordinates
                 const svgElement = document.getElementById('glucose-clock');
                 const svgPoint = svgElement.createSVGPoint();
                 svgPoint.x = point.x;
                 svgPoint.y = point.y;
-                
+
                 const screenPoint = svgPoint.matrixTransform(svgElement.getScreenCTM());
-                
+
                 // Position the label
                 timeIndicatorLabel.style.left = (screenPoint.x - clockRect.left - 30) + 'px';
                 timeIndicatorLabel.style.top = (screenPoint.y - clockRect.top - 25) + 'px';
-                
+
                 // Set the label text and show it
                 timeIndicatorLabel.textContent = timeStr;
                 timeIndicatorLabel.style.display = 'block';
@@ -973,7 +973,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // Hide time indicator when not over the clock
             const timeIndicatorLine = document.getElementById('time-indicator-line');
             const timeIndicatorLabel = document.getElementById('time-indicator-label');
-            
+
             if (timeIndicatorLine) timeIndicatorLine.style.display = 'none';
             if (timeIndicatorLabel) timeIndicatorLabel.style.display = 'none';
         }
@@ -1076,18 +1076,18 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log("Updating submit button state");
         const placedFood = document.querySelector('.placed-food');
         const submitButton = document.getElementById('submit-analysis-btn');
-        
+
         if (!submitButton) {
             console.error("Submit button not found");
             return;
         }
-        
+
         if (placedFood) {
             console.log("Food placed, enabling submit button");
             submitButton.disabled = false;
             submitButton.classList.add('active');
             submitButton.style.display = 'block';
-            
+
             // Add a subtle animation to draw attention to the button
             submitButton.animate([
                 { transform: 'scale(1)' },
@@ -1108,7 +1108,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const submitBtn = document.getElementById('submit-analysis-btn');
     if (submitBtn) {
         console.log("Setting up submit button event listener");
-        submitBtn.addEventListener('click', function() {
+        submitBtn.addEventListener('click', function () {
             console.log("Submit button clicked");
             const placedFood = document.querySelector('.placed-food');
             if (placedFood) {
@@ -1125,7 +1125,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Handle "Try Another" button
     if (tryAnotherBtn) {
-        tryAnotherBtn.addEventListener('click', function() {
+        tryAnotherBtn.addEventListener('click', function () {
             tryAnotherAnalysis();
         });
     }
@@ -1448,73 +1448,73 @@ document.addEventListener('DOMContentLoaded', function () {
 /* ////////////////////
 Add this to your JavaScript section
 /////////////////// */
-        // Loading screen animation
-        document.addEventListener('DOMContentLoaded', function () {
-            const loadingScreen = document.getElementById('loading-screen');
-            const candyFilling = document.getElementById('candy-filling');
-            const loadingPercentage = document.getElementById('loading-percentage');
-            const glucoseDots = document.querySelector('.glucose-dots');
+// Loading screen animation
+document.addEventListener('DOMContentLoaded', function () {
+    const loadingScreen = document.getElementById('loading-screen');
+    const candyFilling = document.getElementById('candy-filling');
+    const loadingPercentage = document.getElementById('loading-percentage');
+    const glucoseDots = document.querySelector('.glucose-dots');
 
-            let progress = 0;
+    let progress = 0;
 
-            // Show loading screen
-            loadingScreen.style.opacity = 1;
-            loadingScreen.style.visibility = 'visible';
+    // Show loading screen
+    loadingScreen.style.opacity = 1;
+    loadingScreen.style.visibility = 'visible';
 
-            // Start loading animation
+    // Start loading animation
+    setTimeout(() => {
+        glucoseDots.style.opacity = 1;
+    }, 500);
+
+    // Simulate loading progress
+    const interval = setInterval(() => {
+        progress += Math.random() * 10;
+
+        if (progress > 100) progress = 100;
+
+        // Update candy bar filling
+        candyFilling.style.width = `${progress}%`;
+
+        // Update percentage text
+        loadingPercentage.textContent = `${Math.round(progress)}%`;
+
+        // When loading is complete
+        if (progress === 100) {
+            clearInterval(interval);
+
+            // Wait a moment at 100% before hiding
             setTimeout(() => {
-                glucoseDots.style.opacity = 1;
-            }, 500);
+                // Hide loading screen
+                loadingScreen.style.opacity = 0;
+                loadingScreen.style.visibility = 'hidden';
 
-            // Simulate loading progress
-            const interval = setInterval(() => {
-                progress += Math.random() * 10;
-
-                if (progress > 100) progress = 100;
-
-                // Update candy bar filling
-                candyFilling.style.width = `${progress}%`;
-
-                // Update percentage text
-                loadingPercentage.textContent = `${Math.round(progress)}%`;
-
-                // When loading is complete
-                if (progress === 100) {
-                    clearInterval(interval);
-
-                    // Wait a moment at 100% before hiding
-                    setTimeout(() => {
-                        // Hide loading screen
-                        loadingScreen.style.opacity = 0;
-                        loadingScreen.style.visibility = 'hidden';
-
-                        // Remove loading screen from DOM after transition
-                        setTimeout(() => {
-                            loadingScreen.remove();
-                        }, 500);
-                    }, 800);
-                }
-            }, 150);
-        });
+                // Remove loading screen from DOM after transition
+                setTimeout(() => {
+                    loadingScreen.remove();
+                }, 500);
+            }, 800);
+        }
+    }, 150);
+});
 
 // Function to clean up any orphaned food elements
 function cleanupOrphanedFoodElements() {
     console.log("Cleaning up orphaned food elements");
-    
+
     // Remove any existing placed food elements
     const placedFoods = document.querySelectorAll('.placed-food');
     placedFoods.forEach(food => {
         console.log("Removing orphaned food element:", food);
         food.remove();
     });
-    
+
     // Remove any drag clones that might still exist
     const dragClones = document.querySelectorAll('#drag-clone');
     dragClones.forEach(clone => {
         console.log("Removing orphaned drag clone:", clone);
         clone.remove();
     });
-    
+
     // Remove any ghost food elements
     const ghostFoods = document.querySelectorAll('.ghost-food');
     ghostFoods.forEach(ghost => {
@@ -1526,29 +1526,29 @@ function cleanupOrphanedFoodElements() {
 // Function to reset the game and load a new scenario
 function tryAnotherAnalysis() {
     console.log("Try another analysis clicked");
-    
+
     try {
         // Hide results panel first
         const resultsPanel = document.querySelector('.results-panel');
         if (resultsPanel) {
             resultsPanel.style.display = 'none';
         }
-        
+
         // Initialize scenarios if they don't exist
         if (!window.scenarios || !Array.isArray(window.scenarios) || window.scenarios.length === 0) {
             console.log("Scenarios not found or empty, initializing new scenarios");
             prepareGameScenarios();
         }
-        
+
         // Get current scenario index, default to 0 if not set
         if (typeof window.currentScenarioIndex !== 'number') {
             window.currentScenarioIndex = 0;
         }
-        
+
         // Increment scenario index with wraparound
         window.currentScenarioIndex = (window.currentScenarioIndex + 1) % window.scenarios.length;
         console.log("Moving to scenario index:", window.currentScenarioIndex);
-        
+
         // Thorough cleanup
         // 1. Remove placed food
         cleanupOrphanedFoodElements();
@@ -1556,7 +1556,7 @@ function tryAnotherAnalysis() {
         if (placedFood && placedFood.parentNode) {
             placedFood.parentNode.removeChild(placedFood);
         }
-        
+
         // 2. Reset food options
         const foodOptions = document.querySelectorAll('.food-option');
         foodOptions.forEach(option => {
@@ -1568,7 +1568,7 @@ function tryAnotherAnalysis() {
             option.style.top = '';
             option.style.zIndex = '';
         });
-        
+
         // 3. Reset and show submit button
         const submitButton = document.getElementById('submit-analysis-btn');
         if (submitButton) {
@@ -1576,30 +1576,30 @@ function tryAnotherAnalysis() {
             submitButton.disabled = true;
             submitButton.classList.remove('active');
         }
-        
+
         // 4. Reset visual indicators
         const timeIndicatorLine = document.getElementById('time-indicator-line');
         const timeIndicatorLabel = document.getElementById('time-indicator-label');
         const dropTarget = document.getElementById('drop-target');
-        
+
         if (timeIndicatorLine) timeIndicatorLine.style.display = 'none';
         if (timeIndicatorLabel) timeIndicatorLabel.style.display = 'none';
         if (dropTarget) dropTarget.style.display = 'none';
-        
+
         // Load the next scenario and update UI
-        if (window.scenarios && window.scenarios.length > 0 && 
+        if (window.scenarios && window.scenarios.length > 0 &&
             window.currentScenarioIndex < window.scenarios.length) {
-            
+
             const nextScenario = window.scenarios[window.currentScenarioIndex];
             if (!nextScenario) {
                 throw new Error("Invalid scenario at index " + window.currentScenarioIndex);
             }
-            
+
             console.log("Loading scenario:", nextScenario);
             loadScenario(window.currentScenarioIndex);
             updatePatientProfile();
             updateGlucoseSpike();
-            
+
             console.log("Scenario loaded successfully");
             return true;
         } else {
@@ -1608,13 +1608,13 @@ function tryAnotherAnalysis() {
         }
     } catch (error) {
         console.error("Error in tryAnotherAnalysis:", error);
-        
+
         // Fallback: try to create new scenarios on error
         try {
             console.log("Attempting fallback: creating new scenarios");
             prepareGameScenarios();
             window.currentScenarioIndex = 0;
-            
+
             if (window.scenarios && window.scenarios.length > 0) {
                 loadScenario(0);
                 updatePatientProfile();
@@ -1625,7 +1625,7 @@ function tryAnotherAnalysis() {
         } catch (fallbackError) {
             console.error("Fallback failed:", fallbackError);
         }
-        
+
         // If we get here, both main attempt and fallback failed
         alert("There was an error loading the next scenario. Please refresh the page.");
         return false;
@@ -1635,27 +1635,27 @@ function tryAnotherAnalysis() {
 // Update initGame to call cleanupOrphanedFoodElements during initialization
 function initGame() {
     console.log("Initializing game...");
-    
+
     // Clean up any orphaned food elements from previous sessions
     cleanupOrphanedFoodElements();
-    
+
     // Make sure clockContainer is set
     clockContainer = document.querySelector('.clock-container');
     if (!clockContainer) {
         console.error("Clock container not found");
     }
-    
+
     // Initialize food options
     const foodOptions = document.querySelectorAll('.food-option');
     foodOptions.forEach(option => {
         option.addEventListener('mousedown', startDrag);
         console.log("Added drag event to", option.textContent);
     });
-    
+
     // Set up the submit button
     const submitBtn = document.getElementById('submit-analysis-btn');
     if (submitBtn) {
-        submitBtn.addEventListener('click', function() {
+        submitBtn.addEventListener('click', function () {
             console.log("Submit button clicked");
             const placedFood = document.querySelector('.placed-food');
             if (placedFood) {
@@ -1670,11 +1670,11 @@ function initGame() {
     } else {
         console.error("Submit button not found");
     }
-    
+
     // Set up the try another button
     const tryAnotherBtn = document.getElementById('try-another-btn');
     if (tryAnotherBtn) {
-        tryAnotherBtn.addEventListener('click', function(e) {
+        tryAnotherBtn.addEventListener('click', function (e) {
             console.log("Try another button clicked directly");
             e.preventDefault();
             tryAnotherAnalysis();
@@ -1683,33 +1683,388 @@ function initGame() {
     } else {
         console.error("Try another button not found");
     }
-    
+
     console.log("Game initialization complete");
 }
 
 // Update resetGameState to use cleanupOrphanedFoodElements
 function resetGameState() {
     console.log("Resetting game state");
-    
+
     // Use the cleanup function to remove all food elements
     cleanupOrphanedFoodElements();
-    
+
     // Reset food options - make them all draggable again
     const foodOptions = document.querySelectorAll('.food-option');
     foodOptions.forEach(option => {
         option.classList.add('draggable');
         option.style.opacity = '1';
     });
-    
+
     // Hide time indicator
     const timeIndicatorLine = document.getElementById('time-indicator-line');
     const timeIndicatorLabel = document.getElementById('time-indicator-label');
     if (timeIndicatorLine) timeIndicatorLine.style.display = 'none';
     if (timeIndicatorLabel) timeIndicatorLabel.style.display = 'none';
-    
+
     // Reset drop target
     const dropTarget = document.getElementById('drop-target');
     if (dropTarget) dropTarget.style.display = 'none';
 }
 
-// ... existing code ...
+/* /////////////////////////
+FOOD COMPARISON GRAPH START
+///////////////////////// */
+let whiteRiceLine, appleLine, broccoliLine;
+let filters = { high: true, medium: true, low: true };
+let legendItems;
+
+function selectFoodCategory(category) {
+    // Reset all buttons to inactive state
+    document.querySelectorAll('.food-toggle-btn').forEach(btn => {
+        btn.style.background = '#f5f5f7';
+        btn.style.color = '#333';
+    });
+
+    // Reset all food category cards
+    document.querySelectorAll('.food-category').forEach(card => {
+        card.style.borderColor = '#f0f0f0';
+        card.style.transform = 'scale(1)';
+        card.style.boxShadow = '0 2px 8px rgba(0,0,0,0.05)';
+    });
+
+    // Set specific button to active
+    if (category !== 'all') {
+        document.getElementById(category + '-btn').style.background = '#0066CC';
+        document.getElementById(category + '-btn').style.color = 'white';
+    } else {
+        document.getElementById('view-all-btn').style.background = '#0066CC';
+        document.getElementById('view-all-btn').style.color = 'white';
+    }
+
+    // Highlight the selected food category card
+    if (category !== 'all') {
+        const selectedCard = document.querySelector(`.${category}-glycemic`);
+        selectedCard.style.borderColor = category === 'high' ? '#e53935' :
+            category === 'medium' ? '#ff9800' : '#4caf50';
+        selectedCard.style.transform = 'scale(1.05)';
+        selectedCard.style.boxShadow = '0 5px 15px rgba(0,0,0,0.1)';
+    }
+
+    // Update our filters based on the selected view option
+    if (category === 'all') {
+        filters = { high: true, medium: true, low: true };
+    } else if (category === 'high') {
+        filters = { high: true, medium: false, low: false };
+    } else if (category === 'medium') {
+        filters = { high: false, medium: true, low: false };
+    } else if (category === 'low') {
+        filters = { high: false, medium: false, low: true };
+    }
+    updateFilters();
+}
+
+function updateFilters() {
+    // Update the display of each line based on the filters object.
+    if (whiteRiceLine && appleLine && broccoliLine) {
+        whiteRiceLine.style("display", filters.high ? "block" : "none");
+        appleLine.style("display", filters.medium ? "block" : "none");
+        broccoliLine.style("display", filters.low ? "block" : "none");
+    }
+    // Update legend item appearance.
+    if (legendItems) {
+        legendItems.select("rect")
+            .attr("fill-opacity", d => filters[d.category] ? 1 : 0.3);
+        legendItems.select("text")
+            .style("opacity", d => filters[d.category] ? 1 : 0.3);
+    }
+}
+
+function drawD3Graph() {
+    d3.json("./processed_data/food_responses.json").then(function (data) {
+        // Filter for the three foods:
+        const whiteRice = data.high.find(d => d.FoodDescription.toLowerCase() === "white rice");
+        const apple = data.medium.find(d => d.FoodDescription.toLowerCase() === "apple");
+        const broccoli = data.low.find(d => d.FoodDescription.toLowerCase() === "broccoli");
+
+        // Check that we have data for each food before plotting
+        if (!whiteRice || !apple || !broccoli) {
+            console.error("Missing one or more food items from the JSON data.");
+            return;
+        }
+
+        // Set up SVG dimensions and margins
+        const margin = { top: 20, right: 30, bottom: 40, left: 60 },
+            width = 800 - margin.left - margin.right,
+            height = 400 - margin.top - margin.bottom;
+
+        // Create SVG element inside the container with id "food-comparison-graph"
+        const svg = d3.select("#food-comparison-graph")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Combine the Response arrays from all three foods to set common domains
+        const combinedData = whiteRice.Response.concat(apple.Response, broccoli.Response);
+
+        // Set the x domain using MinutesSinceFood
+        const xExtent = d3.extent(combinedData, d => d.MinutesSinceFood);
+        const xScale = d3.scaleLinear()
+            .domain(xExtent)
+            .range([0, width]);
+
+        // Set the y domain using the Value field (with padding)
+        const yExtent = d3.extent(combinedData, d => d.Value);
+        const yScale = d3.scaleLinear()
+            .domain([yExtent[0] - 10, yExtent[1] + 10])
+            .range([height, 0]);
+
+        // Add x-axis
+        svg.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(xScale).ticks(10).tickFormat(d => d + " min"));
+
+        // Add y-axis
+        svg.append("g")
+            .call(d3.axisLeft(yScale));
+
+        // Add x-axis label
+        svg.append("text")
+            .attr("class", "x-axis-label")
+            .attr("x", width / 2)
+            .attr("y", height + margin.bottom - 5)
+            .attr("text-anchor", "middle")
+            .style("font-size", "14px")
+            .text("Time (min)");
+
+        // Add y-axis label
+        svg.append("text")
+            .attr("class", "y-axis-label")
+            .attr("transform", "rotate(-90)")
+            .attr("x", -height / 2)
+            .attr("y", -margin.left + 20)
+            .attr("text-anchor", "middle")
+            .style("font-size", "14px")
+            .text("Glucose Level (mg/dL)");
+
+        // Define a line generator function
+        const lineGenerator = d3.line()
+            .x(d => xScale(d.MinutesSinceFood))
+            .y(d => yScale(d.Value));
+
+        // Draw the White rice line (high glycemic) in red
+        whiteRiceLine = svg.append("path")
+            .datum(whiteRice.Response)
+            .attr("fill", "none")
+            .attr("stroke", "#e53935")
+            .attr("stroke-width", 2)
+            .attr("d", lineGenerator);
+
+        // Draw the Apple line (medium glycemic) in orange
+        appleLine = svg.append("path")
+            .datum(apple.Response)
+            .attr("fill", "none")
+            .attr("stroke", "#ff9800")
+            .attr("stroke-width", 2)
+            .attr("d", lineGenerator);
+
+        // Draw the Broccoli line (low glycemic) in green
+        broccoliLine = svg.append("path")
+            .datum(broccoli.Response)
+            .attr("fill", "none")
+            .attr("stroke", "#4caf50")
+            .attr("stroke-width", 2)
+            .attr("d", lineGenerator);
+
+        // Add a chart title at the top
+        svg.append("text")
+            .attr("x", width / 2)
+            .attr("y", 10)
+            .attr("text-anchor", "middle")
+            .style("font-size", "16px")
+            .style("font-weight", "bold")
+            .text("Glucose Levels Over Time");
+
+        // Create a legend group
+        const legendData = [
+            { name: "White Rice", color: "#e53935", category: "high" },
+            { name: "Apple", color: "#ff9800", category: "medium" },
+            { name: "Broccoli", color: "#4caf50", category: "low" }
+        ];
+
+        const legend = svg.append("g")
+            .attr("class", "legend")
+            .attr("transform", `translate(${width - 150}, 20)`);
+
+        legendItems = legend.selectAll(".legend-item")
+            .data(legendData)
+            .enter()
+            .append("g")
+            .attr("class", "legend-item")
+            .attr("transform", (d, i) => `translate(0, ${i * 25})`)
+            .style("cursor", "pointer")
+            .on("click", function (event, d) {
+                // Toggle the filter state for the clicked legend item 
+                filters[d.category] = !filters[d.category];
+                updateFilters();
+            });
+
+        legendItems.append("rect")
+            .attr("width", 20)
+            .attr("height", 20)
+            .attr("fill", d => d.color)
+            .attr("stroke", "#ccc");
+
+        legendItems.append("text")
+            .attr("x", 30)
+            .attr("y", 15)
+            .text(d => d.name)
+            .style("font-size", "12px");
+
+        updateFilters();
+
+        // 1) Circles for each line
+        const wrCircle = svg.append("circle")
+            .attr("r", 4)
+            .attr("fill", "#fff")           // White fill
+            .attr("stroke", "#e53935")      // Red stroke for White Rice
+            .attr("stroke-width", 2)
+            .style("display", "none");
+
+        const appleCircle = svg.append("circle")
+            // White fill, orange stroke
+            .attr("r", 4)
+            .attr("fill", "#fff")
+            .attr("stroke", "#ff9800")
+            .attr("stroke-width", 2)
+            .style("display", "none");
+
+        const brocCircle = svg.append("circle")
+            // White fill, green stroke
+            .attr("r", 4)
+            .attr("fill", "#fff")
+            .attr("stroke", "#4caf50")
+            .attr("stroke-width", 2)
+            .style("display", "none");
+
+        // 2) Tooltip div
+        const tooltip = d3.select("body").append("div")
+            .style("position", "absolute")
+            .style("background", "rgba(0,0,0,0.7)")
+            .style("color", "#fff")
+            .style("padding", "6px 10px")
+            .style("border-radius", "4px")
+            .style("font-size", "12px")
+            .style("pointer-events", "none")
+            .style("display", "none");
+
+        // 3) Vertical hover line
+        const hoverLine = svg.append("line")
+            .attr("stroke", "#0066CC")
+            .attr("stroke-width", 2)
+            .attr("y1", 0)
+            .attr("y2", height)
+            .style("display", "none");
+
+        // 4) Large invisible rect for mouse events
+        svg.append("rect")
+            .attr("class", "hover-capture")
+            .attr("width", width)
+            .attr("height", height)
+            .style("fill", "none")
+            .style("pointer-events", "all")
+            .on("mousemove", function (event) {
+                const mouseX = d3.pointer(event, this)[0];
+                const time = xScale.invert(mouseX);
+
+                // Helper: find data point in an array with closest MinutesSinceFood
+                function findClosest(arr, t) {
+                    let closest = arr[0];
+                    let minDist = Math.abs(t - arr[0].MinutesSinceFood);
+                    for (let i = 1; i < arr.length; i++) {
+                        const dist = Math.abs(t - arr[i].MinutesSinceFood);
+                        if (dist < minDist) {
+                            minDist = dist;
+                            closest = arr[i];
+                        }
+                    }
+                    return closest;
+                }
+
+                const wrPoint = findClosest(whiteRice.Response, time);
+                const applePoint = findClosest(apple.Response, time);
+                const brocPoint = findClosest(broccoli.Response, time);
+
+                // Position circles (only show if that line is visible)
+                if (filters.high) {
+                    wrCircle
+                        .attr("cx", xScale(wrPoint.MinutesSinceFood))
+                        .attr("cy", yScale(wrPoint.Value))
+                        .style("display", "block");
+                } else {
+                    wrCircle.style("display", "none");
+                }
+                if (filters.medium) {
+                    appleCircle
+                        .attr("cx", xScale(applePoint.MinutesSinceFood))
+                        .attr("cy", yScale(applePoint.Value))
+                        .style("display", "block");
+                } else {
+                    appleCircle.style("display", "none");
+                }
+                if (filters.low) {
+                    brocCircle
+                        .attr("cx", xScale(brocPoint.MinutesSinceFood))
+                        .attr("cy", yScale(brocPoint.Value))
+                        .style("display", "block");
+                } else {
+                    brocCircle.style("display", "none");
+                }
+
+                // Build tooltip content with color-coded lines
+                const displayTime = wrPoint.MinutesSinceFood;
+                let tooltipContent = `Time: ${Math.round(displayTime)} min<br>`;
+                if (filters.high) {
+                    tooltipContent += `<span style="color: #e53935;">White Rice: ${Math.round(wrPoint.Value)} mg/dL</span><br>`;
+                }
+                if (filters.medium) {
+                    tooltipContent += `<span style="color: #ff9800;">Apple: ${Math.round(applePoint.Value)} mg/dL</span><br>`;
+                }
+                if (filters.low) {
+                    tooltipContent += `<span style="color: #4caf50;">Broccoli: ${Math.round(brocPoint.Value)} mg/dL</span>`;
+                }
+
+                tooltip.html(tooltipContent)
+                    .style("left", (event.pageX + 15) + "px")
+                    .style("top", (event.pageY - 40) + "px")
+                    .style("display", "block");
+
+                hoverLine
+                    .attr("x1", mouseX)
+                    .attr("x2", mouseX)
+                    .style("display", "block");
+            })
+            .on("mouseleave", function () {
+                tooltip.style("display", "none");
+                hoverLine.style("display", "none");
+                wrCircle.style("display", "none");
+                appleCircle.style("display", "none");
+                brocCircle.style("display", "none");
+            });
+    }).catch(function (error) {
+        console.error("Error loading JSON data:", error);
+    });
+}
+
+// FOOD CONSUMPTION GRAPH INITALIZATION
+document.addEventListener('DOMContentLoaded', function () {
+    // Initialize with all graphs showing
+    drawD3Graph();
+    selectFoodCategory('all');
+});
+
+/* //////////////////////
+FOOD COMPARISON GRAPH END
+////////////////////// */
