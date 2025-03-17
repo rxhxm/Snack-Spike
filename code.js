@@ -1016,11 +1016,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Create a time scale mapping degrees (0-360) to hours (0-24)
             const timeScale = d3.scaleLinear().domain([0, 360]).range([0, 24]);
-            function formatTime(hours) {
+            function formatTime(hours, twelve = false) {
                 const totalMinutes = Math.round(hours * 60);
                 const hh = Math.floor(totalMinutes / 60);
                 const mm = totalMinutes % 60;
-                return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
+
+                if (twelve) {
+                    const ampm = hh >= 12 ? 'PM' : 'AM';
+                    hours = hh > 12 ? hh - 12 : hh;
+                    return `${hours}:${mm.toString().padStart(2, '0')} ${ampm}`;
+                } else {
+                    return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
+                }
             }
 
             // Variables to track drag state
@@ -1110,7 +1117,8 @@ document.addEventListener('DOMContentLoaded', function () {
                             let angleDeg = angleRad * (180 / Math.PI);
                             if (angleDeg < 0) angleDeg += 360;
                             const hoursDecimal = timeScale(angleDeg);
-                            const dropTime = formatTime(hoursDecimal); // e.g., "13:40"
+                            const dropTime = formatTime(hoursDecimal, true); // e.g., "13:40"
+                            console.log(dropTime);
 
                             // Remove the temporary drag icon
                             dragIcon.remove();
