@@ -1856,8 +1856,6 @@ function drawUnderstandingGlucoseGraph() {
                 Math.abs(xScale(curr.HourOfDay) - mouseX) < Math.abs(xScale(prev.HourOfDay) - mouseX) ? curr : prev
             );
 
-            console.log("Mouse moved, closest point:", closestDataPoint);
-
             dot.attr("cx", xScale(closestDataPoint.HourOfDay))
                 .attr("cy", yScale(closestDataPoint.Value))
                 .style("display", "block"); // Show dot
@@ -1882,7 +1880,6 @@ function drawUnderstandingGlucoseGraph() {
             label.style("display", "block");
         })
         .on("mouseout", () => {
-            console.log("Mouse out, hiding elements");
             dot.style("display", "none");  // Hide dot
             label.style("display", "none");  // Hide label
         });
