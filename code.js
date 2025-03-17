@@ -196,7 +196,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Update the UI with the new scenario data
         updatePatientProfile();
-        updateGlucoseSpike();
         updateFoodOptions();
 
         // Ensure the submit button is properly configured
@@ -205,6 +204,9 @@ document.addEventListener('DOMContentLoaded', function () {
             submitButton.disabled = true;
             submitButton.classList.remove('active');
         }
+
+        let patientID = currentScenario.FoodEvent ? currentScenario.ParticipantID : currentScenario.name;
+        loadChart(patientID);
     }
 
     // Update patient profile based on current scenario
@@ -332,85 +334,6 @@ document.addEventListener('DOMContentLoaded', function () {
         return currentScenario.FoodEvent ?
             Math.round(currentScenario.BaselineValue) :
             currentScenario.baselineValue;
-    }
-
-    // Update glucose spike visualization on the clock
-    function updateGlucoseSpike() {
-        const spikeTime = getSpikeTimeFormatted();
-        const spikeValue = getSpikeValue();
-
-        // Convert time to angle
-        let angle = 0;
-        if (currentScenario.FoodEvent) {
-            const spikeTimeObj = new Date(currentScenario.SpikeTime);
-            const hours = spikeTimeObj.getHours();
-            const minutes = spikeTimeObj.getMinutes();
-            angle = ((hours % 12) * 30) + (minutes / 2); // 30 degrees per hour, 0.5 degrees per minute
-        } else {
-            // Parse mock time (e.g., "2:00 PM")
-            const timeMatch = currentScenario.spikeTime.match(/(\d+):(\d+)\s*(AM|PM)/i);
-            if (timeMatch) {
-                let hours = parseInt(timeMatch[1]);
-                const minutes = parseInt(timeMatch[2]);
-                const ampm = timeMatch[3].toUpperCase();
-
-                if (ampm === 'PM' && hours < 12) hours += 12;
-                if (ampm === 'AM' && hours === 12) hours = 0;
-
-                angle = ((hours % 12) * 30) + (minutes / 2);
-            }
-        }
-
-        // Update the spike visualization
-        const spikePath = document.getElementById('glucose-spike');
-        const spikeMarker = document.querySelector('#glucose-event circle');
-        const spikeLabel = document.querySelector('#glucose-event text');
-
-        // Calculate position for spike peak
-        const point = polarToCartesian(300, 300, 270, angle);
-
-        // Update spike visualization
-        let pathD = `M300,300 L${point.x},${point.y}`;
-
-        // Add a curve to make it look like a spike
-        const controlPoints = generateSpikeControlPoints(300, 300, point.x, point.y);
-        pathD += ` C${controlPoints[0].x},${controlPoints[0].y} ${controlPoints[1].x},${controlPoints[1].y} ${controlPoints[2].x},${controlPoints[2].y}`;
-        pathD += ` C${controlPoints[3].x},${controlPoints[3].y} ${controlPoints[4].x},${controlPoints[4].y} 320,280 Z`;
-
-        spikePath.setAttribute('d', pathD);
-        spikePath.setAttribute('fill', 'rgba(255, 107, 107, 0.2)');
-        spikePath.setAttribute('stroke', '#FF6B6B');
-
-        // Update marker and label
-        spikeMarker.setAttribute('cx', point.x);
-        spikeMarker.setAttribute('cy', point.y);
-        spikeLabel.setAttribute('x', point.x);
-        spikeLabel.setAttribute('y', point.y - 15);
-        spikeLabel.textContent = `${spikeValue} mg/dL`;
-
-        // Update legend text outside the SVG
-        const legendTexts = document.querySelectorAll('.clock-container + div span:nth-child(2)');
-        if (legendTexts.length >= 1) {
-            legendTexts[0].textContent = `Glucose Spike (${spikeTime})`;
-        }
-    }
-
-    // Helper function to generate control points for the spike curve
-    function generateSpikeControlPoints(cx, cy, peakX, peakY) {
-        // Calculate distance and angle from center to peak
-        const dx = peakX - cx;
-        const dy = peakY - cy;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        const angle = Math.atan2(dy, dx);
-
-        // Create control points at various distances along the curve
-        return [
-            { x: cx + Math.cos(angle) * distance * 0.5, y: cy + Math.sin(angle) * distance * 0.5 - 50 },
-            { x: cx + Math.cos(angle) * distance * 0.7, y: cy + Math.sin(angle) * distance * 0.7 - 40 },
-            { x: cx + Math.cos(angle) * distance * 0.6, y: cy + Math.sin(angle) * distance * 0.6 - 30 },
-            { x: cx + Math.cos(angle) * distance * 0.4, y: cy + Math.sin(angle) * distance * 0.4 - 20 },
-            { x: cx + Math.cos(angle) * distance * 0.2, y: cy + Math.sin(angle) * distance * 0.2 - 10 }
-        ];
     }
 
     // Update available food options based on data
@@ -665,7 +588,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Replace the hardcoded score with the proper calculation
         // Calculate score based on food placement
-        const placedFood = document.querySelector('.placed-food');
+        const placedFood = document.querySelector('.dropped-food');
         const scoreData = calculateScore(placedFood);
         let score = scoreData.score; // Get the dynamic score
 
@@ -808,273 +731,10 @@ document.addEventListener('DOMContentLoaded', function () {
         startGameBtn.addEventListener('click', showGame);
     }
 
-    // Helper functions for the clock interactions
-    function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
-        const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
-        return {
-            x: centerX + (radius * Math.cos(angleInRadians)),
-            y: centerY + (radius * Math.sin(angleInRadians))
-        };
-    }
-
-    function calculateAngle(centerX, centerY, pointX, pointY) {
-        const deltaX = pointX - centerX;
-        const deltaY = pointY - centerY;
-        let angle = Math.atan2(deltaY, deltaX) * 180 / Math.PI + 90;
-        if (angle < 0) angle += 360;
-        return angle;
-    }
-
-    function calculateDistance(centerX, centerY, pointX, pointY) {
-        const deltaX = pointX - centerX;
-        const deltaY = pointY - centerY;
-        return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-    }
-
-    function formatTime(angleInDegrees) {
-        // For our clock, 0 degrees = 12:00, 30 degrees = 1:00, etc.
-        // We want to map this to afternoon hours (12 PM to 12 AM)
-        let hours = Math.floor(angleInDegrees / 30) + 12;
-        if (hours > 12 && hours < 24) {
-            // Keep as PM hours (1 PM to 11 PM)
-        } else if (hours >= 24) {
-            hours = hours - 12; // Convert 24+ to 12 AM, etc.
-        }
-
-        // Calculate minutes (each degree = 2 minutes)
-        let minutes = Math.floor((angleInDegrees % 30) * 2);
-
-        // Format with AM/PM
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-        hours = hours > 12 ? hours - 12 : hours;
-
-        return `${hours}:${minutes.toString().padStart(2, '0')} ${ampm}`;
-    }
-
-    // Initialize drag and drop functionality
-    draggableItems.forEach(item => {
-        item.addEventListener('mousedown', startDrag);
-    });
-
-    function startDrag(e) {
-        console.log("Start drag", e.target);
-        e.preventDefault();
-
-        // Clean up any orphaned food elements before starting a new drag
-        cleanupOrphanedFoodElements();
-
-        // Remember which item is being dragged
-        draggedItem = e.target;
-        draggedItem.classList.add('dragging');
-
-        // Create a clone for dragging
-        const clone = draggedItem.cloneNode(true);
-        clone.id = 'drag-clone';
-        clone.style.position = 'absolute';
-        clone.style.zIndex = '1000';
-        clone.style.pointerEvents = 'none';
-        clone.style.opacity = '0.8';
-        clone.style.transform = 'scale(1.2)';
-        document.body.appendChild(clone);
-
-        // Position the clone at the cursor
-        const rect = draggedItem.getBoundingClientRect();
-        const offsetX = e.clientX - rect.left;
-        const offsetY = e.clientY - rect.top;
-        clone.style.left = (e.clientX - offsetX) + 'px';
-        clone.style.top = (e.clientY - offsetY) + 'px';
-
-        // Add global event listeners for drag
-        document.addEventListener('mousemove', moveDrag);
-        document.addEventListener('mouseup', endDrag);
-
-        // Show the drop target on the clock
-        const dropTarget = document.getElementById('drop-target');
-        if (dropTarget) {
-            dropTarget.style.display = 'block';
-        }
-
-        // Initial position update
-        moveDrag(e);
-    }
-
-    function moveDrag(e) {
-        // Move the clone to follow the cursor
-        const clone = document.getElementById('drag-clone');
-        if (clone) {
-            clone.style.left = (e.clientX - 20) + 'px';  // Offset slightly for better visibility
-            clone.style.top = (e.clientY - 20) + 'px';
-        }
-
-        // Show time indicator when hovering over clock
-        if (!clockContainer) return;
-
-        const clockRect = clockContainer.getBoundingClientRect();
-        const clockCenterX = clockRect.left + clockRect.width / 2;
-        const clockCenterY = clockRect.top + clockRect.height / 2;
-
-        const distance = Math.sqrt(
-            Math.pow(e.clientX - clockCenterX, 2) +
-            Math.pow(e.clientY - clockCenterY, 2)
-        );
-
-        // If mouse is over the clock
-        if (distance <= clockRect.width / 2) {
-            // Calculate angle
-            const angle = calculateAngle(
-                clockCenterX,
-                clockCenterY,
-                e.clientX,
-                e.clientY
-            );
-
-            // Format time string
-            const timeStr = formatTime(angle);
-
-            // Update time indicator
-            const timeIndicatorLine = document.getElementById('time-indicator-line');
-            const timeIndicatorLabel = document.getElementById('time-indicator-label');
-
-            if (timeIndicatorLine) {
-                // Calculate endpoint for the time indicator line
-                const point = polarToCartesian(300, 300, 250, angle);
-
-                // Set line endpoints
-                timeIndicatorLine.setAttribute('x1', '300');
-                timeIndicatorLine.setAttribute('y1', '300');
-                timeIndicatorLine.setAttribute('x2', point.x);
-                timeIndicatorLine.setAttribute('y2', point.y);
-
-                // Show the line
-                timeIndicatorLine.style.display = 'block';
-            }
-
-            if (timeIndicatorLabel) {
-                // Calculate position for the time label
-                const point = polarToCartesian(300, 300, 270, angle);
-
-                // Convert SVG point to screen coordinates
-                const svgElement = document.getElementById('glucose-clock');
-                const svgPoint = svgElement.createSVGPoint();
-                svgPoint.x = point.x;
-                svgPoint.y = point.y;
-
-                const screenPoint = svgPoint.matrixTransform(svgElement.getScreenCTM());
-
-                // Position the label
-                timeIndicatorLabel.style.left = (screenPoint.x - clockRect.left - 30) + 'px';
-                timeIndicatorLabel.style.top = (screenPoint.y - clockRect.top - 25) + 'px';
-
-                // Set the label text and show it
-                timeIndicatorLabel.textContent = timeStr;
-                timeIndicatorLabel.style.display = 'block';
-            }
-        } else {
-            // Hide time indicator when not over the clock
-            const timeIndicatorLine = document.getElementById('time-indicator-line');
-            const timeIndicatorLabel = document.getElementById('time-indicator-label');
-
-            if (timeIndicatorLine) timeIndicatorLine.style.display = 'none';
-            if (timeIndicatorLabel) timeIndicatorLabel.style.display = 'none';
-        }
-    }
-
-    function endDrag(e) {
-        // Clean up event listeners
-        document.removeEventListener('mousemove', moveDrag);
-        document.removeEventListener('mouseup', endDrag);
-
-        // Remove the clone
-        const cloneElement = document.getElementById('drag-clone');
-        if (cloneElement) {
-            cloneElement.remove();
-        }
-
-        // Hide drop target
-        document.getElementById('drop-target').style.display = 'none';
-
-        // Check if dropped on the clock
-        const clockRect = clockContainer.getBoundingClientRect();
-        const clockCenterX = clockRect.left + clockRect.width / 2;
-        const clockCenterY = clockRect.top + clockRect.height / 2;
-
-        const distance = Math.sqrt(
-            Math.pow(e.clientX - clockCenterX, 2) +
-            Math.pow(e.clientY - clockCenterY, 2)
-        );
-
-        // If dropped on clock, place the food at that time
-        if (distance <= clockRect.width / 2) {
-            // Calculate angle based on drop position
-            const angle = calculateAngle(
-                clockCenterX,
-                clockCenterY,
-                e.clientX,
-                e.clientY
-            );
-
-            const timeStr = formatTime(angle);
-
-            // Calculate position for placed food
-            const foodPoint = polarToCartesian(300, 300, 230, angle);
-            const svgPoint = document.getElementById('glucose-clock').createSVGPoint();
-            svgPoint.x = foodPoint.x;
-            svgPoint.y = foodPoint.y;
-
-            const screenPoint = svgPoint.matrixTransform(
-                document.getElementById('glucose-clock').getScreenCTM()
-            );
-
-            // Create placed food element
-            const placedFood = document.createElement('div');
-            placedFood.className = 'placed-food';
-            placedFood.textContent = draggedItem.textContent.split(' ')[0]; // Just the emoji
-            placedFood.dataset.food = draggedItem.dataset.food;
-            placedFood.dataset.time = timeStr;
-            placedFood.dataset.impact = draggedItem.dataset.impact;
-            placedFood.dataset.timing = draggedItem.dataset.timing;
-            placedFood.dataset.angle = angle.toString(); // Store the angle for later use
-
-            placedFood.style.left = (screenPoint.x - clockRect.left) + 'px';
-            placedFood.style.top = (screenPoint.y - clockRect.top) + 'px';
-
-            clockContainer.appendChild(placedFood);
-
-            // Call updateSubmitButton to enable the submit button
-            updateSubmitButton();
-
-            // Show notification
-            const notification = document.getElementById('prediction-notification');
-            if (notification) {
-                notification.textContent = 'Food placed! Click Submit Your Analysis when ready.';
-                notification.style.display = 'block';
-
-                // Hide notification after 3 seconds
-                setTimeout(() => {
-                    notification.style.opacity = '0';
-                    setTimeout(() => {
-                        notification.style.display = 'none';
-                        notification.style.opacity = '1';
-                    }, 500);
-                }, 3000);
-            }
-        }
-
-        // Reset dragged item
-        if (draggedItem) {
-            draggedItem.classList.remove('dragging');
-            draggedItem = null;
-        }
-
-        // Hide time indicator
-        timeIndicatorLine.style.display = 'none';
-        timeIndicatorLabel.style.display = 'none';
-    }
-
     // Update the updateSubmitButton function to properly enable the button
     function updateSubmitButton() {
         console.log("Updating submit button state");
-        const placedFood = document.querySelector('.placed-food');
+        const placedFood = document.querySelector('.dropped-food');
         const submitButton = document.getElementById('submit-analysis-btn');
 
         if (!submitButton) {
@@ -1110,7 +770,7 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log("Setting up submit button event listener");
         submitBtn.addEventListener('click', function () {
             console.log("Submit button clicked");
-            const placedFood = document.querySelector('.placed-food');
+            const placedFood = document.querySelector('.dropped-food');
             if (placedFood) {
                 const foodName = placedFood.dataset.food;
                 const placedTime = placedFood.dataset.time;
@@ -1129,238 +789,379 @@ document.addEventListener('DOMContentLoaded', function () {
             tryAnotherAnalysis();
         });
     }
-});
+    /* ////////////
+    NEW RADIAL CHART IMPLEMENTATION START
+    ///////////// */
 
-/* ////////////
-Molecule Animation Script
-/////////// */
 
-// Three.js setup
-let scene, camera, renderer;
-let glucoseMolecules = [];
-let rotationSpeed = 0.01;
-let glucoseCount = 0;
+    // Dimensions for the SVG
+    const width = 600,
+        height = 600,
+        margin = 20;
 
-function init() {
-    // Create scene
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xFFFFFF);
+    // Center coordinates
+    const centerX = width / 2,
+        centerY = height / 2;
 
-    // Create camera
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 5;
+    // Create SVG and group element
+    const svg = d3.select("#radial-chart")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
 
-    // Create renderer
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.getElementById('canvas').appendChild(renderer.domElement);
+    const g = svg.append("g")
+        .attr("transform", `translate(${centerX}, ${centerY})`);
 
-    // Add lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    scene.add(ambientLight);
-
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(1, 1, 1);
-    scene.add(directionalLight);
-
-    // Create glucose molecules
-    createGlucoseMolecules(15);
-
-    // Add event listeners
-    window.addEventListener('resize', onWindowResize);
-    window.addEventListener('click', onMouseClick);
-
-    // Start animation
-    animate();
-}
-
-function createGlucoseMolecules(count) {
-    for (let i = 0; i < count; i++) {
-        // Main glucose ring (hexagon)
-        const ringGeometry = new THREE.TorusGeometry(0.3, 0.05, 16, 6);
-        const ringMaterial = new THREE.MeshPhongMaterial({ color: 0xFFCC00 });
-        const ring = new THREE.Mesh(ringGeometry, ringMaterial);
-
-        // Carbon atoms
-        const carbonMaterial = new THREE.MeshPhongMaterial({ color: 0x333333 });
-        const carbonGeometry = new THREE.SphereGeometry(0.08, 16, 16);
-
-        // Oxygen atoms
-        const oxygenMaterial = new THREE.MeshPhongMaterial({ color: 0xFF5555 });
-        const oxygenGeometry = new THREE.SphereGeometry(0.07, 16, 16);
-
-        // Hydrogen atoms
-        const hydrogenMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFFFF });
-        const hydrogenGeometry = new THREE.SphereGeometry(0.05, 16, 16);
-
-        // Create group for the whole molecule
-        const molecule = new THREE.Group();
-        molecule.add(ring);
-
-        // Add atoms at strategic positions around the ring
-        for (let j = 0; j < 6; j++) {
-            const angle = (j / 6) * Math.PI * 2;
-            const x = Math.cos(angle) * 0.3;
-            const y = Math.sin(angle) * 0.3;
-
-            const carbon = new THREE.Mesh(carbonGeometry, carbonMaterial);
-            carbon.position.set(x, y, 0);
-            molecule.add(carbon);
-
-            // Add oxygen to some carbons
-            if (j % 2 === 0) {
-                const oxygen = new THREE.Mesh(oxygenGeometry, oxygenMaterial);
-                oxygen.position.set(x * 1.3, y * 1.3, 0.1);
-                molecule.add(oxygen);
-            }
-
-            // Add hydrogens
-            const hydrogen = new THREE.Mesh(hydrogenGeometry, hydrogenMaterial);
-            hydrogen.position.set(x * 1.2, y * 1.2, -0.1);
-            molecule.add(hydrogen);
-        }
-
-        // Position molecule randomly in space
-        molecule.position.x = (Math.random() - 0.5) * 10;
-        molecule.position.y = (Math.random() - 0.5) * 10;
-        molecule.position.z = (Math.random() - 0.5) * 10;
-
-        // Random rotation
-        molecule.rotation.x = Math.random() * Math.PI;
-        molecule.rotation.y = Math.random() * Math.PI;
-
-        // Add velocity for animation
-        molecule.userData = {
-            velocityX: (Math.random() - 0.5) * 0.02,
-            velocityY: (Math.random() - 0.5) * 0.02,
-            velocityZ: (Math.random() - 0.5) * 0.02,
-            rotationX: (Math.random() - 0.5) * 0.02,
-            rotationY: (Math.random() - 0.5) * 0.02,
-            rotationZ: (Math.random() - 0.5) * 0.02,
-            clickable: true
+    // Helper: convert polar (r, degrees) to Cartesian (x, y)
+    function polarToCartesian(r, angleDeg) {
+        // We want angle=0 at the top (i.e., -90 in typical math).
+        // So we do angleDeg - 90 so that 0 => top, 90 => right, etc.
+        const angleRad = (angleDeg) * Math.PI / 180;
+        return {
+            x: r * Math.cos(angleRad),
+            y: r * Math.sin(angleRad)
         };
-
-        scene.add(molecule);
-        glucoseMolecules.push(molecule);
     }
-}
 
-function animate() {
-    requestAnimationFrame(animate);
+    function loadChart(patient) {
 
-    // Animate each molecule
-    glucoseMolecules.forEach(molecule => {
-        if (!molecule.userData.clickable) return;
+        // Group events by ParticipantID (or choose one randomly)
+        const eventsByParticipant = d3.group(spikeEventsData, d => d.ParticipantID);
+        const participantIDs = Array.from(eventsByParticipant.keys());
 
-        // Apply rotation
-        molecule.rotation.x += molecule.userData.rotationX;
-        molecule.rotation.y += molecule.userData.rotationY;
-        molecule.rotation.z += molecule.userData.rotationZ;
+        // For example, choose one participant randomly:
+        let chosenID = patient;
+        // Get the events for that participant – and choose the first one:
+        const event = eventsByParticipant.get(chosenID)[0];
+        const responseCurve = event.ResponseCurve;
 
-        // Apply movement
-        molecule.position.x += molecule.userData.velocityX;
-        molecule.position.y += molecule.userData.velocityY;
-        molecule.position.z += molecule.userData.velocityZ;
-
-        // Bounce off invisible boundaries
-        if (Math.abs(molecule.position.x) > 5) {
-            molecule.userData.velocityX *= -1;
-        }
-        if (Math.abs(molecule.position.y) > 5) {
-            molecule.userData.velocityY *= -1;
-        }
-        if (Math.abs(molecule.position.z) > 5) {
-            molecule.userData.velocityZ *= -1;
-        }
-    });
-
-    renderer.render(scene, camera);
-}
-
-function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-}
-
-function onMouseClick(event) {
-    // Calculate mouse position in normalized device coordinates
-    const mouse = new THREE.Vector2();
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-    // Raycasting to detect clicks on molecules
-    const raycaster = new THREE.Raycaster();
-    raycaster.setFromCamera(mouse, camera);
-
-    const intersects = raycaster.intersectObjects(scene.children, true);
-
-    if (intersects.length > 0) {
-        // Find the parent molecule
-        let moleculeClicked = false;
-        for (let i = 0; i < glucoseMolecules.length; i++) {
-            const molecule = glucoseMolecules[i];
-            if (!molecule.userData.clickable) continue;
-
-            if (molecule.children.some(child => {
-                return intersects.some(intersect => intersect.object === child);
-            })) {
-                // "Collect" the molecule
-                collectMolecule(molecule);
-                moleculeClicked = true;
-                break;
-            }
-        }
-
-        // If no molecule was clicked, create a random one
-        if (!moleculeClicked && intersects[0].object.parent === scene) {
-            createGlucoseMolecules(1);
-        }
-    }
-}
-
-function collectMolecule(molecule) {
-    // Animate collection
-    molecule.userData.clickable = false;
-
-    // Animation - grow and fade out
-    let scale = 1.0;
-    const fadeInterval = setInterval(() => {
-        scale += 0.1;
-        molecule.scale.set(scale, scale, scale);
-
-        // Make children start fading
-        molecule.children.forEach(child => {
-            if (child.material) {
-                if (!child.material.transparent) {
-                    child.material = child.material.clone();
-                    child.material.transparent = true;
-                }
-                child.material.opacity -= 0.1;
-            }
+        // Convert ResponseCurve timestamps to Date objects
+        const parseTime = d3.isoParse; responseCurve.forEach(d => {
+            d.ParsedTime = parseTime(d.Timestamp);
         });
 
-        if (scale >= 2.0) {
-            clearInterval(fadeInterval);
-            scene.remove(molecule);
+        // Outer ring is 160 mg/dL, choose some padding so circles fit
+        const minTime = d3.min(responseCurve, d => d.ParsedTime);
+        const maxTime = d3.max(responseCurve, d => d.ParsedTime);
+        const minGlucose = d3.min(responseCurve, d => d.Value);
+        const maxGlucose = d3.max(responseCurve, d => d.Value) + 10;
+        const innerRadius = 0;
+        const outerRadius = 250;
+        const glucoseTicks = d3.ticks(minGlucose, maxGlucose, 6);
 
-            // Remove from array
-            const index = glucoseMolecules.indexOf(molecule);
-            if (index > -1) {
-                glucoseMolecules.splice(index, 1);
+        const rScale = d3.scaleLinear()
+            .domain([minGlucose, maxGlucose])
+            .range([innerRadius, outerRadius]);
+
+        // Color scheme for rings
+        const colorBelow120 = "#E3F5E8"; // light green
+        const colorAbove120 = "#FFF8DC"; // light cream
+
+        // Create arcs for each glucose band
+        const arcGenerator = d3.arc()
+            .startAngle(0)
+            .endAngle(2 * Math.PI);
+
+        const angleScale = d3.scaleTime()
+            .domain([minTime, maxTime])
+            .range([0, 2 * Math.PI]);
+
+        // For each consecutive pair (80->100, 100->120, etc.), draw a filled arc
+        for (let i = 0; i < glucoseTicks.length - 1; i++) {
+            const startVal = glucoseTicks[i];
+            const endVal = glucoseTicks[i + 1];
+
+            // Decide color based on whether this band is below or above 120 mg/dL
+            const fillColor = i <= glucoseTicks.length / 3 ? colorBelow120 : colorAbove120;
+
+            g.append("path")
+                .attr("fill", fillColor)
+                .attr("stroke", "#ddd")  // optional ring boundary stroke
+                .attr("stroke-width", 1)
+                .attr("d", arcGenerator
+                    .innerRadius(rScale(startVal))
+                    .outerRadius(rScale(endVal))
+                );
+        }
+
+        // Add top-aligned labels for each tick
+        glucoseTicks.forEach((tickValue, i) => {
+            if (i === 0) return;
+
+            const radius = rScale(tickValue);
+            // Place label at angle=0 (the top)
+            const { x, y } = polarToCartesian(radius, -112.5);
+
+            g.append("text")
+                .attr("transform", `translate(${x}, ${y}) rotate(${-22.5})`)
+                .attr("text-anchor", "middle")
+                .attr("font-size", "12px")
+                .attr("fill", "#666")
+                .text(`${tickValue} mg/dL`);
+        });
+
+        const radialLine = d3.lineRadial()
+            .angle(d => angleScale(d.ParsedTime))
+            .radius(d => rScale(d.Value))
+            .curve(d3.curveCardinal);
+
+        g.append("path")
+            .datum(responseCurve)
+            .attr("fill", "none")
+            .attr("stroke", "red")
+            .attr("stroke-width", 2)
+            .attr("d", radialLine);
+
+        // Draw time ticks for every 3 hours: 0,3,6,9,...,21
+        // We want 0 => top, 6 => right, 12 => bottom, 18 => left
+        // We'll do angle = hour*15 - 90
+        const hourTicks = d3.range(0, 24, 3);
+
+        hourTicks.forEach(hour => {
+            // Convert hour to angle
+            // hour=0 => angle=-90 => top
+            // hour=6 => angle=0 => right
+            // hour=12 => angle=90 => bottom
+            // hour=18 => angle=180 => left
+            const angleDeg = hour * 15 - 90;
+
+            // We'll draw a small tick line from outerRadius to outerRadius+10
+            const tickStart = polarToCartesian(outerRadius, angleDeg);
+            const tickEnd = polarToCartesian(outerRadius + 10, angleDeg);
+
+            g.append("line")
+                .attr("x1", tickStart.x)
+                .attr("y1", tickStart.y)
+                .attr("x2", tickEnd.x)
+                .attr("y2", tickEnd.y)
+                .attr("stroke", "#333")
+                .attr("stroke-width", 2);
+
+            // Add the hour label slightly beyond the tick
+            const labelPos = polarToCartesian(outerRadius + 25, angleDeg);
+
+            // Format hour: e.g., 0 => 00:00, 3 => 03:00, etc.
+            const hourStr = String(hour).padStart(2, "0");
+            g.append("text")
+                .attr("x", labelPos.x)
+                .attr("y", labelPos.y + 4)
+                .attr("text-anchor", "middle")
+                .attr("font-size", "14px")
+                .attr("fill", "#333")
+                .text(`${hourStr}:00`);
+
+            // Optional: draw a small center circle
+            g.append("circle")
+                .attr("r", 5)
+                .attr("fill", "#333");
+
+            // Compute the maximum data point (assumes a single maximum)
+            const maxDataPoint = event.ResponseCurve.reduce((max, d) => d.Value > max.Value ? d : max, event.ResponseCurve[0]);
+            const maxAngleRad = angleScale(maxDataPoint.ParsedTime);
+            const maxAngleDeg = maxAngleRad * (180 / Math.PI) - 90;
+
+            // Compute the radial distance for the max glucose value
+            const maxRadius = rScale(maxDataPoint.Value);
+
+            // Get the (x,y) coordinates using polarToCartesian (which expects degrees)
+            const maxPos = polarToCartesian(maxRadius, maxAngleDeg);
+
+            // Draw a dot at the maximum point
+            g.append("circle")
+                .attr("cx", maxPos.x)
+                .attr("cy", maxPos.y)
+                .attr("r", 4)
+                .attr("fill", "red");
+
+            // Add a text label next to the dot (offset as needed)
+            g.append("text")
+                .attr("x", maxPos.x + 6) // shift a bit to the right
+                .attr("y", maxPos.y)
+                .attr("font-size", "12px")
+                .attr("fill", "red")
+                .attr("alignment-baseline", "middle")
+                .text(`Max: ${maxDataPoint.Value} mg/dL`);
+
+            // Global elements for the clock hand and popup on the graph
+            const clockHand = g.append("line")
+                .attr("id", "clock-hand")
+                .attr("stroke", "blue")
+                .attr("stroke-width", 2)
+                .attr("stroke-dasharray", "4,4")
+                .style("display", "none");
+
+            const timePopup = g.append("text")
+                .attr("id", "time-popup")
+                .attr("font-size", "12px")
+                .attr("fill", "blue")
+                .attr("text-anchor", "middle")
+                .style("display", "none");
+
+            // Create a time scale mapping degrees (0-360) to hours (0-24)
+            const timeScale = d3.scaleLinear().domain([0, 360]).range([0, 24]);
+            function formatTime(hours) {
+                const totalMinutes = Math.round(hours * 60);
+                const hh = Math.floor(totalMinutes / 60);
+                const mm = totalMinutes % 60;
+                return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
             }
 
-            // Create a new molecule
-            setTimeout(() => {
-                createGlucoseMolecules(1);
-            }, 500);
-        }
-    }, 50);
+            // Variables to track drag state
+            let currentDraggedOption = null;
+            let dragIcon = null;
+            let droppedFood = null;
 
-    // Update counter
-    glucoseCount++;
-    document.getElementById('count').textContent = glucoseCount;
-}
+            // Apply drag behavior to the food options
+            d3.selectAll(".food-option.draggable")
+                .call(d3.drag()
+                    .on("start", function (event, d) {
+                        currentDraggedOption = d3.select(this);
+                        // If an icon is already dropped on the graph, remove it and reinsert its original option
+                        if (droppedFood) {
+                            d3.select(".food-selection").node().appendChild(droppedFood.node());
+                            droppedFood.remove();
+                            droppedFood = null;
+                        }
+                        // Fade out and hide the original option
+                        currentDraggedOption.style("opacity", 0.5).style("display", "none");
+
+                        // Create a floating drag icon in the body using only the first character (emoji)
+                        let foodText = currentDraggedOption.text().trim().split(" ")[0];
+                        dragIcon = d3.select("body")
+                            .append("div")
+                            .attr("class", "drag-icon")
+                            .style("position", "absolute")
+                            .style("pointer-events", "none")
+                            .style("width", "40px")
+                            .style("height", "40px")
+                            .style("border-radius", "50%")
+                            .style("background", "#fff")
+                            .style("box-shadow", "0 2px 6px rgba(0,0,0,0.3)")
+                            .style("display", "flex")
+                            .style("align-items", "center")
+                            .style("justify-content", "center")
+                            .style("font-size", "24px")
+                            .html(foodText);
+
+                        // Show the blue dotted clock hand and the time popup
+                        clockHand.style("display", null);
+                        timePopup.style("display", null);
+                    })
+                    .on("drag", function (event, d) {
+                        // Update the drag icon position
+                        dragIcon.style("left", (event.sourceEvent.pageX - 20) + "px")
+                            .style("top", (event.sourceEvent.pageY - 20) + "px");
+
+                        // Get mouse coordinates relative to the SVG
+                        const [mx, my] = d3.pointer(event, svg.node());
+                        // Compute vector from chart center to mouse
+                        const dx = mx - centerX;
+                        const dy = my - centerY;
+                        let angleRad = Math.atan2(dy, dx);
+                        let angleDeg = angleRad * (180 / Math.PI);
+                        if (angleDeg < 0) angleDeg += 360;
+
+                        // Set a fixed hand length (e.g., slightly beyond outerRadius)
+                        const handLength = outerRadius + 20;
+                        const handEnd = polarToCartesian(handLength, angleDeg);
+                        // Update clock hand position (g is already centered at (centerX, centerY))
+                        clockHand.attr("x1", 0)
+                            .attr("y1", 0)
+                            .attr("x2", handEnd.x)
+                            .attr("y2", handEnd.y);
+
+                        // Convert the angle into a time string using timeScale
+                        const hours = timeScale(angleDeg);
+                        const timeText = formatTime(hours);
+                        // Position the time popup further out (e.g., handLength + 20)
+                        const popupPos = polarToCartesian(handLength + 20, angleDeg);
+                        timePopup.attr("x", popupPos.x)
+                            .attr("y", popupPos.y)
+                            .text(timeText);
+                    })
+                    .on("end", function (event, d) {
+                        // Get mouse coordinates relative to the SVG
+                        const [mx, my] = d3.pointer(event, svg.node());
+                        const dx = mx - centerX;
+                        const dy = my - centerY;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+
+                        // If dropped within the chart, process the drop
+                        if (distance <= outerRadius) {
+                            // Compute the drop angle and corresponding time string
+                            let angleRad = Math.atan2(dy, dx);
+                            let angleDeg = angleRad * (180 / Math.PI);
+                            if (angleDeg < 0) angleDeg += 360;
+                            const hoursDecimal = timeScale(angleDeg);
+                            const dropTime = formatTime(hoursDecimal); // e.g., "13:40"
+
+                            // Remove the temporary drag icon
+                            dragIcon.remove();
+                            dragIcon = null;
+
+                            // Create a dropped food element in the radial chart group
+                            droppedFood = g.append("g")
+                                .attr("class", "dropped-food")
+                                .attr("transform", `translate(${mx - centerX}, ${my - centerY})`);
+                            droppedFood.append("circle")
+                                .attr("r", 20)
+                                .attr("fill", "#fff")
+                                .attr("stroke", "#333")
+                                .attr("stroke-width", 1);
+                            // Use the first character (emoji) for the dropped icon
+                            let foodText = currentDraggedOption.text().trim().split(" ")[0];
+                            droppedFood.append("text")
+                                .attr("text-anchor", "middle")
+                                .attr("alignment-baseline", "middle")
+                                .attr("font-size", "24px")
+                                .text(foodText);
+
+                            // Set data attributes on the dropped element:
+                            // - 'data-time' for the drop time,
+                            // - 'data-food' and others from the dragged option if needed.
+                            droppedFood.attr("data-time", dropTime)
+                                .attr("data-food", currentDraggedOption.attr("data-food"))
+                                .attr("data-impact", currentDraggedOption.attr("data-impact"))
+                                .attr("data-timing", currentDraggedOption.attr("data-timing"));
+
+                            // Enable the submit analysis button by calling updateSubmitButton()
+                            updateSubmitButton();
+                        } else {
+                            // If not dropped on the chart, remove the drag icon and restore original display.
+                            dragIcon.remove();
+                            dragIcon = null;
+                            currentDraggedOption.style("display", null).style("opacity", 1);
+                        }
+
+                        // Hide the clock hand and time popup
+                        clockHand.style("display", "none");
+                        timePopup.style("display", "none");
+                        d3.selectAll(".food-selection .food-option.draggable")
+                            .style("display", null)
+                            .style("opacity", 1);
+                        currentDraggedOption = null;
+                    })
+                );
+        });
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /* ////////////
+    NEW RADIAL CHART IMPLEMENTATION END
+    ///////////// */
+
+});
 
 // Initialize the animation when document is loaded
 document.addEventListener('DOMContentLoaded', function () {
@@ -1552,7 +1353,7 @@ function tryAnotherAnalysis() {
         // Thorough cleanup
         // 1. Remove placed food
         cleanupOrphanedFoodElements();
-        const placedFood = document.querySelector('.placed-food');
+        const placedFood = document.querySelector('.dropped-food');
         if (placedFood && placedFood.parentNode) {
             placedFood.parentNode.removeChild(placedFood);
         }
@@ -1598,7 +1399,6 @@ function tryAnotherAnalysis() {
             console.log("Loading scenario:", nextScenario);
             loadScenario(window.currentScenarioIndex);
             updatePatientProfile();
-            updateGlucoseSpike();
 
             console.log("Scenario loaded successfully");
             return true;
@@ -1618,7 +1418,6 @@ function tryAnotherAnalysis() {
             if (window.scenarios && window.scenarios.length > 0) {
                 loadScenario(0);
                 updatePatientProfile();
-                updateGlucoseSpike();
                 console.log("Fallback successful - loaded first scenario");
                 return true;
             }
@@ -1657,7 +1456,7 @@ function initGame() {
     if (submitBtn) {
         submitBtn.addEventListener('click', function () {
             console.log("Submit button clicked");
-            const placedFood = document.querySelector('.placed-food');
+            const placedFood = document.querySelector('.dropped-food');
             if (placedFood) {
                 const foodName = placedFood.dataset.food;
                 const placedTime = placedFood.dataset.time;
@@ -2068,3 +1867,234 @@ document.addEventListener('DOMContentLoaded', function () {
 /* //////////////////////
 FOOD COMPARISON GRAPH END
 ////////////////////// */
+
+/* ////////////
+Molecule Animation Script
+/////////// */
+
+// Three.js setup
+let scene, camera, renderer;
+let glucoseMolecules = [];
+let rotationSpeed = 0.01;
+let glucoseCount = 0;
+
+function init() {
+    // Create scene
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xFFFFFF);
+
+    // Create camera
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 5;
+
+    // Create renderer
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById('canvas').appendChild(renderer.domElement);
+
+    // Add lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(1, 1, 1);
+    scene.add(directionalLight);
+
+    // Create glucose molecules
+    createGlucoseMolecules(15);
+
+    // Add event listeners
+    window.addEventListener('resize', onWindowResize);
+    window.addEventListener('click', onMouseClick);
+
+    // Start animation
+    animate();
+}
+
+function createGlucoseMolecules(count) {
+    for (let i = 0; i < count; i++) {
+        // Main glucose ring (hexagon)
+        const ringGeometry = new THREE.TorusGeometry(0.3, 0.05, 16, 6);
+        const ringMaterial = new THREE.MeshPhongMaterial({ color: 0xFFCC00 });
+        const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+
+        // Carbon atoms
+        const carbonMaterial = new THREE.MeshPhongMaterial({ color: 0x333333 });
+        const carbonGeometry = new THREE.SphereGeometry(0.08, 16, 16);
+
+        // Oxygen atoms
+        const oxygenMaterial = new THREE.MeshPhongMaterial({ color: 0xFF5555 });
+        const oxygenGeometry = new THREE.SphereGeometry(0.07, 16, 16);
+
+        // Hydrogen atoms
+        const hydrogenMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFFFF });
+        const hydrogenGeometry = new THREE.SphereGeometry(0.05, 16, 16);
+
+        // Create group for the whole molecule
+        const molecule = new THREE.Group();
+        molecule.add(ring);
+
+        // Add atoms at strategic positions around the ring
+        for (let j = 0; j < 6; j++) {
+            const angle = (j / 6) * Math.PI * 2;
+            const x = Math.cos(angle) * 0.3;
+            const y = Math.sin(angle) * 0.3;
+
+            const carbon = new THREE.Mesh(carbonGeometry, carbonMaterial);
+            carbon.position.set(x, y, 0);
+            molecule.add(carbon);
+
+            // Add oxygen to some carbons
+            if (j % 2 === 0) {
+                const oxygen = new THREE.Mesh(oxygenGeometry, oxygenMaterial);
+                oxygen.position.set(x * 1.3, y * 1.3, 0.1);
+                molecule.add(oxygen);
+            }
+
+            // Add hydrogens
+            const hydrogen = new THREE.Mesh(hydrogenGeometry, hydrogenMaterial);
+            hydrogen.position.set(x * 1.2, y * 1.2, -0.1);
+            molecule.add(hydrogen);
+        }
+
+        // Position molecule randomly in space
+        molecule.position.x = (Math.random() - 0.5) * 10;
+        molecule.position.y = (Math.random() - 0.5) * 10;
+        molecule.position.z = (Math.random() - 0.5) * 10;
+
+        // Random rotation
+        molecule.rotation.x = Math.random() * Math.PI;
+        molecule.rotation.y = Math.random() * Math.PI;
+
+        // Add velocity for animation
+        molecule.userData = {
+            velocityX: (Math.random() - 0.5) * 0.02,
+            velocityY: (Math.random() - 0.5) * 0.02,
+            velocityZ: (Math.random() - 0.5) * 0.02,
+            rotationX: (Math.random() - 0.5) * 0.02,
+            rotationY: (Math.random() - 0.5) * 0.02,
+            rotationZ: (Math.random() - 0.5) * 0.02,
+            clickable: true
+        };
+
+        scene.add(molecule);
+        glucoseMolecules.push(molecule);
+    }
+}
+
+function animate() {
+    requestAnimationFrame(animate);
+
+    // Animate each molecule
+    glucoseMolecules.forEach(molecule => {
+        if (!molecule.userData.clickable) return;
+
+        // Apply rotation
+        molecule.rotation.x += molecule.userData.rotationX;
+        molecule.rotation.y += molecule.userData.rotationY;
+        molecule.rotation.z += molecule.userData.rotationZ;
+
+        // Apply movement
+        molecule.position.x += molecule.userData.velocityX;
+        molecule.position.y += molecule.userData.velocityY;
+        molecule.position.z += molecule.userData.velocityZ;
+
+        // Bounce off invisible boundaries
+        if (Math.abs(molecule.position.x) > 5) {
+            molecule.userData.velocityX *= -1;
+        }
+        if (Math.abs(molecule.position.y) > 5) {
+            molecule.userData.velocityY *= -1;
+        }
+        if (Math.abs(molecule.position.z) > 5) {
+            molecule.userData.velocityZ *= -1;
+        }
+    });
+
+    renderer.render(scene, camera);
+}
+
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+function onMouseClick(event) {
+    // Calculate mouse position in normalized device coordinates
+    const mouse = new THREE.Vector2();
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    // Raycasting to detect clicks on molecules
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse, camera);
+
+    const intersects = raycaster.intersectObjects(scene.children, true);
+
+    if (intersects.length > 0) {
+        // Find the parent molecule
+        let moleculeClicked = false;
+        for (let i = 0; i < glucoseMolecules.length; i++) {
+            const molecule = glucoseMolecules[i];
+            if (!molecule.userData.clickable) continue;
+
+            if (molecule.children.some(child => {
+                return intersects.some(intersect => intersect.object === child);
+            })) {
+                // "Collect" the molecule
+                collectMolecule(molecule);
+                moleculeClicked = true;
+                break;
+            }
+        }
+
+        // If no molecule was clicked, create a random one
+        if (!moleculeClicked && intersects[0].object.parent === scene) {
+            createGlucoseMolecules(1);
+        }
+    }
+}
+
+function collectMolecule(molecule) {
+    // Animate collection
+    molecule.userData.clickable = false;
+
+    // Animation - grow and fade out
+    let scale = 1.0;
+    const fadeInterval = setInterval(() => {
+        scale += 0.1;
+        molecule.scale.set(scale, scale, scale);
+
+        // Make children start fading
+        molecule.children.forEach(child => {
+            if (child.material) {
+                if (!child.material.transparent) {
+                    child.material = child.material.clone();
+                    child.material.transparent = true;
+                }
+                child.material.opacity -= 0.1;
+            }
+        });
+
+        if (scale >= 2.0) {
+            clearInterval(fadeInterval);
+            scene.remove(molecule);
+
+            // Remove from array
+            const index = glucoseMolecules.indexOf(molecule);
+            if (index > -1) {
+                glucoseMolecules.splice(index, 1);
+            }
+
+            // Create a new molecule
+            setTimeout(() => {
+                createGlucoseMolecules(1);
+            }, 500);
+        }
+    }, 50);
+
+    // Update counter
+    glucoseCount++;
+    document.getElementById('count').textContent = glucoseCount;
+}
