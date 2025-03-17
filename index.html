@@ -84,8 +84,8 @@
                 <p>When you eat, especially foods containing carbohydrates, your blood glucose levels rise. This is
                     called a "glucose spike" or "postprandial spike" (after meal spike).</p>
 
-                <div class="graph-container" style="height: 350px;">
-                    <!-- Sample glucose graph showing daily pattern with meals -->
+                <div class="graph-container-dailyPattern" style="height: 350px;">
+                    <!-- glucose graph showing daily pattern with meals -->
                     <svg id="dailyPatternGraph" width="700" height="300" viewBox="0 0 700 300">
                         <!-- Background grid -->
                         <!-- <line x1="0" y1="60" x2="700" y2="60" stroke="#eee" stroke-width="1" />
@@ -135,7 +135,7 @@
                             fill="none" stroke="#0066CC" stroke-width="3" /> -->
 
                         <!-- Annotations -->
-                        <rect x="100" y="75" width="160" height="40" rx="5" fill="rgba(255,255,255,0.9)"
+                        <!-- <rect x="100" y="75" width="160" height="40" rx="5" fill="rgba(255,255,255,0.9)"
                             stroke="#ddd" />
                         <text x="110" y="95" font-size="12" fill="#333">High carb breakfast causes</text>
                         <text x="110" y="110" font-size="12" fill="#333">steep glucose spike</text>
@@ -148,12 +148,12 @@
                         <text x="340" y="111" font-size="12" fill="#333">gradual return to baseline</text>
                         <line x1="360" y1="70" x2="340" y2="85" stroke="#888" stroke-width="1" stroke-dasharray="2,2" />
 
-                        <rect x="550" y="140" width="120" height="40" rx="5" fill="rgba(255,255,255,0.9)"
+                        <rect x="490" y="50" width="120" height="40" rx="5" fill="rgba(255,255,255,0.9)"
                             stroke="#ddd" />
-                        <text x="560" y="160" font-size="12" fill="#333">Dinner with protein</text>
-                        <text x="560" y="175" font-size="12" fill="#333">moderate spike</text>
+                        <text x="500" y="65" font-size="12" fill="#333">Dinner with protein</text>
+                        <text x="500" y="80" font-size="12" fill="#333">moderate spike</text>
                         <line x1="550" y1="160" x2="520" y2="140" stroke="#888" stroke-width="1"
-                            stroke-dasharray="2,2" />
+                            stroke-dasharray="2,2" /> -->
                     </svg>
                     <div id="dailyPattern-tooltip"></div>
                     <!-- <div class="annotation" style="top: 10px; right: 20px;">

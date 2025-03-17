@@ -1527,6 +1527,17 @@ function resetGameState() {
 /* ////////////////////////////////
 Understanding Glucose Spikes Graph
 ////////////////////////////////*/
+
+// Function to format hour (e.g., 8.5 -> 08:30)
+function formatHour(hour) {
+    // Get the integer part (hours) and the decimal part (minutes)
+    const hours = Math.floor(hour);  // Get the hours
+    const minutes = Math.round((hour - hours) * 60);  // Get the minutes
+
+    // Format the hour and minute as H:MM
+    return `${hours}:${minutes.toString().padStart(2, '0')}`;  // Pad minutes to always be two digits
+}
+
 let dailyPatternsData = [];  // Make sure it's defined in the outer scope
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -1584,6 +1595,25 @@ function drawUnderstandingGlucoseGraph() {
     svg.selectAll(".glucose-label").remove();
     svg.selectAll("g.x-axis, g.y-axis, g.grid").remove();
     svg.selectAll("rect.healthy-range, text.healthy-label").remove();
+
+    // Add the Title
+    svg.append("text")
+        .attr("x", 350)  // Centered in the middle of the SVG (width = 700)
+        .attr("y", -10)   // Position near the top of the graph
+        .attr("font-size", "18px")
+        .attr("text-anchor", "middle")  // Center text horizontally
+        .attr("fill", "#333")
+        .attr("font-weight", "bold")
+        .text("Glucose Levels Throughout a Day");
+
+    // Add the Subtitle
+    svg.append("text")
+        .attr("x", 350)  // Centered in the middle of the SVG (width = 700)
+        .attr("y", 10)   // Position just below the title
+        .attr("font-size", "14px")
+        .attr("text-anchor", "middle")  // Center text horizontally
+        .attr("fill", "#666")
+        .text("Notice how each meal causes a different spike pattern based on what was eaten");
 
     // Add Healthy Range Box (up to y=100)
     const yHealthy = yScale(100);
@@ -1653,6 +1683,111 @@ function drawUnderstandingGlucoseGraph() {
         .attr("font-size", "12px")
         .attr("fill", "#d32f2f")
         .text(d => d.label);
+    
+    // Create a group for annotations to keep everything organized
+    const annotations = d3.select("#dailyPatternGraph")
+        .append("g")
+        .attr("class", "annotations");
+
+    // First annotation: High carb breakfast
+    annotations.append("rect")
+        .attr("x", 100)
+        .attr("y", 75)
+        .attr("width", 165)
+        .attr("height", 40)
+        .attr("rx", 5)
+        .attr("fill", "rgba(255,255,255,0.9)")
+        .attr("stroke", "#ddd");
+
+    annotations.append("text")
+        .attr("x", 110)
+        .attr("y", 93)
+        .attr("font-size", "12")
+        .attr("fill", "#333")
+        .text("High carb breakfast causes");
+
+    annotations.append("text")
+        .attr("x", 110)
+        .attr("y", 108)
+        .attr("font-size", "12")
+        .attr("fill", "#333")
+        .text("steep glucose spike");
+
+    annotations.append("line")
+        .attr("x1", 300)
+        .attr("y1", 50)
+        .attr("x2", 180)
+        .attr("y2", 75)
+        .attr("stroke", "#888")
+        .attr("stroke-width", 1)
+        .attr("stroke-dasharray", "2,2");
+
+    // Second annotation: Lunch spike with gradual return
+    annotations.append("rect")
+        .attr("x", 330)
+        .attr("y", 80)
+        .attr("width", 140)
+        .attr("height", 40)
+        .attr("rx", 5)
+        .attr("fill", "rgba(255,255,255,0.9)")
+        .attr("stroke", "#ddd");
+
+    annotations.append("text")
+        .attr("x", 340)
+        .attr("y", 96)
+        .attr("font-size", "12")
+        .attr("fill", "#333")
+        .text("High protein lunch");
+
+    annotations.append("text")
+        .attr("x", 340)
+        .attr("y", 111)
+        .attr("font-size", "12")
+        .attr("fill", "#333")
+        .text("causes moderate spike");
+
+    annotations.append("line")
+        .attr("x1", 435)
+        .attr("y1", 140)
+        .attr("x2", 400)
+        .attr("y2", 120)
+        .attr("stroke", "#888")
+        .attr("stroke-width", 1)
+        .attr("stroke-dasharray", "2,2");
+
+    // Third annotation: Fruit for Dinner
+    annotations.append("rect")
+        .attr("x", 490)
+        .attr("y", 50)
+        .attr("width", 130)
+        .attr("height", 40)
+        .attr("rx", 5)
+        .attr("fill", "rgba(255,255,255,0.9)")
+        .attr("stroke", "#ddd");
+
+    annotations.append("text")
+        .attr("x", 500)
+        .attr("y", 65)
+        .attr("font-size", "12")
+        .attr("fill", "#333")
+        .text("Two fruit for dinner");
+
+    annotations.append("text")
+        .attr("x", 500)
+        .attr("y", 80)
+        .attr("font-size", "12")
+        .attr("fill", "#333")
+        .text("causes larger spikes");
+
+    annotations.append("line")
+        .attr("x1", 579)
+        .attr("y1", 130)
+        .attr("x2", 560)
+        .attr("y2", 90)
+        .attr("stroke", "#888")
+        .attr("stroke-width", 1)
+        .attr("stroke-dasharray", "2,2");
+
 
     svg.append("path")
         .datum(glucoseData)
@@ -1676,6 +1811,25 @@ function drawUnderstandingGlucoseGraph() {
         .call(d3.axisLeft(yScale).ticks(5))
         .style("font-size", "12");;
 
+    // X-axis label
+    svg.append("text")
+        .attr("x", 350)  // Centered horizontally at the middle of the SVG (width = 700)
+        .attr("y", 300)  // Position near the bottom of the graph (height = 300)
+        .attr("font-size", "12px")
+        .attr("text-anchor", "middle")  // Center the text horizontally
+        .attr("fill", "#333")
+        .text("Time of Day");
+
+    // Y-axis label
+    svg.append("text")
+        .attr("x", -150) // Rotate the Y-axis label, move it left of the graph
+        .attr("y", 11)  // Position near the middle of the SVG's height (300)
+        .attr("font-size", "12px")
+        .attr("text-anchor", "middle")  // Center text vertically
+        .attr("fill", "#333")
+        .attr("transform", "rotate(-90)") // Rotate the text by -90 degrees for vertical orientation
+        .text("Glucose Level (mg/dL)");
+
     // Add hover dot
     const dot = svg.append("circle")
         .attr("class", "hover-dot")
@@ -1686,8 +1840,8 @@ function drawUnderstandingGlucoseGraph() {
     // Add fixed label below graph
     const label = svg.append("text")
         .attr("class", "glucose-label")
-        .attr("x", width / 2)
-        .attr("y", height - 5)
+        .attr("x", width)
+        .attr("y", (height / 2) -20)
         .attr("text-anchor", "middle")
         .style("font-size", "14px")
         .style("display", "none"); // Initially hidden
@@ -1710,17 +1864,30 @@ function drawUnderstandingGlucoseGraph() {
                 Math.abs(xScale(curr.HourOfDay) - mouseX) < Math.abs(xScale(prev.HourOfDay) - mouseX) ? curr : prev
             );
 
-            console.log("Mouse moved, closest point:", closestDataPoint);
-
             dot.attr("cx", xScale(closestDataPoint.HourOfDay))
                 .attr("cy", yScale(closestDataPoint.Value))
                 .style("display", "block"); // Show dot
 
-            label.text(`Glucose: ${closestDataPoint.Value}`)
-                .style("display", "block"); // Show label
+            // Clear the existing label text before adding new content
+            label.selectAll("*").remove();
+
+            // Add the glucose value text
+            label.append("tspan")
+            .attr("x", width - 10)
+            .attr("dy", 0)  // No offset for the first line
+            .text(`Glucose: ${closestDataPoint.Value} mg/dL`);
+
+            const formattedHour = formatHour(closestDataPoint.HourOfDay);
+            // Add the hour text on a new line
+            label.append("tspan")
+            .attr("x", width - 10)
+            .attr("dy", "1.5em")  // Add space between lines
+            .text(`Time: ${formattedHour}`);
+
+            // Show the label
+            label.style("display", "block");
         })
         .on("mouseout", () => {
-            console.log("Mouse out, hiding elements");
             dot.style("display", "none");  // Hide dot
             label.style("display", "none");  // Hide label
         });
