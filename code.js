@@ -1511,6 +1511,209 @@ function resetGameState() {
     if (dropTarget) dropTarget.style.display = 'none';
 }
 
+/* ////////////////////////////////
+Understanding Glucose Spikes Graph
+////////////////////////////////*/
+let dailyPatternsData = [];  // Make sure it's defined in the outer scope
+
+document.addEventListener('DOMContentLoaded', function () {
+    fetch('processed_data/daily_patterns.json')
+        .then(response => response.json())
+        .then(data => {
+            console.log('Loaded daily patterns data:', data.length, 'events');
+            dailyPatternsData = data;
+            console.log(dailyPatternsData);
+
+            // Automatically draw the graph after data is loaded
+            drawUnderstandingGlucoseGraph();
+        })
+        .catch(error => {
+            console.error('Error loading spike events data:', error);
+        });
+});
+
+function drawUnderstandingGlucoseGraph() {
+    if (!dailyPatternsData.length) {
+        console.warn("No data available yet, skipping graph update.");
+        return;
+    }
+
+    // Extract glucose data for a single participant (adjust as needed)
+    let glucoseData = dailyPatternsData[4].GlucoseData;
+
+    console.log("Drawing graph with glucose data:", glucoseData);  // Debugging log
+
+    // Set up SVG dimensions
+    const width = 700, height = 300;
+    const margin = {top: 20, right: 30, bottom: 40, left: 50};
+
+    // Define scales
+    const xScale = d3.scaleLinear()
+        .domain([0, 24]) // HourOfDay ranges from 0 to 24
+        .range([margin.left, width - margin.right]);
+
+    const yScale = d3.scaleLinear()
+        .domain([60, 180]) // Adjust based on glucose levels
+        .range([height - margin.bottom, margin.top]);
+
+    // Define line generator
+    const line = d3.line()
+        .x(d => xScale(d.HourOfDay)) // Convert fraction of day to hours
+        .y(d => yScale(d.Value))
+        .curve(d3.curveMonotoneX);
+
+    // Select SVG and update path
+    const svg = d3.select("#dailyPatternGraph");
+
+    svg.selectAll("path.glucose-line").remove();
+    svg.selectAll(".tooltip-overlay").remove();
+    svg.selectAll(".hover-dot").remove();
+    svg.selectAll(".glucose-label").remove();
+    svg.selectAll("g.x-axis, g.y-axis, g.grid").remove();
+    svg.selectAll("rect.healthy-range, text.healthy-label").remove();
+
+    // Add Healthy Range Box (up to y=100)
+    const yHealthy = yScale(100);
+
+    // Add Healthy Range Label
+    svg.append("text")
+        .attr("class", "healthy-label")
+        .attr("x", margin.left + 10)
+        .attr("y", yHealthy + 20)  // Position inside the box
+        .attr("font-size", 12)
+        .attr("fill", "#388e3c")
+        .text("Healthy Fasting Range");
+
+    // Append Y Gridlines (horizontal)
+    svg.append("g")
+        .attr("class", "grid")
+        .selectAll("line")
+        .data(yScale.ticks(5))  // Number of gridlines = ticks
+        .join("line")
+        .attr("x1", margin.left)
+        .attr("x2", width - margin.right)
+        .attr("y1", d => yScale(d))
+        .attr("y2", d => yScale(d))
+        .attr("stroke", "#ddd")  // Light gray gridlines
+        .attr("stroke-width", 1);
+
+    // Healthy Range Box
+    svg.append("rect")
+        .attr("class", "healthy-range")
+        .attr("x", margin.left)
+        .attr("y", 180)
+        .attr("width", width - margin.left - margin.right)
+        .attr("height", yScale(60) - yHealthy)  // Height from y=100 to bottom
+        .attr("fill", "rgba(150, 220, 150, 0.2)")  // Light green
+        .attr("stroke", "#4CAF50")  // Green border
+        .attr("stroke-width", 1)
+        .attr("stroke-dasharray", "5,5");  // Dashed border
+
+    const mealTimes = [
+            { hour: 9.75, label: "Breakfast" },
+            { hour: 15, label: "Lunch" },
+            { hour: 20.5, label: "Dinner" }
+        ];
+        
+    // Append meal markers dynamically
+    const mealMarkers = svg.append("g").attr("class", "meal-markers");
+        
+    mealMarkers.selectAll(".meal-line")
+        .data(mealTimes)
+        .enter()
+        .append("line")
+        .attr("class", "meal-line")
+        .attr("x1", d => xScale(d.hour))
+        .attr("x2", d => xScale(d.hour))
+        .attr("y1", margin.top + 10)
+        .attr("y2", height - margin.bottom)
+        .attr("stroke", "rgba(255, 0, 0, 0.5)")
+        .attr("stroke-width", 2);
+        
+    mealMarkers.selectAll(".meal-label")
+        .data(mealTimes)
+        .enter()
+        .append("text")
+        .attr("class", "meal-label")
+        .attr("x", d => xScale(d.hour) + 10) // Offset to the right of the line
+        .attr("y", margin.top + 15) // Position near the top
+        .attr("font-size", "12px")
+        .attr("fill", "#d32f2f")
+        .text(d => d.label);
+
+    svg.append("path")
+        .datum(glucoseData)
+        .attr("class", "glucose-line")
+        .attr("fill", "none")
+        .attr("stroke", "#0066CC")
+        .attr("stroke-width", 3)
+        .attr("d", line);
+    
+    // Append X-Axis
+    svg.append("g")
+        .attr("class", "x-axis")
+        .attr("transform", `translate(0,${height - margin.bottom})`)
+        .call(d3.axisBottom(xScale).ticks(6).tickFormat(d => `${d}:00`))
+        .style("font-size", "12");
+
+    // Append Y-Axis
+    svg.append("g")
+        .attr("class", "y-axis")
+        .attr("transform", `translate(${margin.left},0)`)
+        .call(d3.axisLeft(yScale).ticks(5))
+        .style("font-size", "12");;
+
+    // Add hover dot
+    const dot = svg.append("circle")
+        .attr("class", "hover-dot")
+        .attr("r", 5)
+        .attr("fill", "#d32f2f")
+        .style("display", "none"); // Initially hidden
+
+    // Add fixed label below graph
+    const label = svg.append("text")
+        .attr("class", "glucose-label")
+        .attr("x", width / 2)
+        .attr("y", height - 5)
+        .attr("text-anchor", "middle")
+        .style("font-size", "14px")
+        .style("display", "none"); // Initially hidden
+
+    // Hover detection
+    svg.append("path")
+        .datum(glucoseData)
+        .attr("class", "tooltip-overlay")
+        .attr("fill", "none")
+        .attr("stroke", "transparent")
+        .attr("stroke-width", 10) 
+        .attr("d", line)
+        .on("mousemove", function(event) {
+            const [mouseX] = d3.pointer(event, this);
+
+            if (!glucoseData.length) return;
+
+            // Find the closest data point
+            const closestDataPoint = glucoseData.reduce((prev, curr) => 
+                Math.abs(xScale(curr.HourOfDay) - mouseX) < Math.abs(xScale(prev.HourOfDay) - mouseX) ? curr : prev
+            );
+
+            console.log("Mouse moved, closest point:", closestDataPoint);
+
+            dot.attr("cx", xScale(closestDataPoint.HourOfDay))
+               .attr("cy", yScale(closestDataPoint.Value))
+               .style("display", "block"); // Show dot
+
+            label.text(`Glucose: ${closestDataPoint.Value}`)
+                 .style("display", "block"); // Show label
+        })
+        .on("mouseout", () => {
+            console.log("Mouse out, hiding elements");
+            dot.style("display", "none");  // Hide dot
+            label.style("display", "none");  // Hide label
+        });
+}
+
+
 /* /////////////////////////
 FOOD COMPARISON GRAPH START
 ///////////////////////// */
