@@ -225,48 +225,68 @@ body {
     position: relative;
     width: 600px;
     height: 600px;
-    margin: 40px 0;
-    display: none;
-    /* Hidden by default, shown when game starts */
-    background: linear-gradient(145deg, #f5f5f7, #ffffff);
-    border-radius: 50%;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), inset 0 -5px 15px rgba(0, 0, 0, 0.05);
+    margin: 30px auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 30px;
     padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: visible; /* Allow placed food to be visible */
+    width: 100%;
+    max-width: 600px;
+    box-sizing: border-box;
 }
 
-/* Clock face styling */
+/* Add a subtle circular border inside the clock */
 .clock-face {
     fill: white;
     stroke: #e0e0e5;
     stroke-width: 1;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.07));
 }
 
-/* Clock hour markers */
+/* Make glucose levels more visible with translucent bands */
+.glucose-level-circle {
+    fill: none;
+    stroke: rgba(0, 102, 204, 0.1);
+    stroke-width: 1.5;
+    stroke-dasharray: none;
+}
+
+/* Enhance the glucose spike visualization */
+#glucose-event {
+    filter: drop-shadow(0 2px 6px rgba(255, 107, 107, 0.2));
+}
+
+/* Make hour markers more prominent */
 .hour-marker {
-    stroke: #555;
-    stroke-width: 2;
+    stroke: #333;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+}
+
+/* Improve the time labels */
+.time-label {
+    font-size: 14px;
+    font-weight: 500;
+    fill: #444;
+    text-anchor: middle;
+    filter: drop-shadow(0 1px 1px rgba(255, 255, 255, 0.8));
 }
 
 /* Clock minute markers */
 .minute-marker {
     stroke: #aaa;
     stroke-width: 1;
-}
-
-/* Time labels styling */
-.time-label {
-    font-size: 14px;
-    font-weight: 500;
-    fill: #444;
-    text-anchor: middle;
-}
-
-/* Glucose level indicator styling */
-.glucose-level-circle {
-    fill: none;
-    stroke-width: 1;
-    stroke-dasharray: 3, 3;
 }
 
 /* Glucose level label styling */
@@ -379,6 +399,9 @@ body {
     width: 48px;
     height: 48px;
     pointer-events: none;
+    max-width: 48px;
+    max-height: 48px;
+    overflow: visible;
 }
 
 /* Patient profile card */
@@ -442,21 +465,34 @@ body {
 
 .results-panel {
     background: white;
-    padding: 20px;
+    padding: 25px;
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    margin-top: 30px;
+    margin: 30px auto;
     width: 100%;
-    max-width: 600px;
+    max-width: 800px;
+    box-sizing: border-box;
+    overflow: hidden;
     display: none;
     /* Hidden by default, shown when results are available */
 }
 
+.results-panel h2, 
+.results-panel h3, 
+.results-panel h4 {
+    word-wrap: break-word;
+}
+
+.results-panel p {
+    word-wrap: break-word;
+}
+
 .score {
-    font-size: 24px;
+    font-size: 28px;
     font-weight: bold;
     text-align: center;
-    margin-bottom: 20px;
+    margin: 20px 0;
+    color: #0066CC;
 }
 
 .accuracy-meter {
@@ -475,6 +511,54 @@ body {
 
 .feedback {
     line-height: 1.6;
+    word-wrap: break-word;
+}
+
+.feedback h3 {
+    color: #0066CC;
+    margin-top: 25px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+}
+
+.feedback p {
+    margin-bottom: 15px;
+}
+
+#placed-food-name,
+#placed-food-time,
+#food-timing,
+#glycemic-impact {
+    font-weight: bold;
+    color: #333;
+}
+
+.feedback ul {
+    padding-left: 25px;
+}
+
+.feedback strong {
+    color: #333;
+}
+
+#try-another-btn {
+    display: block;
+    margin: 30px auto 10px;
+    padding: 12px 30px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#try-another-btn:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 /* Added for navigation between sections */
@@ -632,24 +716,48 @@ body {
 
 /* Submit button styling */
 .submit-analysis-btn {
-    padding: 12px 24px;
-    background: #4CAF50;
-    color: white;
+    display: block;
+    margin: 30px auto 10px;
+    padding: 12px 30px;
+    background-color: #cccccc; /* Start with disabled color */
+    color: #888888; /* Start with disabled text color */
     border: none;
     border-radius: 8px;
     font-size: 16px;
     font-weight: bold;
-    cursor: pointer;
-    margin: 20px auto;
-    display: none;
-    /* Hidden by default, shown after food placement */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    cursor: not-allowed; /* Start with disabled cursor */
     transition: all 0.3s ease;
 }
 
-.submit-analysis-btn:hover {
-    background: #45a049;
+.submit-analysis-btn:not(:disabled) {
+    background-color: #0066CC;
+    color: white;
+    cursor: pointer;
+}
+
+.submit-analysis-btn:hover:not(:disabled) {
+    background-color: #004b96;
     transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.submit-analysis-btn.active {
+    background-color: #0066CC;
+    color: white;
+    cursor: pointer;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(0, 102, 204, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(0, 102, 204, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(0, 102, 204, 0);
+    }
 }
 
 /* Game header styling */
@@ -678,15 +786,15 @@ body {
     position: fixed;
     bottom: 30px;
     right: 30px;
-    width: 60px;
-    height: 60px;
+    width: 100px;    /* Increased from 80px */
+    height: 100px;   /* Increased from 80px */
     background: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 30px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    font-size: 50px;  /* Increased from 40px */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);  /* Enhanced shadow */
     cursor: pointer;
     z-index: 1000;
     transition: transform 0.3s, box-shadow 0.3s;
@@ -863,25 +971,26 @@ body {
 
 .loading-content {
     text-align: center;
-    width: 300px;
+    width: 500px;  /* Increased from 400px */
 }
 
 .loading-title {
-    font-size: 24px;
+    font-size: 32px;  /* Increased from 28px */
     font-weight: bold;
     color: #0066CC;
-    margin-bottom: 15px;
+    margin-bottom: 25px;  /* Increased from 20px */
 }
 
 .candy-wrapper {
     width: 100%;
-    height: 30px;
+    height: 50px;  /* Increased from 40px */
     background-color: rgba(255, 255, 255, 0.8);
-    border-radius: 40px;
-    border: 2px solid #0066CC;
-    box-shadow: 0 4px 10px rgba(0, 102, 204, 0.2);
+    border-radius: 100px;  /* Increased from 80px */
+    border: 4px solid #0066CC;  /* Increased from 3px */
+    box-shadow: 0 5px 12px rgba(0, 102, 204, 0.25);  /* Enhanced shadow */
     overflow: hidden;
     position: relative;
+    margin: 15px auto;  /* Increased margin */
 }
 
 .candy-filling {
@@ -909,31 +1018,31 @@ body {
     bottom: 0;
     background: repeating-linear-gradient(45deg,
             rgba(255, 255, 255, 0.1),
-            rgba(255, 255, 255, 0.1) 10px,
-            rgba(255, 255, 255, 0.3) 10px,
-            rgba(255, 255, 255, 0.3) 20px);
-    border-radius: 40px;
+            rgba(255, 255, 255, 0.1) 12px,  /* Increased from 10px */
+            rgba(255, 255, 255, 0.3) 12px,  /* Increased from 10px */
+            rgba(255, 255, 255, 0.3) 24px); /* Increased from 20px */
+    border-radius: 50px;  /* Increased from 40px */
 }
 
 .glucose-dots {
     position: absolute;
-    top: -10px;
+    top: -18px;  /* Adjusted to account for larger dots */
     width: 100%;
     display: flex;
     justify-content: space-between;
-    padding: 0 20px;
+    padding: 0 30px;  /* Increased from 25px */
     box-sizing: border-box;
     opacity: 0;
     transition: opacity 0.3s ease-out;
 }
 
 .glucose-dot {
-    width: 20px;
-    height: 20px;
+    width: 36px;  /* Increased from 28px */
+    height: 36px;  /* Increased from 28px */
     background-color: white;
-    border: 2px solid #0066CC;
+    border: 4px solid #0066CC;  /* Increased from 3px */
     border-radius: 50%;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);  /* Enhanced shadow */
     animation: pulse 1.5s ease-in-out infinite;
 }
 
@@ -946,8 +1055,8 @@ body {
 }
 
 .loading-text {
-    margin-top: 20px;
-    font-size: 16px;
+    margin-top: 30px;  /* Increased from 25px */
+    font-size: 20px;  /* Increased from 18px */
     color: #555;
 }
 

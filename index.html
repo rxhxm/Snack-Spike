@@ -62,10 +62,17 @@
                         <li>After meals: Less than 140 mg/dL</li>
                         <li>Random checks: Less than 140 mg/dL</li>
                     </ul>
+
+                    <strong>Concerning Blood Glucose Ranges:</strong>
+                    <ul>
+                        <li>Prediabetic: Fasting 100-125 mg/dL or After meals 140-199 mg/dL</li>
+                        <li>Diabetic: Fasting ≥126 mg/dL or After meals ≥200 mg/dL</li>
+                        <li>Low blood sugar (hypoglycemia): Below 70 mg/dL</li>
+                    </ul>
                 </div>
                 
                 <p>When glucose levels rise too high or fall too low, it can affect how you feel and potentially impact
-                    your health over time.</p>
+                    your health over time. High glucose typically causes increased thirst, frequent urination, and fatigue, while low glucose often leads to shakiness, sweating, and dizziness. </p>
             </div>
             
             <div class="explainer-section">
@@ -363,7 +370,7 @@
         <!-- Game content from the second file -->
         <div id="game-content">
             <!-- Move patient profile and challenge description above the clock -->
-            <div class="patient-profile" style="margin: 0 auto 30px;">
+            <div class="patient-profile">
                 <h3>Patient Profile: Sarah Johnson</h3>
                 <div class="vital-stats">
                     <div class="stat-item">
@@ -381,301 +388,287 @@
                     <div class="stat-item">
                         <div class="stat-label">Fasting Glucose</div>
                         <div class="stat-value">95 mg/dL</div>
-                    </div>
+            </div>
             </div>
             
                 <div class="glucose-alert">
                     <h4>Glucose Event Detected</h4>
-                    <p>Sarah experienced a <strong>glucose spike of 152 mg/dL at 2:00 PM</strong> today. She reported
-                        feeling fatigued, mildly thirsty, and had difficulty concentrating around this time.</p>
-                    <p>She's using continuous glucose monitoring to understand how different foods affect her levels,
-                        but doesn't remember exactly when she ate before this spike occurred.</p>
+                    <p>
+                        Sarah Johnson experienced a <strong>glucose spike of 152 mg/dL at 2:00 PM</strong> today. 
+                        Sarah Johnson reported feeling fatigued, mildly thirsty, and had difficulty concentrating around this time.
+                    </p>
             </div>
             
                 <div class="challenge-box">
-                    <h4 style="margin-top: 0;">Your Challenge</h4>
-                    <p>Look at Sarah's glucose spike at 2:00 PM. When do you think she ate something that caused this
-                        response?</p>
-                    <p><strong>Instructions:</strong> Drag a food from below and drop it on the clock to indicate when
-                        you think Sarah ate it.</p>
+                    <p>Sarah Johnson is using continuous glucose monitoring to understand how different foods affect their levels, 
+                    but doesn't remember exactly when they ate before this spike occurred.</p>
+                    <p><strong>Your Challenge:</strong> Look at Sarah Johnson's glucose spike at 2:00 PM. 
+                    When do you think they ate something that caused this response?</p>
                 </div>
                 
+                <p><strong>Instructions:</strong> Drag a food from below and drop it on the clock to indicate when you think it was eaten.</p>
 
-                <!-- Food options moved above the clock -->
-                <div class="food-selection" style="margin: 0 auto 30px; max-width: 800px;">
-                    <div class="food-option draggable" data-food="apple" data-impact="medium" data-timing="30-45">🍎
-                        Apple</div>
-                    <div class="food-option draggable" data-food="rice" data-impact="high" data-timing="45-60">🍚 White
-                        Rice</div>
-                    <div class="food-option draggable" data-food="chicken" data-impact="low" data-timing="60-90">🍗
-                        Chicken</div>
-                    <div class="food-option draggable" data-food="ice-cream" data-impact="high" data-timing="30-45">🍦
-                        Ice Cream</div>
-                    <div class="food-option draggable" data-food="salad" data-impact="low" data-timing="minimal">🥗
-                        Salad</div>
-                    <div class="food-option draggable" data-food="burger" data-impact="high" data-timing="60-90">🍔
-                        Burger</div>
-                    <div class="food-option draggable" data-food="croissant" data-impact="high" data-timing="30-45">🥐
-                        Croissant</div>
+            <!-- Combined container for food timing info, food selection, and clock -->
+            <div style="background: #fff; padding: 20px; border-radius: 10px; max-width: 800px; margin: 0 auto 30px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+                <h4 style="margin-top: 0; color: #0066CC;">Food Timing & Glucose Response</h4>
+                <ul style="margin-bottom: 20px;">
+                    <li><strong>Fast-acting carbs</strong> (juice, white bread): Spike in 15-30 minutes</li>
+                    <li><strong>Mixed meals</strong> (sandwich, rice): Spike in 30-60 minutes</li>
+                    <li><strong>High-fat meals</strong> (burgers, pizza): Delayed spike, 1-2 hours</li>
+                </ul>
+                
+                <!-- Food options moved inside the white container -->
+                <div class="food-selection" style="margin: 0 auto 20px; width: 100%;">
+                    <div class="food-option draggable" data-food="apple" data-impact="medium" data-timing="30-45">🍎 Apple</div>
+                    <div class="food-option draggable" data-food="rice" data-impact="high" data-timing="45-60">🍚 White Rice</div>
+                    <div class="food-option draggable" data-food="chicken" data-impact="low" data-timing="60-90">🍗 Chicken</div>
+                    <div class="food-option draggable" data-food="ice-cream" data-impact="high" data-timing="30-45">🍦 Ice Cream</div>
+                    <div class="food-option draggable" data-food="salad" data-impact="low" data-timing="minimal">🥗 Salad</div>
+                    <div class="food-option draggable" data-food="burger" data-impact="high" data-timing="60-90">🍔 Burger</div>
                 </div>
                 
-                <!-- Explanation of timing moved to after the submit button -->
-                <div
-                    style="background: #fff; padding: 15px; border-radius: 8px; max-width: 800px; margin: 20px auto; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                    <h4 style="margin-top: 0; color: #0066CC;">Food Timing & Glucose Response</h4>
-                    <ul style="margin-bottom: 0;">
-                        <li><strong>Fast-acting carbs</strong> (juice, white bread): Spike in 15-30 minutes</li>
-                        <li><strong>Mixed meals</strong> (sandwich, rice): Spike in 30-60 minutes</li>
-                        <li><strong>High-fat meals</strong> (burgers, pizza): Delayed spike, 1-2 hours</li>
-                    </ul>
-        </div>
-    </div>
-    
+                <!-- Clock remains integrated inside the white container -->
+                <div class="clock-container" style="margin: 0 auto; background: none; box-shadow: none; padding: 0;">
+                    <svg id="glucose-clock" width="600" height="600" viewBox="0 0 600 600">
+                        <!-- Clock face background -->
+                        <circle cx="300" cy="300" r="280" fill="white" class="clock-face" />
 
+                        <!-- Outer bezel -->
+                        <circle cx="300" cy="300" r="270" fill="none" stroke="#e0e0e5" stroke-width="2" />
 
-            <div class="clock-container" style="margin: 0 auto; display: flex; justify-content: center;">
-                <svg id="glucose-clock" width="600" height="600" viewBox="0 0 600 600">
-                    <!-- Clock face background -->
-                    <circle cx="300" cy="300" r="280" fill="white" class="clock-face" />
+                        <!-- Glucose zones shading -->
+                        <circle cx="300" cy="300" r="280" fill="rgba(255, 253, 231, 0.6)" stroke="none" />
+                        <!-- Background zone -->
+                        <circle cx="300" cy="300" r="150" fill="rgba(235, 255, 240, 0.6)" stroke="none" />
+                        <!-- Target zone -->
 
-                    <!-- Outer bezel -->
-                    <circle cx="300" cy="300" r="270" fill="none" stroke="#e0e0e5" stroke-width="2" />
+                        <!-- Glucose level circles and labels - centered properly -->
+                        <!-- Each label is positioned exactly at the top of its circle -->
+                        <circle cx="300" cy="300" r="250" fill="none" stroke="#e8e8f0" stroke-width="1"
+                            class="glucose-level-circle" />
+                        <text x="300" y="55" text-anchor="middle" font-size="12" fill="#aaa">160 mg/dL</text>
 
-                    <!-- Glucose zones shading -->
-                    <circle cx="300" cy="300" r="280" fill="rgba(255, 253, 231, 0.6)" stroke="none" />
-                    <!-- Background zone -->
-                    <circle cx="300" cy="300" r="150" fill="rgba(235, 255, 240, 0.6)" stroke="none" />
-                    <!-- Target zone -->
+                        <circle cx="300" cy="300" r="200" fill="none" stroke="#e8e8f0" stroke-width="1"
+                            class="glucose-level-circle" />
+                        <text x="300" y="105" text-anchor="middle" font-size="12" fill="#aaa">140 mg/dL</text>
 
-                    <!-- Glucose level circles and labels - centered properly -->
-                    <!-- Each label is positioned exactly at the top of its circle -->
-                    <circle cx="300" cy="300" r="250" fill="none" stroke="#e8e8f0" stroke-width="1"
-                        class="glucose-level-circle" />
-                    <text x="300" y="55" text-anchor="middle" font-size="12" fill="#aaa">160 mg/dL</text>
+                        <circle cx="300" cy="300" r="150" fill="none" stroke="#e8e8f0" stroke-width="1"
+                            class="glucose-level-circle" />
+                        <text x="300" y="155" text-anchor="middle" font-size="12" fill="#aaa">120 mg/dL</text>
 
-                    <circle cx="300" cy="300" r="200" fill="none" stroke="#e8e8f0" stroke-width="1"
-                        class="glucose-level-circle" />
-                    <text x="300" y="105" text-anchor="middle" font-size="12" fill="#aaa">140 mg/dL</text>
+                        <circle cx="300" cy="300" r="100" fill="none" stroke="#e8e8f0" stroke-width="1"
+                            class="glucose-level-circle" />
+                        <text x="300" y="205" text-anchor="middle" font-size="12" fill="#aaa">100 mg/dL</text>
 
-                    <circle cx="300" cy="300" r="150" fill="none" stroke="#e8e8f0" stroke-width="1"
-                        class="glucose-level-circle" />
-                    <text x="300" y="155" text-anchor="middle" font-size="12" fill="#aaa">120 mg/dL</text>
+                        <circle cx="300" cy="300" r="50" fill="none" stroke="#e8e8f0" stroke-width="1"
+                            class="glucose-level-circle" />
+                        <text x="300" y="255" text-anchor="middle" font-size="12" fill="#aaa">80 mg/dL</text>
 
-                    <circle cx="300" cy="300" r="100" fill="none" stroke="#e8e8f0" stroke-width="1"
-                        class="glucose-level-circle" />
-                    <text x="300" y="205" text-anchor="middle" font-size="12" fill="#aaa">100 mg/dL</text>
+                        <!-- Minute markers - generated with exact 5-degree spacing -->
+                        <g id="minute-markers">
+                            <!-- Quarter-hour markers -->
+                            <!-- 12:15, 12:30, 12:45 -->
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker" transform="rotate(7.5 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker" transform="rotate(15 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
+                                transform="rotate(22.5 300 300)" />
 
-                    <circle cx="300" cy="300" r="50" fill="none" stroke="#e8e8f0" stroke-width="1"
-                        class="glucose-level-circle" />
-                    <text x="300" y="255" text-anchor="middle" font-size="12" fill="#aaa">80 mg/dL</text>
+                            <!-- 1:15, 1:30, 1:45 -->
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
+                                transform="rotate(37.5 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker" transform="rotate(45 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
+                                transform="rotate(52.5 300 300)" />
 
-                    <!-- Minute markers - generated with exact 5-degree spacing -->
-                    <g id="minute-markers">
-                        <!-- Quarter-hour markers -->
-                        <!-- 12:15, 12:30, 12:45 -->
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker" transform="rotate(7.5 300 300)" />
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker" transform="rotate(15 300 300)" />
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
-                            transform="rotate(22.5 300 300)" />
+                            <!-- 2:15, 2:30, 2:45 -->
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
+                                transform="rotate(67.5 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker" transform="rotate(75 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
+                                transform="rotate(82.5 300 300)" />
 
-                        <!-- 1:15, 1:30, 1:45 -->
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
-                            transform="rotate(37.5 300 300)" />
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker" transform="rotate(45 300 300)" />
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
-                            transform="rotate(52.5 300 300)" />
+                            <!-- Continuing for other hours -->
+                            <!-- Only showing quarter hour markers for all hours -->
+                            <!-- 3 through 11 quarter-hour marks -->
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
+                                transform="rotate(97.5 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker" transform="rotate(105 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
+                                transform="rotate(112.5 300 300)" />
 
-                        <!-- 2:15, 2:30, 2:45 -->
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
-                            transform="rotate(67.5 300 300)" />
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker" transform="rotate(75 300 300)" />
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
-                            transform="rotate(82.5 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
+                                transform="rotate(127.5 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker" transform="rotate(135 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
+                                transform="rotate(142.5 300 300)" />
 
-                        <!-- Continuing for other hours -->
-                        <!-- Only showing quarter hour markers for all hours -->
-                        <!-- 3 through 11 quarter-hour marks -->
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
-                            transform="rotate(97.5 300 300)" />
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker" transform="rotate(105 300 300)" />
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
-                            transform="rotate(112.5 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
+                                transform="rotate(157.5 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker" transform="rotate(165 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
+                                transform="rotate(172.5 300 300)" />
 
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
-                            transform="rotate(127.5 300 300)" />
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker" transform="rotate(135 300 300)" />
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
-                            transform="rotate(142.5 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
+                                transform="rotate(187.5 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker" transform="rotate(195 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
+                                transform="rotate(202.5 300 300)" />
 
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
-                            transform="rotate(157.5 300 300)" />
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker" transform="rotate(165 300 300)" />
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
-                            transform="rotate(172.5 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
+                                transform="rotate(217.5 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker" transform="rotate(225 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
+                                transform="rotate(232.5 300 300)" />
 
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
-                            transform="rotate(187.5 300 300)" />
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker" transform="rotate(195 300 300)" />
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
-                            transform="rotate(202.5 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
+                                transform="rotate(247.5 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker" transform="rotate(255 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
+                                transform="rotate(262.5 300 300)" />
 
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
-                            transform="rotate(217.5 300 300)" />
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker" transform="rotate(225 300 300)" />
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
-                            transform="rotate(232.5 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
+                                transform="rotate(277.5 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker" transform="rotate(285 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
+                                transform="rotate(292.5 300 300)" />
 
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
-                            transform="rotate(247.5 300 300)" />
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker" transform="rotate(255 300 300)" />
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
-                            transform="rotate(262.5 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
+                                transform="rotate(307.5 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker" transform="rotate(315 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
+                                transform="rotate(322.5 300 300)" />
 
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
-                            transform="rotate(277.5 300 300)" />
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker" transform="rotate(285 300 300)" />
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
-                            transform="rotate(292.5 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
+                                transform="rotate(337.5 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker" transform="rotate(345 300 300)" />
+                            <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
+                                transform="rotate(352.5 300 300)" />
+                        </g>
 
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
-                            transform="rotate(307.5 300 300)" />
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker" transform="rotate(315 300 300)" />
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
-                            transform="rotate(322.5 300 300)" />
+                        <!-- Hour markers - perfectly spaced at exactly 30 degrees -->
+                        <g id="hour-markers">
+                            <!-- 12 o'clock -->
+                            <line x1="300" y1="30" x2="300" y2="50" class="hour-marker" />
+                            <text x="300" y="20" class="time-label">12:00</text>
 
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
-                            transform="rotate(337.5 300 300)" />
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker" transform="rotate(345 300 300)" />
-                        <line x1="300" y1="40" x2="300" y2="60" class="minute-marker"
-                            transform="rotate(352.5 300 300)" />
-                    </g>
+                            <!-- 1 o'clock (30 degrees) -->
+                            <line x1="435" y1="82.5" x2="422.5" y2="95" class="hour-marker" />
+                            <text x="447.5" y="70" class="time-label">01:00</text>
 
-                    <!-- Hour markers - perfectly spaced at exactly 30 degrees -->
-                    <g id="hour-markers">
-                        <!-- 12 o'clock -->
-                        <line x1="300" y1="30" x2="300" y2="50" class="hour-marker" />
-                        <text x="300" y="20" class="time-label">12:00</text>
+                            <!-- 2 o'clock (60 degrees) -->
+                            <line x1="517.5" y1="182.5" x2="497.5" y2="195" class="hour-marker" />
+                            <text x="530" y="170" class="time-label">02:00</text>
 
-                        <!-- 1 o'clock (30 degrees) -->
-                        <line x1="435" y1="82.5" x2="422.5" y2="95" class="hour-marker" />
-                        <text x="447.5" y="70" class="time-label">01:00</text>
+                            <!-- 3 o'clock (90 degrees) -->
+                            <line x1="550" y1="300" x2="530" y2="300" class="hour-marker" />
+                            <text x="565" y="305" class="time-label">03:00</text>
 
-                        <!-- 2 o'clock (60 degrees) -->
-                        <line x1="517.5" y1="182.5" x2="497.5" y2="195" class="hour-marker" />
-                        <text x="530" y="170" class="time-label">02:00</text>
+                            <!-- 4 o'clock (120 degrees) -->
+                            <line x1="517.5" y1="417.5" x2="497.5" y2="405" class="hour-marker" />
+                            <text x="530" y="430" class="time-label">04:00</text>
 
-                        <!-- 3 o'clock (90 degrees) -->
-                        <line x1="550" y1="300" x2="530" y2="300" class="hour-marker" />
-                        <text x="565" y="305" class="time-label">03:00</text>
+                            <!-- 5 o'clock (150 degrees) -->
+                            <line x1="435" y1="517.5" x2="422.5" y2="505" class="hour-marker" />
+                            <text x="447.5" y="530" class="time-label">05:00</text>
 
-                        <!-- 4 o'clock (120 degrees) -->
-                        <line x1="517.5" y1="417.5" x2="497.5" y2="405" class="hour-marker" />
-                        <text x="530" y="430" class="time-label">04:00</text>
+                            <!-- 6 o'clock (180 degrees) -->
+                            <line x1="300" y1="550" x2="300" y2="530" class="hour-marker" />
+                            <text x="300" y="565" class="time-label">06:00</text>
 
-                        <!-- 5 o'clock (150 degrees) -->
-                        <line x1="435" y1="517.5" x2="422.5" y2="505" class="hour-marker" />
-                        <text x="447.5" y="530" class="time-label">05:00</text>
+                            <!-- 7 o'clock (210 degrees) -->
+                            <line x1="165" y1="517.5" x2="177.5" y2="505" class="hour-marker" />
+                            <text x="152.5" y="530" class="time-label">07:00</text>
 
-                        <!-- 6 o'clock (180 degrees) -->
-                        <line x1="300" y1="550" x2="300" y2="530" class="hour-marker" />
-                        <text x="300" y="565" class="time-label">06:00</text>
+                            <!-- 8 o'clock (240 degrees) -->
+                            <line x1="82.5" y1="417.5" x2="102.5" y2="405" class="hour-marker" />
+                            <text x="70" y="430" class="time-label">08:00</text>
 
-                        <!-- 7 o'clock (210 degrees) -->
-                        <line x1="165" y1="517.5" x2="177.5" y2="505" class="hour-marker" />
-                        <text x="152.5" y="530" class="time-label">07:00</text>
+                            <!-- 9 o'clock (270 degrees) -->
+                            <line x1="50" y1="300" x2="70" y2="300" class="hour-marker" />
+                            <text x="35" y="305" class="time-label">09:00</text>
 
-                        <!-- 8 o'clock (240 degrees) -->
-                        <line x1="82.5" y1="417.5" x2="102.5" y2="405" class="hour-marker" />
-                        <text x="70" y="430" class="time-label">08:00</text>
+                            <!-- 10 o'clock (300 degrees) -->
+                            <line x1="82.5" y1="182.5" x2="102.5" y2="195" class="hour-marker" />
+                            <text x="70" y="170" class="time-label">10:00</text>
 
-                        <!-- 9 o'clock (270 degrees) -->
-                        <line x1="50" y1="300" x2="70" y2="300" class="hour-marker" />
-                        <text x="35" y="305" class="time-label">09:00</text>
+                            <!-- 11 o'clock (330 degrees) -->
+                            <line x1="165" y1="82.5" x2="177.5" y2="95" class="hour-marker" />
+                            <text x="152.5" y="70" class="time-label">11:00</text>
+                        </g>
 
-                        <!-- 10 o'clock (300 degrees) -->
-                        <line x1="82.5" y1="182.5" x2="102.5" y2="195" class="hour-marker" />
-                        <text x="70" y="170" class="time-label">10:00</text>
+                        <!-- Pre-defined glucose spike at 2:00 PM -->
+                        <g id="glucose-event">
+                            <!-- Visual representation of the spike -->
+                            <path id="glucose-spike"
+                                d="M300,300 L517.5,182.5 C500,150 480,160 460,170 C440,180 420,200 400,220 C380,240 350,260 320,280 Z"
+                                fill="rgba(255, 107, 107, 0.2)" stroke="#FF6B6B" stroke-width="2" />
 
-                        <!-- 11 o'clock (330 degrees) -->
-                        <line x1="165" y1="82.5" x2="177.5" y2="95" class="hour-marker" />
-                        <text x="152.5" y="70" class="time-label">11:00</text>
-                    </g>
+                            <!-- Marker showing the exact peak time -->
+                            <circle cx="517.5" cy="182.5" r="8" fill="#FF6B6B" stroke="#fff" stroke-width="2" />
+                            <text x="530" y="170" text-anchor="middle" font-size="12" fill="#FF6B6B" font-weight="bold">152
+                                mg/dL</text>
 
-                    <!-- Pre-defined glucose spike at 2:00 PM -->
-                    <g id="glucose-event">
-                        <!-- Visual representation of the spike -->
-                        <path id="glucose-spike"
-                            d="M300,300 L517.5,182.5 C500,150 480,160 460,170 C440,180 420,200 400,220 C380,240 350,260 320,280 Z"
-                            fill="rgba(255, 107, 107, 0.2)" stroke="#FF6B6B" stroke-width="2" />
+                            <!-- Label for the spike -->
+                            <text x="450" y="140" text-anchor="middle" font-size="13" fill="#FF6B6B"
+                                font-weight="bold">Glucose Spike</text>
+                        </g>
 
-                        <!-- Marker showing the exact peak time -->
-                        <circle cx="517.5" cy="182.5" r="8" fill="#FF6B6B" stroke="#fff" stroke-width="2" />
-                        <text x="530" y="170" text-anchor="middle" font-size="12" fill="#FF6B6B" font-weight="bold">152
-                            mg/dL</text>
+                        <!-- Drop target indicator - visual feedback when dragging -->
+                        <circle id="drop-target" cx="300" cy="300" r="25" class="drop-target" />
 
-                        <!-- Label for the spike -->
-                        <text x="450" y="140" text-anchor="middle" font-size="13" fill="#FF6B6B"
-                            font-weight="bold">Glucose Spike</text>
-                    </g>
+                        <!-- Time indicator line (initially hidden) -->
+                        <line id="time-indicator-line" x1="300" y1="300" x2="300" y2="50" class="time-indicator-line"
+                            style="display: none;" />
 
-                    <!-- Drop target indicator - visual feedback when dragging -->
-                    <circle id="drop-target" cx="300" cy="300" r="25" class="drop-target" />
+                        <!-- Clickable area for the entire clock -->
+                        <circle id="clickable-area" cx="300" cy="300" r="270" fill="transparent" />
 
-                    <!-- Time indicator line (initially hidden) -->
-                    <line id="time-indicator-line" x1="300" y1="300" x2="300" y2="50" class="time-indicator-line"
-                        style="display: none;" />
+                        <!-- Clock center decoration -->
+                        <circle cx="300" cy="300" r="12" fill="#444" stroke="#fff" stroke-width="2" />
+                        <circle cx="300" cy="300" r="5" fill="#fff" />
+                    </svg>
 
-                    <!-- Clickable area for the entire clock -->
-                    <circle id="clickable-area" cx="300" cy="300" r="270" fill="transparent" />
-
-                    <!-- Clock center decoration -->
-                    <circle cx="300" cy="300" r="12" fill="#444" stroke="#fff" stroke-width="2" />
-                    <circle cx="300" cy="300" r="5" fill="#fff" />
-
-                    <!-- Legend at the bottom with proper positioning -->
-                    <g transform="translate(190, 530)">
-                        <rect x="0" y="0" width="220" height="70" rx="5" fill="white" fill-opacity="0.9"
-                            stroke="#eaeaea" />
-                        <line x1="20" y1="20" x2="50" y2="20" stroke="#FF6B6B" stroke-width="2" />
-                        <text x="60" y="25" font-size="13" fill="#444">Glucose Spike (2:00 PM)</text>
-                        <line x1="20" y1="45" x2="50" y2="45" stroke="#0066CC" stroke-width="2"
-                            stroke-dasharray="5,3" />
-                        <text x="60" y="50" font-size="13" fill="#444">Drag food here to place</text>
-                    </g>
-                </svg>
-
-                <!-- Time indicator label -->
-                <div id="time-indicator-label" class="time-indicator-label" style="display: none;">12:00 PM</div>
+                    <!-- Time indicator label -->
+                    <div id="time-indicator-label" class="time-indicator-label" style="display: none;">12:00 PM</div>
+                </div>
             </div>
 
-            <!-- Submit analysis button added below the clock -->
-            <button id="submit-analysis-btn" class="submit-analysis-btn">Submit Your Analysis</button>
+            <!-- Move legend below the clock and outside the SVG -->
+            <div style="margin: 20px auto; display: flex; justify-content: center; background: white; border-radius: 5px; padding: 10px; border: 1px solid #eaeaea; max-width: 450px;">
+                <div style="display: flex; align-items: center; margin-right: 30px;">
+                    <span style="width: 30px; height: 2px; background: #FF6B6B; display: inline-block; margin-right: 10px;"></span>
+                    <span style="font-size: 13px; color: #444;">Glucose Spike (2:00 PM)</span>
+                </div>
+                <div style="display: flex; align-items: center;">
+                    <span style="width: 30px; height: 2px; background: #0066CC; display: inline-block; margin-right: 10px; border-top: 2px dashed #0066CC;"></span>
+                    <span style="font-size: 13px; color: #444;">Drag food to clock to place</span>
+                </div>
+            </div>
 
+            <!-- Submit analysis button updated to be visible but disabled initially -->
+            <button id="submit-analysis-btn" class="submit-analysis-btn" disabled>Submit Your Analysis</button>
 
+            <div class="results-panel" style="margin: 30px auto; max-width: 800px; width: 100%; box-sizing: border-box; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); overflow: hidden;">
+                <h2 style="color: #333; text-align: center; margin-top: 0;">Analysis Results</h2>
+                <div class="score" style="text-align: center; font-size: 28px; font-weight: bold; margin: 20px 0; color: #0066CC;">Score: 85/100</div>
 
-            <div class="results-panel" style="margin: 30px auto;">
-                <h2>Analysis Results</h2>
-                <div class="score">Score: 85/100</div>
+                <div class="feedback" style="line-height: 1.6;">
+                    <p style="font-size: 18px; margin-bottom: 20px;"><strong>Good analysis!</strong> This is very likely what caused Sarah Johnson's glucose spike.</p>
 
-                <div class="feedback">
-                    <p><strong>Good analysis!</strong> This is very likely what caused Sarah's glucose spike.</p>
+                    <p style="margin-bottom: 20px; word-wrap: break-word;">The <span id="placed-food-name">Rice</span> you placed at <span id="placed-food-time">1:40 PM</span> typically causes glucose to rise within <span id="food-timing">45-60 minutes</span>, which aligns well with the 2:00 PM spike Sarah Johnson experienced.</p>
 
-                    <p>The <span id="placed-food-name">Apple</span> you placed at <span id="placed-food-time">1:15
-                            PM</span> typically causes glucose to rise within <span id="food-timing">30-45
-                            minutes</span>, which aligns well with the 2:00 PM spike Sarah experienced.</p>
-
-                    <h3>Insights</h3>
-                    <p>This food raised Sarah's glucose by approximately <strong>82 mg/dL</strong> at its peak (from
+                    <h3 style="color: #0066CC; margin-top: 25px; border-bottom: 1px solid #eee; padding-bottom: 8px;">Insights</h3>
+                    <p style="margin-bottom: 20px;">This food raised Sarah Johnson's glucose by approximately <strong>82 mg/dL</strong> at its peak (from
                         baseline of 70 mg/dL to 152 mg/dL). The response lasted about <strong>2.5 hours</strong> before
                         returning to baseline.</p>
 
-                    <p>For Sarah, this food is a <strong id="glycemic-impact">moderate</strong> glycemic impact food.
-                        She might consider pairing it with protein or healthy fats to reduce the spike in the future.
+                    <p style="margin-bottom: 25px;">For Sarah Johnson, this food is a <strong id="glycemic-impact">high</strong> glycemic impact food.
+                        They might consider pairing it with protein or healthy fats to reduce the spike in the future.
                     </p>
 
-                    <div style="background: #f5f7fa; padding: 15px; border-radius: 8px; margin-top: 20px;">
-                        <h4 style="margin-top: 0; color: #0066CC;">Recommendations for Sarah:</h4>
-                        <ul style="margin-bottom: 0;">
+                    <div style="background: #f5f7fa; padding: 20px; border-radius: 8px; margin-top: 25px; border-left: 4px solid #0066CC;">
+                        <h4 style="margin-top: 0; color: #0066CC;">Recommendations for Sarah Johnson:</h4>
+                        <ul style="margin-bottom: 0; padding-left: 25px;">
                             <li>Try consuming this food with a source of protein or healthy fat</li>
                             <li>Consider eating smaller portions spread throughout the day</li>
                             <li>A short 10-minute walk after eating can help reduce glucose spikes</li>
@@ -683,7 +676,8 @@
                     </div>
                 </div>
 
-                <button id="try-another-btn" class="submit-btn">Try Another Analysis</button>
+                <!-- Add direct onclick handler to the Try Another button -->
+                <button id="try-another-btn" class="submit-btn" onclick="tryAnotherAnalysis(); return false;" style="display: block; margin: 30px auto 10px; padding: 12px 30px; background-color: #4CAF50; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s ease;">Try Another Analysis</button>
             </div>
         </div>
     </div>
