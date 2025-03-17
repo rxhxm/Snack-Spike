@@ -76,17 +76,6 @@ body {
     overflow: hidden;
 }
 
-.annotation {
-    background: rgba(255, 255, 255, 0.8);
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    padding: 10px;
-    position: absolute;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    font-size: 14px;
-    max-width: 200px;
-}
-
 .info-box {
     background: #f0f7ff;
     border-left: 4px solid #0066CC;
@@ -1134,3 +1123,31 @@ body {
     font-weight: bold;
     z-index: 3;
 } */
+
+.graph-container-dailyPattern {
+    display: flex;
+    justify-content: left;  /* Centers horizontally */
+    align-items: center;      /* Centers vertically */
+    height: 350px;            /* Set the height of the container */
+    width: 100%;              /* Set width to 100% of the parent container */
+    position: relative;
+    overflow: visible;
+}
+
+#dailyPatternGraph {
+    margin-top: 40px;
+    overflow: visible;
+}
+
+.annotation {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    position: absolute;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+    max-width: 200px;
+    overflow: visible;
+}
+
