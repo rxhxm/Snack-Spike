@@ -1692,7 +1692,7 @@ function drawUnderstandingGlucoseGraph() {
     // First annotation: High carb breakfast
     annotations.append("rect")
         .attr("x", 100)
-        .attr("y", 75)
+        .attr("y", 76)
         .attr("width", 165)
         .attr("height", 40)
         .attr("rx", 5)
@@ -1726,7 +1726,7 @@ function drawUnderstandingGlucoseGraph() {
     annotations.append("rect")
         .attr("x", 330)
         .attr("y", 80)
-        .attr("width", 140)
+        .attr("width", 115)
         .attr("height", 40)
         .attr("rx", 5)
         .attr("fill", "rgba(255,255,255,0.9)")
@@ -1744,7 +1744,7 @@ function drawUnderstandingGlucoseGraph() {
         .attr("y", 111)
         .attr("font-size", "12")
         .attr("fill", "#333")
-        .text("causes moderate spike");
+        .text("causes low spike");
 
     annotations.append("line")
         .attr("x1", 435)
@@ -1759,8 +1759,8 @@ function drawUnderstandingGlucoseGraph() {
     annotations.append("rect")
         .attr("x", 490)
         .attr("y", 50)
-        .attr("width", 130)
-        .attr("height", 40)
+        .attr("width", 140)
+        .attr("height", 38)
         .attr("rx", 5)
         .attr("fill", "rgba(255,255,255,0.9)")
         .attr("stroke", "#ddd");
@@ -1777,7 +1777,7 @@ function drawUnderstandingGlucoseGraph() {
         .attr("y", 80)
         .attr("font-size", "12")
         .attr("fill", "#333")
-        .text("causes larger spikes");
+        .text("causes medium spikes");
 
     annotations.append("line")
         .attr("x1", 579)
