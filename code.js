@@ -826,7 +826,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Group events by ParticipantID (or choose one randomly)
         const eventsByParticipant = d3.group(spikeEventsData, d => d.ParticipantID);
-        const participantIDs = Array.from(eventsByParticipant.keys());
 
         // For example, choose one participant randomly:
         let chosenID = patient;
@@ -840,13 +839,15 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         // Outer ring is 160 mg/dL, choose some padding so circles fit
-        const minTime = d3.min(responseCurve, d => d.ParsedTime);
-        const maxTime = d3.max(responseCurve, d => d.ParsedTime);
+        const minTime = parseTime("2025-03-17T00:00:00"); // d3.min(responseCurve, d => d.ParsedTime);
+        const maxTime = parseTime("2025-03-17T24:00:00"); //d3.max(responseCurve, d => d.ParsedTime);
         const minGlucose = 110; //d3.min(responseCurve, d => d.Value);
         const maxGlucose = 180; // d3.max(responseCurve, d => d.Value) + 10;
         const innerRadius = 0;
         const outerRadius = 250;
         const glucoseTicks = d3.ticks(minGlucose, maxGlucose, 6);
+
+        console.log(minTime);
 
         const rScale = d3.scaleLinear()
             .domain([minGlucose, maxGlucose])
@@ -1869,16 +1870,16 @@ function drawUnderstandingGlucoseGraph() {
 
             // Add the glucose value text
             label.append("tspan")
-                    .attr("x", width - 10)
-                    .attr("dy", 0)
-                    .text(`Glucose: ${closestDataPoint.Value} mg/dL`);
+                .attr("x", width - 10)
+                .attr("dy", 0)
+                .text(`Glucose: ${closestDataPoint.Value} mg/dL`);
 
             const formattedHour = formatHour(closestDataPoint.HourOfDay);
             // Add the hour text on a new line
             label.append("tspan")
-                    .attr("x", width - 10)
-                    .attr("dy", "1.5em")
-                    .text(`Time: ${formattedHour}`);
+                .attr("x", width - 10)
+                .attr("dy", "1.5em")
+                .text(`Time: ${formattedHour}`);
 
             // Show the label
             label.style("display", "block");
