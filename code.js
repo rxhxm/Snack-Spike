@@ -1290,6 +1290,18 @@ document.addEventListener('DOMContentLoaded', function () {
     funFactOverlay.addEventListener('click', hideFunFactModal);
     nextFactButton.addEventListener('click', showNextFact);
 
+    // Ensure fun fact button is always visible
+    function positionFunFactButton() {
+        funFactButton.style.position = 'fixed';
+        funFactButton.style.bottom = '30px';
+        funFactButton.style.right = '30px';
+        funFactButton.style.zIndex = '1000';
+    }
+    
+    // Call initially and on resize
+    positionFunFactButton();
+    window.addEventListener('resize', positionFunFactButton);
+
     // Periodically highlight the fun fact button
     setInterval(() => {
         funFactButton.classList.add('highlight');
@@ -1379,109 +1391,9 @@ function cleanupOrphanedFoodElements() {
 
 // Function to reset the game and load a new scenario
 function tryAnotherAnalysis() {
-    console.log("Try another analysis clicked");
-
-    try {
-        // Hide results panel first
-        const resultsPanel = document.querySelector('.results-panel');
-        if (resultsPanel) {
-            resultsPanel.style.display = 'none';
-        }
-
-        // Initialize scenarios if they don't exist
-        if (!window.scenarios || !Array.isArray(window.scenarios) || window.scenarios.length === 0) {
-            console.log("Scenarios not found or empty, initializing new scenarios");
-            prepareGameScenarios();
-        }
-
-        // Get current scenario index, default to 0 if not set
-        if (typeof window.currentScenarioIndex !== 'number') {
-            window.currentScenarioIndex = 0;
-        }
-
-        // Increment scenario index with wraparound
-        window.currentScenarioIndex = (window.currentScenarioIndex + 1) % window.scenarios.length;
-        console.log("Moving to scenario index:", window.currentScenarioIndex);
-
-        // Thorough cleanup
-        // 1. Remove placed food
-        cleanupOrphanedFoodElements();
-        const placedFood = document.querySelector('.dropped-food');
-        if (placedFood && placedFood.parentNode) {
-            placedFood.parentNode.removeChild(placedFood);
-        }
-
-        // 2. Reset food options
-        const foodOptions = document.querySelectorAll('.food-option');
-        foodOptions.forEach(option => {
-            option.classList.add('draggable');
-            option.style.opacity = '1';
-            // Ensure any inline styles are reset
-            option.style.position = '';
-            option.style.left = '';
-            option.style.top = '';
-            option.style.zIndex = '';
-        });
-
-        // 3. Reset and show submit button
-        const submitButton = document.getElementById('submit-analysis-btn');
-        if (submitButton) {
-            submitButton.style.display = 'block';
-            submitButton.disabled = true;
-            submitButton.classList.remove('active');
-        }
-
-        // 4. Reset visual indicators
-        const timeIndicatorLine = document.getElementById('time-indicator-line');
-        const timeIndicatorLabel = document.getElementById('time-indicator-label');
-        const dropTarget = document.getElementById('drop-target');
-
-        if (timeIndicatorLine) timeIndicatorLine.style.display = 'none';
-        if (timeIndicatorLabel) timeIndicatorLabel.style.display = 'none';
-        if (dropTarget) dropTarget.style.display = 'none';
-
-        // Load the next scenario and update UI
-        if (window.scenarios && window.scenarios.length > 0 &&
-            window.currentScenarioIndex < window.scenarios.length) {
-
-            const nextScenario = window.scenarios[window.currentScenarioIndex];
-            if (!nextScenario) {
-                throw new Error("Invalid scenario at index " + window.currentScenarioIndex);
-            }
-
-            console.log("Loading scenario:", nextScenario);
-            loadScenario(window.currentScenarioIndex);
-            updatePatientProfile();
-
-            console.log("Scenario loaded successfully");
-            return true;
-        } else {
-            console.error("No valid scenarios available");
-            throw new Error("No valid scenarios available");
-        }
-    } catch (error) {
-        console.error("Error in tryAnotherAnalysis:", error);
-
-        // Fallback: try to create new scenarios on error
-        try {
-            console.log("Attempting fallback: creating new scenarios");
-            prepareGameScenarios();
-            window.currentScenarioIndex = 0;
-
-            if (window.scenarios && window.scenarios.length > 0) {
-                loadScenario(0);
-                updatePatientProfile();
-                console.log("Fallback successful - loaded first scenario");
-                return true;
-            }
-        } catch (fallbackError) {
-            console.error("Fallback failed:", fallbackError);
-        }
-
-        // If we get here, both main attempt and fallback failed
-        alert("There was an error loading the next scenario. Please refresh the page.");
-        return false;
-    }
+    // Reload the page with a URL parameter to indicate the game tab should be active
+    window.location.href = window.location.pathname + "?tab=game";
+    return false;
 }
 
 // Update initGame to call cleanupOrphanedFoodElements during initialization
@@ -2337,6 +2249,15 @@ function init() {
 
     // Start animation
     animate();
+
+    // Check if we're returning from a "Try Again" click
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('tab') === 'game') {
+        // Ensure game tab is selected
+        document.getElementById('game-tab').click();
+        // Or alternatively use your existing functions:
+        // showGame();
+    }
 }
 
 function createGlucoseMolecules(count) {
