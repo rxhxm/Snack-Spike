@@ -1,4 +1,4 @@
-let instantLoad = true;
+let instantLoad = false;
 let responseCurveNew;
 let maxDataPointNew;
 
