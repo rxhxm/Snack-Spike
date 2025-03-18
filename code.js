@@ -1613,7 +1613,7 @@ function drawUnderstandingGlucoseGraph() {
         .text("Notice how each meal causes a different spike pattern based on what was eaten");
 
     // Add Healthy Range Box (up to y=100)
-    const yHealthy = yScale(100);
+    const yHealthy = yScale(99);
 
     // Add Healthy Range Label
     svg.append("text")
@@ -1643,7 +1643,7 @@ function drawUnderstandingGlucoseGraph() {
         .attr("x", margin.left)
         .attr("y", 180)
         .attr("width", width - margin.left - margin.right)
-        .attr("height", yScale(60) - yHealthy)  // Height from y=100 to bottom
+        .attr("height", yScale(70) - yHealthy)  // Height from y=100 to bottom
         .attr("fill", "rgba(150, 220, 150, 0.2)")  // Light green
         .attr("stroke", "#4CAF50")  // Green border
         .attr("stroke-width", 1)
