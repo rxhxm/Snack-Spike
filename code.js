@@ -1847,23 +1847,22 @@ function drawUnderstandingGlucoseGraph() {
         .style("display", "none"); // Initially hidden
 
     // Hover detection
-    svg.append("path")
-        .datum(glucoseData)
-        .attr("class", "tooltip-overlay")
-        .attr("fill", "none")
-        .attr("stroke", "transparent")
-        .attr("stroke-width", 10)
-        .attr("d", line)
+    svg.append("rect")
+        .attr("class", "hover-overlay")
+        .attr("fill", "transparent")
+        .attr("width", width)
+        .attr("height", height)
         .on("mousemove", function (event) {
             const [mouseX] = d3.pointer(event, this);
 
             if (!glucoseData.length) return;
 
-            // Find the closest data point
-            const closestDataPoint = glucoseData.reduce((prev, curr) =>
-                Math.abs(xScale(curr.HourOfDay) - mouseX) < Math.abs(xScale(prev.HourOfDay) - mouseX) ? curr : prev
-            );
+            // Use d3.bisector to find the closest data point
+            const bisect = d3.bisector(d => d.HourOfDay).center;
+            const index = bisect(glucoseData, xScale.invert(mouseX));
+            const closestDataPoint = glucoseData[index];
 
+            // Update the dot position
             dot.attr("cx", xScale(closestDataPoint.HourOfDay))
                 .attr("cy", yScale(closestDataPoint.Value))
                 .style("display", "block"); // Show dot
@@ -1873,16 +1872,16 @@ function drawUnderstandingGlucoseGraph() {
 
             // Add the glucose value text
             label.append("tspan")
-            .attr("x", width - 10)
-            .attr("dy", 0)  // No offset for the first line
-            .text(`Glucose: ${closestDataPoint.Value} mg/dL`);
+                .attr("x", width - 10)
+                .attr("dy", 0)
+                .text(`Glucose: ${closestDataPoint.Value} mg/dL`);
 
             const formattedHour = formatHour(closestDataPoint.HourOfDay);
             // Add the hour text on a new line
             label.append("tspan")
-            .attr("x", width - 10)
-            .attr("dy", "1.5em")  // Add space between lines
-            .text(`Time: ${formattedHour}`);
+                .attr("x", width - 10)
+                .attr("dy", "1.5em")
+                .text(`Time: ${formattedHour}`);
 
             // Show the label
             label.style("display", "block");
