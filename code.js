@@ -794,38 +794,35 @@ document.addEventListener('DOMContentLoaded', function () {
     /* ////////////
     NEW RADIAL CHART IMPLEMENTATION START
     ///////////// */
-
-
-    // Dimensions for the SVG
-    const width = 600,
-        height = 600,
-        margin = 20;
-
-    // Center coordinates
-    const centerX = width / 2,
-        centerY = height / 2;
-
-    // Create SVG and group element
-    const svg = d3.select("#radial-chart")
-        .append("svg")
-        .attr("width", width)
-        .attr("height", height);
-
-    const g = svg.append("g")
-        .attr("transform", `translate(${centerX}, ${centerY})`);
-
-    // Helper: convert polar (r, degrees) to Cartesian (x, y)
-    function polarToCartesian(r, angleDeg) {
-        // We want angle=0 at the top (i.e., -90 in typical math).
-        // So we do angleDeg - 90 so that 0 => top, 90 => right, etc.
-        const angleRad = (angleDeg) * Math.PI / 180;
-        return {
-            x: r * Math.cos(angleRad),
-            y: r * Math.sin(angleRad)
-        };
-    }
-
     function loadChart(patient) {
+        const chartRotation = -90;
+
+        // Dimensions for the SVG
+        const width = 600,
+            height = 600,
+            margin = 20;
+
+        // Center coordinates
+        const centerX = width / 2,
+            centerY = height / 2;
+
+        // Create SVG and group element
+        const svg = d3.select("#radial-chart")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        const g = svg.append("g")
+            .attr("transform", `translate(${centerX}, ${centerY})`);
+
+        // Helper: convert polar (r, degrees) to Cartesian (x, y)
+        function polarToCartesian(r, angleDeg) {
+            const angleRad = (angleDeg) * Math.PI / 180;
+            return {
+                x: r * Math.cos(angleRad),
+                y: r * Math.sin(angleRad)
+            };
+        }
 
         // Group events by ParticipantID (or choose one randomly)
         const eventsByParticipant = d3.group(spikeEventsData, d => d.ParticipantID);
@@ -866,7 +863,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const angleScale = d3.scaleTime()
             .domain([minTime, maxTime])
-            .range([0, 2 * Math.PI]);
+            .range([0, 360]);
 
         // For each consecutive pair (80->100, 100->120, etc.), draw a filled arc
         for (let i = 0; i < glucoseTicks.length - 1; i++) {
@@ -903,7 +900,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         const radialLine = d3.lineRadial()
-            .angle(d => angleScale(d.ParsedTime))
+            .angle(d => angleScale(d.ParsedTime) * Math.PI / 180)
             .radius(d => rScale(d.Value))
             .curve(d3.curveCardinal);
 
@@ -925,7 +922,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // hour=6 => angle=0 => right
             // hour=12 => angle=90 => bottom
             // hour=18 => angle=180 => left
-            const angleDeg = hour * 15 - 90;
+            const angleDeg = hour * 15 + chartRotation;
 
             // We'll draw a small tick line from outerRadius to outerRadius+10
             const tickStart = polarToCartesian(outerRadius - 10, angleDeg);
@@ -970,204 +967,204 @@ document.addEventListener('DOMContentLoaded', function () {
                 .attr("stroke", "blue") // Sets the outline color to blue
                 .attr("stroke-width", 2) // Adjusts the thickness of the outline
                 .attr("stroke-dasharray", "4 4"); // Creates a dotted line effect
-
-            // Compute the maximum data point (assumes a single maximum)
-            const maxDataPoint = event.ResponseCurve.reduce((max, d) => d.Value > max.Value ? d : max, event.ResponseCurve[0]);
-            const maxAngleRad = angleScale(maxDataPoint.ParsedTime);
-            const maxAngleDeg = maxAngleRad * (180 / Math.PI) - 90;
-
-            // Compute the radial distance for the max glucose value
-            const maxRadius = rScale(maxDataPoint.Value);
-
-            // Get the (x,y) coordinates using polarToCartesian (which expects degrees)
-            const maxPos = polarToCartesian(maxRadius, maxAngleDeg);
-
-            // Draw a dot at the maximum point
-            g.append("circle")
-                .attr("cx", maxPos.x)
-                .attr("cy", maxPos.y)
-                .attr("r", 4)
-                .attr("fill", "red");
-
-            // Add a text label next to the dot (offset as needed)
-            g.append("foreignObject")
-                .attr("x", maxPos.x + 6)
-                .attr("y", maxPos.y - 15)
-                .attr("width", 100)
-                .attr("height", 25)
-                .append("xhtml:div")
-                .attr("class", "max-label")
-                .html(`Max: ${maxDataPoint.Value} mg/dL`);
-
-            // Global elements for the clock hand and popup on the graph
-            const clockHand = g.append("line")
-                .attr("id", "clock-hand")
-                .attr("stroke", "blue")
-                .attr("stroke-width", 2)
-                .attr("stroke-dasharray", "4,4")
-                .style("display", "none");
-
-            const timePopup = g.append("text")
-                .attr("id", "time-popup")
-                .attr("font-size", "12px")
-                .attr("fill", "blue")
-                .attr("text-anchor", "middle")
-                .style("display", "none");
-
-            // Create a time scale mapping degrees (0-360) to hours (0-24)
-            const timeScale = d3.scaleLinear().domain([0, 360]).range([0, 24]);
-            function formatTime(hours, twelve = false) {
-                const totalMinutes = Math.round(hours * 60);
-                const hh = Math.floor(totalMinutes / 60);
-                const mm = totalMinutes % 60;
-
-                if (twelve) {
-                    const ampm = hh >= 12 ? 'PM' : 'AM';
-                    hours = hh > 12 ? hh - 12 : hh;
-                    return `${hours}:${mm.toString().padStart(2, '0')} ${ampm}`;
-                } else {
-                    return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
-                }
-            }
-
-            // Variables to track drag state
-            let currentDraggedOption = null;
-            let dragIcon = null;
-            let droppedFood = null;
-
-            // Apply drag behavior to the food options
-            d3.selectAll(".food-option.draggable")
-                .call(d3.drag()
-                    .on("start", function (event, d) {
-                        currentDraggedOption = d3.select(this);
-                        // If an icon is already dropped on the graph, remove it and reinsert its original option
-                        if (droppedFood) {
-                            d3.select(".food-selection").node().appendChild(droppedFood.node());
-                            droppedFood.remove();
-                            droppedFood = null;
-                        }
-                        // Fade out and hide the original option
-                        currentDraggedOption.style("opacity", 0.5).style("display", "none");
-
-                        // Create a floating drag icon in the body using only the first character (emoji)
-                        let foodText = currentDraggedOption.text().trim().split(" ")[0];
-                        dragIcon = d3.select("body")
-                            .append("div")
-                            .attr("class", "drag-icon")
-                            .style("position", "absolute")
-                            .style("pointer-events", "none")
-                            .style("width", "40px")
-                            .style("height", "40px")
-                            .style("border-radius", "50%")
-                            .style("background", "#fff")
-                            .style("box-shadow", "0 2px 6px rgba(0,0,0,0.3)")
-                            .style("display", "flex")
-                            .style("align-items", "center")
-                            .style("justify-content", "center")
-                            .style("font-size", "24px")
-                            .html(foodText);
-
-                        // Show the blue dotted clock hand and the time popup
-                        clockHand.style("display", null);
-                        timePopup.style("display", null);
-                    })
-                    .on("drag", function (event, d) {
-                        // Update the drag icon position
-                        dragIcon.style("left", (event.sourceEvent.pageX - 20) + "px")
-                            .style("top", (event.sourceEvent.pageY - 20) + "px");
-
-                        // Get mouse coordinates relative to the SVG
-                        const [mx, my] = d3.pointer(event, svg.node());
-                        // Compute vector from chart center to mouse
-                        const dx = mx - centerX;
-                        const dy = my - centerY;
-                        let angleRad = Math.atan2(dy, dx);
-                        let angleDeg = angleRad * (180 / Math.PI);
-                        if (angleDeg < 0) angleDeg += 360;
-
-                        // Set a fixed hand length (e.g., slightly beyond outerRadius)
-                        const handLength = outerRadius + 20;
-                        const handEnd = polarToCartesian(handLength, angleDeg);
-                        // Update clock hand position (g is already centered at (centerX, centerY))
-                        clockHand.attr("x1", 0)
-                            .attr("y1", 0)
-                            .attr("x2", handEnd.x)
-                            .attr("y2", handEnd.y);
-
-                        // Convert the angle into a time string using timeScale
-                        const hours = timeScale(angleDeg);
-                        const timeText = formatTime(hours);
-                        // Position the time popup further out (e.g., handLength + 20)
-                        const popupPos = polarToCartesian(handLength + 20, angleDeg);
-                        timePopup.attr("x", popupPos.x)
-                            .attr("y", popupPos.y)
-                            .text(timeText);
-                    })
-                    .on("end", function (event, d) {
-                        // Get mouse coordinates relative to the SVG
-                        const [mx, my] = d3.pointer(event, svg.node());
-                        const dx = mx - centerX;
-                        const dy = my - centerY;
-                        const distance = Math.sqrt(dx * dx + dy * dy);
-
-                        // If dropped within the chart, process the drop
-                        if (distance <= outerRadius) {
-                            // Compute the drop angle and corresponding time string
-                            let angleRad = Math.atan2(dy, dx);
-                            let angleDeg = angleRad * (180 / Math.PI);
-                            if (angleDeg < 0) angleDeg += 360;
-                            const hoursDecimal = timeScale(angleDeg);
-                            const dropTime = formatTime(hoursDecimal, true); // e.g., "13:40"
-                            console.log(dropTime);
-
-                            // Remove the temporary drag icon
-                            dragIcon.remove();
-                            dragIcon = null;
-
-                            // Create a dropped food element in the radial chart group
-                            droppedFood = g.append("g")
-                                .attr("class", "dropped-food")
-                                .attr("transform", `translate(${mx - centerX}, ${my - centerY})`);
-                            droppedFood.append("circle")
-                                .attr("r", 20)
-                                .attr("fill", "#fff")
-                                .attr("stroke", "#333")
-                                .attr("stroke-width", 1);
-                            // Use the first character (emoji) for the dropped icon
-                            let foodText = currentDraggedOption.text().trim().split(" ")[0];
-                            droppedFood.append("text")
-                                .attr("text-anchor", "middle")
-                                .attr("alignment-baseline", "middle")
-                                .attr("font-size", "24px")
-                                .text(foodText);
-
-                            // Set data attributes on the dropped element:
-                            // - 'data-time' for the drop time,
-                            // - 'data-food' and others from the dragged option if needed.
-                            droppedFood.attr("data-time", dropTime)
-                                .attr("data-food", currentDraggedOption.attr("data-food"))
-                                .attr("data-impact", currentDraggedOption.attr("data-impact"))
-                                .attr("data-timing", currentDraggedOption.attr("data-timing"));
-
-                            // Enable the submit analysis button by calling updateSubmitButton()
-                            updateSubmitButton();
-                        } else {
-                            // If not dropped on the chart, remove the drag icon and restore original display.
-                            dragIcon.remove();
-                            dragIcon = null;
-                            currentDraggedOption.style("display", null).style("opacity", 1);
-                        }
-
-                        // Hide the clock hand and time popup
-                        clockHand.style("display", "none");
-                        timePopup.style("display", "none");
-                        d3.selectAll(".food-selection .food-option.draggable")
-                            .style("display", null)
-                            .style("opacity", 1);
-                        currentDraggedOption = null;
-                    })
-                );
         });
+
+        // Compute the maximum data point (assumes a single maximum)
+        const maxDataPoint = event.ResponseCurve.reduce((max, d) => d.Value > max.Value ? d : max, event.ResponseCurve[0]);
+        const maxAngleDeg = angleScale(maxDataPoint.ParsedTime) + chartRotation;
+
+        // Compute the radial distance for the max glucose value
+        const maxRadius = rScale(maxDataPoint.Value);
+
+        // Get the (x,y) coordinates using polarToCartesian (which expects degrees)
+        const maxPos = polarToCartesian(maxRadius, maxAngleDeg);
+
+        // Draw a dot at the maximum point
+        g.append("circle")
+            .attr("cx", maxPos.x)
+            .attr("cy", maxPos.y)
+            .attr("r", 4)
+            .attr("fill", "red");
+
+        // Add a text label next to the dot (offset as needed)
+        g.append("foreignObject")
+            .attr("x", maxPos.x + 6)
+            .attr("y", maxPos.y - 15)
+            .attr("width", 100)
+            .attr("height", 30)
+            .attr("class", "max-label")
+            .html(`Max: ${maxDataPoint.Value} mg/dL`);
+
+        // Global elements for the clock hand and popup on the graph
+        const clockHand = g.append("line")
+            .attr("id", "clock-hand")
+            .attr("stroke", "blue")
+            .attr("stroke-width", 2)
+            .attr("stroke-dasharray", "4,4")
+            .style("display", "none");
+
+        const timePopup = g.append("text")
+            .attr("id", "time-popup")
+            .attr("font-size", "12px")
+            .attr("fill", "blue")
+            .attr("text-anchor", "middle")
+            .style("display", "none");
+
+        // Create a time scale mapping degrees (0-360) to hours (0-24)
+        const timeScale = d3.scaleLinear().domain([0, 360]).range([0, 24]);
+        function formatTime(hours, twelve = false) {
+            const totalMinutes = Math.round(hours * 60);
+            const hh = Math.floor(totalMinutes / 60);
+            const mm = totalMinutes % 60;
+
+            if (twelve) {
+                const ampm = hh >= 12 ? 'PM' : 'AM';
+                hours = hh > 12 ? hh - 12 : hh;
+                return `${hours}:${mm.toString().padStart(2, '0')} ${ampm}`;
+            } else {
+                return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
+            }
+        }
+
+        // Variables to track drag state
+        let currentDraggedOption = null;
+        let dragIcon = null;
+        let droppedFood = null;
+
+        // Apply drag behavior to the food options
+        d3.selectAll(".food-option.draggable")
+            .call(d3.drag()
+                .on("start", function (event, d) {
+                    currentDraggedOption = d3.select(this);
+                    // If an icon is already dropped on the graph, remove it and reinsert its original option
+                    if (droppedFood) {
+                        d3.select(".food-selection").node().appendChild(droppedFood.node());
+                        droppedFood.remove();
+                        droppedFood = null;
+                    }
+                    // Fade out and hide the original option
+                    currentDraggedOption.style("opacity", 0.5).style("display", "none");
+
+                    // Create a floating drag icon in the body using only the first character (emoji)
+                    let foodText = currentDraggedOption.text().trim().split(" ")[0];
+                    dragIcon = d3.select("body")
+                        .append("div")
+                        .attr("class", "drag-icon")
+                        .style("position", "absolute")
+                        .style("pointer-events", "none")
+                        .style("width", "40px")
+                        .style("height", "40px")
+                        .style("border-radius", "50%")
+                        .style("background", "#fff")
+                        .style("box-shadow", "0 2px 6px rgba(0,0,0,0.3)")
+                        .style("display", "flex")
+                        .style("align-items", "center")
+                        .style("justify-content", "center")
+                        .style("font-size", "24px")
+                        .html(foodText);
+
+                    // Show the blue dotted clock hand and the time popup
+                    clockHand.style("display", null);
+                    timePopup.style("display", null);
+                })
+                .on("drag", function (event, d) {
+                    // Update the drag icon position
+                    dragIcon.style("left", (event.sourceEvent.pageX - 20) + "px")
+                        .style("top", (event.sourceEvent.pageY - 20) + "px");
+
+                    // Get mouse coordinates relative to the SVG
+                    const [mx, my] = d3.pointer(event, svg.node());
+                    // Compute vector from chart center to mouse
+                    const dx = mx - centerX;
+                    const dy = my - centerY;
+                    let angleRad = Math.atan2(dy, dx);
+                    let angleDeg = angleRad * (180 / Math.PI) - chartRotation;
+                    if (angleDeg < 0) angleDeg += 360;
+
+                    // Set a fixed hand length (e.g., slightly beyond outerRadius)
+                    const handLength = outerRadius + 20;
+                    const handEnd = polarToCartesian(handLength, angleDeg + chartRotation);
+                    // Update clock hand position (g is already centered at (centerX, centerY))
+                    clockHand.attr("x1", 0)
+                        .attr("y1", 0)
+                        .attr("x2", handEnd.x)
+                        .attr("y2", handEnd.y);
+
+                    // Convert the angle into a time string using timeScale
+                    const hours = timeScale(angleDeg);
+                    const timeText = formatTime(hours);
+                    // Position the time popup further out (e.g., handLength + 20)
+                    const popupPos = polarToCartesian(handLength + 20, angleDeg + chartRotation);
+                    timePopup.attr("x", popupPos.x)
+                        .attr("y", popupPos.y)
+                        .text(timeText);
+                })
+                .on("end", function (event, d) {
+                    // Get mouse coordinates relative to the SVG
+                    const [mx, my] = d3.pointer(event, svg.node());
+                    const dx = mx - centerX;
+                    const dy = my - centerY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    // If dropped within the chart, process the drop
+                    if (distance <= outerRadius) {
+                        // Compute the drop angle and corresponding time string
+                        let angleRad = Math.atan2(dy, dx);
+                        let angleDeg = angleRad * (180 / Math.PI) - chartRotation;
+                        if (angleDeg < 0) angleDeg += 360;
+                        const hoursDecimal = timeScale(angleDeg);
+                        const dropTime = formatTime(hoursDecimal, true); // e.g., "13:40"
+
+                        console.log('dropTime');
+                        console.log(dropTime);
+
+                        // Remove the temporary drag icon
+                        dragIcon.remove();
+                        dragIcon = null;
+
+                        // Create a dropped food element in the radial chart group
+                        droppedFood = g.append("g")
+                            .attr("class", "dropped-food")
+                            .attr("transform", `translate(${mx - centerX}, ${my - centerY})`);
+                        droppedFood.append("circle")
+                            .attr("r", 20)
+                            .attr("fill", "#fff")
+                            .attr("stroke", "#333")
+                            .attr("stroke-width", 1);
+                        // Use the first character (emoji) for the dropped icon
+                        let foodText = currentDraggedOption.text().trim().split(" ")[0];
+                        droppedFood.append("text")
+                            .attr("text-anchor", "middle")
+                            .attr("alignment-baseline", "middle")
+                            .attr("font-size", "24px")
+                            .text(foodText);
+
+                        // Set data attributes on the dropped element:
+                        // - 'data-time' for the drop time,
+                        // - 'data-food' and others from the dragged option if needed.
+                        droppedFood.attr("data-time", dropTime)
+                            .attr("data-food", currentDraggedOption.attr("data-food"))
+                            .attr("data-impact", currentDraggedOption.attr("data-impact"))
+                            .attr("data-timing", currentDraggedOption.attr("data-timing"));
+
+                        // Enable the submit analysis button by calling updateSubmitButton()
+                        updateSubmitButton();
+                    } else {
+                        // If not dropped on the chart, remove the drag icon and restore original display.
+                        dragIcon.remove();
+                        dragIcon = null;
+                        currentDraggedOption.style("display", null).style("opacity", 1);
+                    }
+
+                    // Hide the clock hand and time popup
+                    clockHand.style("display", "none");
+                    timePopup.style("display", "none");
+                    d3.selectAll(".food-selection .food-option.draggable")
+                        .style("display", null)
+                        .style("opacity", 1);
+                    currentDraggedOption = null;
+                })
+            );
     }
 
     /* ////////////
@@ -1683,7 +1680,7 @@ function drawUnderstandingGlucoseGraph() {
         .attr("font-size", "12px")
         .attr("fill", "#d32f2f")
         .text(d => d.label);
-    
+
     // Create a group for annotations to keep everything organized
     const annotations = d3.select("#dailyPatternGraph")
         .append("g")
@@ -1841,7 +1838,7 @@ function drawUnderstandingGlucoseGraph() {
     const label = svg.append("text")
         .attr("class", "glucose-label")
         .attr("x", width)
-        .attr("y", (height / 2) -20)
+        .attr("y", (height / 2) - 20)
         .attr("text-anchor", "middle")
         .style("font-size", "14px")
         .style("display", "none"); // Initially hidden
@@ -1873,16 +1870,16 @@ function drawUnderstandingGlucoseGraph() {
 
             // Add the glucose value text
             label.append("tspan")
-            .attr("x", width - 10)
-            .attr("dy", 0)  // No offset for the first line
-            .text(`Glucose: ${closestDataPoint.Value} mg/dL`);
+                .attr("x", width - 10)
+                .attr("dy", 0)  // No offset for the first line
+                .text(`Glucose: ${closestDataPoint.Value} mg/dL`);
 
             const formattedHour = formatHour(closestDataPoint.HourOfDay);
             // Add the hour text on a new line
             label.append("tspan")
-            .attr("x", width - 10)
-            .attr("dy", "1.5em")  // Add space between lines
-            .text(`Time: ${formattedHour}`);
+                .attr("x", width - 10)
+                .attr("dy", "1.5em")  // Add space between lines
+                .text(`Time: ${formattedHour}`);
 
             // Show the label
             label.style("display", "block");
