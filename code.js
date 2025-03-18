@@ -1,4 +1,6 @@
 let instantLoad = true;
+let responseCurveNew;
+let maxDataPointNew;
 
 /* ////////////////
 Add JavaScript for navigation functionality
@@ -207,8 +209,7 @@ document.addEventListener('DOMContentLoaded', function () {
             submitButton.classList.remove('active');
         }
 
-        let patientID = currentScenario.FoodEvent ? currentScenario.ParticipantID : currentScenario.name;
-        loadChart(patientID);
+        loadChart(currentScenario.ResponseCurve);
     }
 
     // Update patient profile based on current scenario
@@ -225,6 +226,8 @@ document.addEventListener('DOMContentLoaded', function () {
             '012': 'Noah Thompson',
             '014': 'Sophia Martinez'
         };
+
+        console.log(currentScenario);
 
         if (currentScenario.FoodEvent) {
             // Using real data
@@ -260,8 +263,10 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         // Update glucose alert
-        const spikeTime = getSpikeTimeFormatted();
-        const spikeValue = getSpikeValue();
+        responseCurveNew = currentScenario.ResponseCurve
+        maxDataPointNew = responseCurveNew.reduce((max, d) => d.Value > max.Value ? d : max, responseCurveNew[0]);
+        const spikeTime = getSpikeTimeFormatted(maxDataPointNew);
+        const spikeValue = getSpikeValue(maxDataPointNew);
 
         const alertElement = document.querySelector('.glucose-alert p');
         if (alertElement) {
@@ -308,10 +313,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Get formatted spike time for display
-    function getSpikeTimeFormatted() {
+    function getSpikeTimeFormatted(input) {
         if (currentScenario.FoodEvent) {
             // Real data - convert ISO timestamp to formatted time
-            const spikeTime = new Date(currentScenario.SpikeTime);
+            const spikeTime = new Date(input.Timestamp);
             let hours = spikeTime.getHours();
             const minutes = spikeTime.getMinutes().toString().padStart(2, '0');
             const ampm = hours >= 12 ? 'PM' : 'AM';
@@ -325,9 +330,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Get spike value
-    function getSpikeValue() {
+    function getSpikeValue(input) {
         return currentScenario.FoodEvent ?
-            Math.round(currentScenario.SpikeValue) :
+            Math.round(input.Value) :
             currentScenario.spikeValue;
     }
 
@@ -387,7 +392,8 @@ document.addEventListener('DOMContentLoaded', function () {
         // Get ideal timing window based on scenario
         if (currentScenario.FoodEvent) {
             // For real data, calculate time difference between food and spike
-            const spikeTime = new Date(currentScenario.SpikeTime);
+            const parseTime = d3.isoParse;
+            const spikeTime = parseTime(maxDataPointNew.Timestamp);
             const spikeHours = spikeTime.getHours();
             const spikeMinutes = spikeTime.getMinutes();
 
@@ -526,7 +532,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Check if food type is appropriate for the spike
         const foodImpact = placedFood.dataset.impact;
-        const spikeSize = getSpikeValue() - getBaselineValue();
+        const spikeSize = getSpikeValue(maxDataPointNew) - getBaselineValue();
 
         let impactScore = 0;
         let impactFeedback = "";
@@ -794,7 +800,7 @@ document.addEventListener('DOMContentLoaded', function () {
     /* ////////////
     NEW RADIAL CHART IMPLEMENTATION START
     ///////////// */
-    function loadChart(patient) {
+    function loadChart(responseCurve) {
         const chartRotation = -90;
 
         // Dimensions for the SVG
@@ -823,15 +829,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 y: r * Math.sin(angleRad)
             };
         }
-
-        // Group events by ParticipantID (or choose one randomly)
-        const eventsByParticipant = d3.group(spikeEventsData, d => d.ParticipantID);
-
-        // For example, choose one participant randomly:
-        let chosenID = patient;
-        // Get the events for that participant – and choose the first one:
-        const event = eventsByParticipant.get(chosenID)[0];
-        const responseCurve = event.ResponseCurve;
 
         // Convert ResponseCurve timestamps to Date objects
         const parseTime = d3.isoParse; responseCurve.forEach(d => {
@@ -974,7 +971,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         // Compute the maximum data point (assumes a single maximum)
-        const maxDataPoint = event.ResponseCurve.reduce((max, d) => d.Value > max.Value ? d : max, event.ResponseCurve[0]);
+        const maxDataPoint = responseCurve.reduce((max, d) => d.Value > max.Value ? d : max, responseCurve[0]);
         const maxAngleDeg = angleScale(maxDataPoint.ParsedTime) + chartRotation;
 
         // Compute the radial distance for the max glucose value
@@ -1134,9 +1131,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     const currentGlucose = interpolateGlucose(responseCurve, hours);
                     const dotRadius = rScale(currentGlucose);
                     const dotPos = polarToCartesian(dotRadius, angleDeg + chartRotation);
-
-                    console.log(hours);
-                    console.log(currentGlucose);
 
                     timeDot.attr("cx", dotPos.x)
                         .attr("cy", dotPos.y);
