@@ -1290,18 +1290,6 @@ document.addEventListener('DOMContentLoaded', function () {
     funFactOverlay.addEventListener('click', hideFunFactModal);
     nextFactButton.addEventListener('click', showNextFact);
 
-    // Ensure fun fact button is always visible
-    function positionFunFactButton() {
-        funFactButton.style.position = 'fixed';
-        funFactButton.style.bottom = '30px';
-        funFactButton.style.right = '30px';
-        funFactButton.style.zIndex = '1000';
-    }
-    
-    // Call initially and on resize
-    positionFunFactButton();
-    window.addEventListener('resize', positionFunFactButton);
-
     // Periodically highlight the fun fact button
     setInterval(() => {
         funFactButton.classList.add('highlight');
