@@ -1355,7 +1355,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 setTimeout(() => {
                     loadingScreen.remove();
                 }, 500);
-            }, instantLoad ? 10 : 1600); // Changed from 800 to 1600
+            }, instantLoad ? 10 : 600); // Changed from 800 to 1600
         }
     }, 10); // Changed from 150 to 300
 });
