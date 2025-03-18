@@ -1809,7 +1809,7 @@ function drawUnderstandingGlucoseGraph() {
         .attr("class", "y-axis")
         .attr("transform", `translate(${margin.left},0)`)
         .call(d3.axisLeft(yScale).ticks(5))
-        .style("font-size", "12");;
+        .style("font-size", "12");
 
     // X-axis label
     svg.append("text")
@@ -1955,8 +1955,8 @@ function updateFilters() {
     }
     // Update legend item appearance.
     if (legendItems) {
-        legendItems.select("rect")
-            .attr("fill-opacity", d => filters[d.category] ? 1 : 0.3);
+        legendItems.select(".legend-line")
+            .attr("stroke-opacity", d => filters[d.category] ? 1 : 0.3);
         legendItems.select("text")
             .style("opacity", d => filters[d.category] ? 1 : 0.3);
     }
@@ -2006,19 +2006,21 @@ function drawD3Graph() {
         // Add x-axis
         svg.append("g")
             .attr("transform", `translate(0,${height})`)
-            .call(d3.axisBottom(xScale).ticks(10).tickFormat(d => d + " min"));
+            .call(d3.axisBottom(xScale).ticks(10).tickFormat(d => d + " min"))
+            .style("font-size", "12");
 
         // Add y-axis
         svg.append("g")
-            .call(d3.axisLeft(yScale));
+            .call(d3.axisLeft(yScale))
+            .style("font-size", "12");
 
         // Add x-axis label
         svg.append("text")
             .attr("class", "x-axis-label")
             .attr("x", width / 2)
-            .attr("y", height + margin.bottom - 5)
+            .attr("y", height + margin.bottom - 2)
             .attr("text-anchor", "middle")
-            .style("font-size", "14px")
+            .style("font-size", "12px")
             .text("Time (min)");
 
         // Add y-axis label
@@ -2028,7 +2030,7 @@ function drawD3Graph() {
             .attr("x", -height / 2)
             .attr("y", -margin.left + 20)
             .attr("text-anchor", "middle")
-            .style("font-size", "14px")
+            .style("font-size", "12px")
             .text("Glucose Level (mg/dL)");
 
         // Define a line generator function
@@ -2093,11 +2095,15 @@ function drawD3Graph() {
                 updateFilters();
             });
 
-        legendItems.append("rect")
-            .attr("width", 20)
-            .attr("height", 20)
-            .attr("fill", d => d.color)
-            .attr("stroke", "#ccc");
+        legendItems.append("line")
+            .attr("x1", 0)
+            .attr("y1", 10) // Position it vertically in the center of the legend item
+            .attr("x2", 20)  // Length of the line (this makes it a square line)
+            .attr("y2", 10)  // Y-position is the same for both points to make it a horizontal line
+            .attr("stroke", d => d.color)  // Line color based on legend data
+            .attr("stroke-width", 4) // Adjust the thickness of the line
+            .attr("stroke-linecap", "round")  // Makes the ends of the line rounded
+            .attr("class", "legend-line");
 
         legendItems.append("text")
             .attr("x", 30)
