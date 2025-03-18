@@ -262,9 +262,11 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        // Update glucose alert
+        // Define max data point variable
         responseCurveNew = currentScenario.ResponseCurve
         maxDataPointNew = responseCurveNew.reduce((max, d) => d.Value > max.Value ? d : max, responseCurveNew[0]);
+
+        // Update glucose alert
         const spikeTime = getSpikeTimeFormatted(maxDataPointNew);
         const spikeValue = getSpikeValue(maxDataPointNew);
 
@@ -802,6 +804,18 @@ document.addEventListener('DOMContentLoaded', function () {
     ///////////// */
     function loadChart(responseCurve) {
         const chartRotation = -90;
+
+        // Update Chart legend time
+        // Function to update the time in the span
+        function updateTime() {
+            const timeElement = document.getElementById("glucose-spike-time");
+            if (timeElement) {
+                timeElement.innerHTML = `Glucose Spike (${getSpikeTimeFormatted(maxDataPointNew)})`;
+            }
+        }
+
+        // Call updateTime() when needed
+        updateTime();
 
         // Dimensions for the SVG
         const width = 600,
