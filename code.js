@@ -1601,7 +1601,7 @@ function drawUnderstandingGlucoseGraph() {
         .attr("text-anchor", "middle")  // Center text horizontally
         .attr("fill", "#333")
         .attr("font-weight", "bold")
-        .text("Glucose Levels Throughout a Day");
+        .text("Sample Glucose Levels Throughout a Day");
 
     // Add the Subtitle
     svg.append("text")
