@@ -1391,8 +1391,8 @@ function cleanupOrphanedFoodElements() {
 
 // Function to reset the game and load a new scenario
 function tryAnotherAnalysis() {
-    // Reload the page with a URL parameter to indicate the game tab should be active
-    window.location.href = window.location.pathname + "?tab=game";
+    // Use a more specific parameter that indicates we're coming from "Try Again"
+    window.location.href = window.location.pathname + "?action=tryAgain";
     return false;
 }
 
@@ -2222,42 +2222,22 @@ function init() {
     // Create scene
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0xFFFFFF);
-
-    // Create camera
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 5;
-
-    // Create renderer
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.getElementById('canvas').appendChild(renderer.domElement);
-
-    // Add lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    scene.add(ambientLight);
-
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(1, 1, 1);
-    scene.add(directionalLight);
-
-    // Create glucose molecules
-    createGlucoseMolecules(15);
-
-    // Add event listeners
-    window.addEventListener('resize', onWindowResize);
-    window.addEventListener('click', onMouseClick);
-
-    // Start animation
-    animate();
-
-    // Check if we're returning from a "Try Again" click
+    
+    // Rest of your existing initialization code...
+    
+    // Only go to game tab if specifically coming from "Try Again" button
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('tab') === 'game') {
+    if (urlParams.get('action') === 'tryAgain') {
         // Ensure game tab is selected
         document.getElementById('game-tab').click();
-        // Or alternatively use your existing functions:
-        // showGame();
+        
+        // Clear the URL parameter to prevent it from persisting on manual refreshes
+        if (history.pushState) {
+            const newUrl = window.location.pathname;
+            window.history.pushState({path: newUrl}, '', newUrl);
+        }
     }
+    // Rest of your init function...
 }
 
 function createGlucoseMolecules(count) {
