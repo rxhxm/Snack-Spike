@@ -1330,7 +1330,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Simulate loading progress
     const interval = setInterval(() => {
-        progress += instantLoad ? 100 : Math.random() * 10;
+        // Reduce the increment speed to make progress slower
+        progress += instantLoad ? 100 : Math.random() * 1; // Changed from 10 to 5
 
         if (progress > 100) progress = 100;
 
@@ -1344,7 +1345,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (progress === 100) {
             clearInterval(interval);
 
-            // Wait a moment at 100% before hiding
+            // Wait a moment at 100% before hiding - doubled this time
             setTimeout(() => {
                 // Hide loading screen
                 loadingScreen.style.opacity = 0;
@@ -1354,9 +1355,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 setTimeout(() => {
                     loadingScreen.remove();
                 }, 500);
-            }, instantLoad ? 10 : 800);
+            }, instantLoad ? 10 : 3200); // Changed from 800 to 1600
         }
-    }, 150);
+    }, 600); // Changed from 150 to 300
 });
 
 // Function to clean up any orphaned food elements
