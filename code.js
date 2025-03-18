@@ -835,19 +835,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Convert ResponseCurve timestamps to Date objects
         const parseTime = d3.isoParse; responseCurve.forEach(d => {
-            d.ParsedTime = parseTime(d.Timestamp);
+            const parsedTimeStr = parseTime(d.Timestamp);
+            d.ParsedTime = parsedTimeStr.getHours() + parsedTimeStr.getMinutes() / 60;
         });
 
+        responseCurve.sort((a, b) => a.ParsedTime - b.ParsedTime);
+
         // Outer ring is 160 mg/dL, choose some padding so circles fit
-        const minTime = parseTime("2025-03-17T00:00:00"); // d3.min(responseCurve, d => d.ParsedTime);
-        const maxTime = parseTime("2025-03-17T24:00:00"); //d3.max(responseCurve, d => d.ParsedTime);
+        const minTime = 0; // d3.min(responseCurve, d => d.ParsedTime);
+        const maxTime = 24; //d3.max(responseCurve, d => d.ParsedTime);
         const minGlucose = 110; //d3.min(responseCurve, d => d.Value);
         const maxGlucose = 180; // d3.max(responseCurve, d => d.Value) + 10;
         const innerRadius = 0;
         const outerRadius = 250;
         const glucoseTicks = d3.ticks(minGlucose, maxGlucose, 6);
 
-        console.log(minTime);
+        console.log(responseCurve);
 
         const rScale = d3.scaleLinear()
             .domain([minGlucose, maxGlucose])
@@ -1011,6 +1014,14 @@ document.addEventListener('DOMContentLoaded', function () {
             .attr("text-anchor", "middle")
             .style("display", "none");
 
+        const timeDot = g.append("circle")
+            .attr("id", "time-dot")
+            .attr("r", 4)
+            .attr("fill", "white")
+            .attr("stroke", "blue")
+            .attr("stroke-width", 1)
+            .style("display", "none");
+
         // Create a time scale mapping degrees (0-360) to hours (0-24)
         const timeScale = d3.scaleLinear().domain([0, 360]).range([0, 24]);
         function formatTime(hours, twelve = false) {
@@ -1031,6 +1042,25 @@ document.addEventListener('DOMContentLoaded', function () {
         let currentDraggedOption = null;
         let dragIcon = null;
         let droppedFood = null;
+
+        // Helper Function for Dot that follows
+        function interpolateGlucose(data, targetHour) {
+            let before = null, after = null;
+            for (let i = 0; i < data.length; i++) {
+                if (data[i].ParsedTime <= targetHour) {
+                    before = data[i];
+                }
+                if (data[i].ParsedTime >= targetHour) {
+                    after = data[i];
+                    break;
+                }
+            }
+            if (!before) return after.Value;
+            if (!after) return before.Value;
+            // Linear interpolation
+            const t = (targetHour - before.ParsedTime) / (after.ParsedTime - before.ParsedTime);
+            return before.Value + t * (after.Value - before.Value);
+        }
 
         // Apply drag behavior to the food options
         d3.selectAll(".food-option.draggable")
@@ -1067,6 +1097,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Show the blue dotted clock hand and the time popup
                     clockHand.style("display", null);
                     timePopup.style("display", null);
+                    timeDot.style("display", null);
                 })
                 .on("drag", function (event, d) {
                     // Update the drag icon position
@@ -1099,6 +1130,16 @@ document.addEventListener('DOMContentLoaded', function () {
                     timePopup.attr("x", popupPos.x)
                         .attr("y", popupPos.y)
                         .text(timeText);
+
+                    const currentGlucose = interpolateGlucose(responseCurve, hours);
+                    const dotRadius = rScale(currentGlucose);
+                    const dotPos = polarToCartesian(dotRadius, angleDeg + chartRotation);
+
+                    console.log(hours);
+                    console.log(currentGlucose);
+
+                    timeDot.attr("cx", dotPos.x)
+                        .attr("cy", dotPos.y);
                 })
                 .on("end", function (event, d) {
                     // Get mouse coordinates relative to the SVG
@@ -1160,6 +1201,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Hide the clock hand and time popup
                     clockHand.style("display", "none");
                     timePopup.style("display", "none");
+                    timeDot.style("display", "none");
                     d3.selectAll(".food-selection .food-option.draggable")
                         .style("display", null)
                         .style("opacity", 1);
