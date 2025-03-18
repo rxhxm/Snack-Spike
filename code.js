@@ -1312,6 +1312,9 @@ LOADING SCREEN
 /////////////////// */
 // Loading screen animation
 document.addEventListener('DOMContentLoaded', function () {
+    // Force instantLoad to false to ensure longer loading time
+    const instantLoad = false; // Add this line to override any existing setting
+    
     const loadingScreen = document.getElementById('loading-screen');
     const candyFilling = document.getElementById('candy-filling');
     const loadingPercentage = document.getElementById('loading-percentage');
@@ -1326,12 +1329,12 @@ document.addEventListener('DOMContentLoaded', function () {
     // Start loading animation
     setTimeout(() => {
         glucoseDots.style.opacity = 1;
-    }, 500);
+    }, 1000); // Doubled from 500
 
     // Simulate loading progress
     const interval = setInterval(() => {
-        // Reduce the increment speed to make progress slower
-        progress += instantLoad ? 100 : Math.random() * 1; // Changed from 10 to 5
+        // Make progress much slower
+        progress += Math.random() * 10; // Even slower increment
 
         if (progress > 100) progress = 100;
 
@@ -1345,7 +1348,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (progress === 100) {
             clearInterval(interval);
 
-            // Wait a moment at 100% before hiding - doubled this time
+            // Wait a moment at 100% before hiding
             setTimeout(() => {
                 // Hide loading screen
                 loadingScreen.style.opacity = 0;
@@ -1354,10 +1357,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Remove loading screen from DOM after transition
                 setTimeout(() => {
                     loadingScreen.remove();
-                }, 500);
-            }, instantLoad ? 10 : 3200); // Changed from 800 to 1600
+                }, 1000); // Doubled from 500
+            }, 500); // Much longer wait at 100%
         }
-    }, 600); // Changed from 150 to 300
+    }, 25); // Slower update interval
 });
 
 // Function to clean up any orphaned food elements
