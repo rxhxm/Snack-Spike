@@ -1689,7 +1689,7 @@ function drawUnderstandingGlucoseGraph() {
     // First annotation: High carb breakfast
     annotations.append("rect")
         .attr("x", 100)
-        .attr("y", 75)
+        .attr("y", 76)
         .attr("width", 165)
         .attr("height", 40)
         .attr("rx", 5)
@@ -1723,7 +1723,7 @@ function drawUnderstandingGlucoseGraph() {
     annotations.append("rect")
         .attr("x", 330)
         .attr("y", 80)
-        .attr("width", 140)
+        .attr("width", 115)
         .attr("height", 40)
         .attr("rx", 5)
         .attr("fill", "rgba(255,255,255,0.9)")
@@ -1741,7 +1741,7 @@ function drawUnderstandingGlucoseGraph() {
         .attr("y", 111)
         .attr("font-size", "12")
         .attr("fill", "#333")
-        .text("causes moderate spike");
+        .text("causes low spike");
 
     annotations.append("line")
         .attr("x1", 435)
@@ -1756,8 +1756,8 @@ function drawUnderstandingGlucoseGraph() {
     annotations.append("rect")
         .attr("x", 490)
         .attr("y", 50)
-        .attr("width", 130)
-        .attr("height", 40)
+        .attr("width", 140)
+        .attr("height", 38)
         .attr("rx", 5)
         .attr("fill", "rgba(255,255,255,0.9)")
         .attr("stroke", "#ddd");
@@ -1774,7 +1774,7 @@ function drawUnderstandingGlucoseGraph() {
         .attr("y", 80)
         .attr("font-size", "12")
         .attr("fill", "#333")
-        .text("causes larger spikes");
+        .text("causes medium spikes");
 
     annotations.append("line")
         .attr("x1", 579)
@@ -1806,7 +1806,7 @@ function drawUnderstandingGlucoseGraph() {
         .attr("class", "y-axis")
         .attr("transform", `translate(${margin.left},0)`)
         .call(d3.axisLeft(yScale).ticks(5))
-        .style("font-size", "12");;
+        .style("font-size", "12");
 
     // X-axis label
     svg.append("text")
@@ -1844,23 +1844,22 @@ function drawUnderstandingGlucoseGraph() {
         .style("display", "none"); // Initially hidden
 
     // Hover detection
-    svg.append("path")
-        .datum(glucoseData)
-        .attr("class", "tooltip-overlay")
-        .attr("fill", "none")
-        .attr("stroke", "transparent")
-        .attr("stroke-width", 10)
-        .attr("d", line)
+    svg.append("rect")
+        .attr("class", "hover-overlay")
+        .attr("fill", "transparent")
+        .attr("width", width)
+        .attr("height", height)
         .on("mousemove", function (event) {
             const [mouseX] = d3.pointer(event, this);
 
             if (!glucoseData.length) return;
 
-            // Find the closest data point
-            const closestDataPoint = glucoseData.reduce((prev, curr) =>
-                Math.abs(xScale(curr.HourOfDay) - mouseX) < Math.abs(xScale(prev.HourOfDay) - mouseX) ? curr : prev
-            );
+            // Use d3.bisector to find the closest data point
+            const bisect = d3.bisector(d => d.HourOfDay).center;
+            const index = bisect(glucoseData, xScale.invert(mouseX));
+            const closestDataPoint = glucoseData[index];
 
+            // Update the dot position
             dot.attr("cx", xScale(closestDataPoint.HourOfDay))
                 .attr("cy", yScale(closestDataPoint.Value))
                 .style("display", "block"); // Show dot
@@ -1870,16 +1869,16 @@ function drawUnderstandingGlucoseGraph() {
 
             // Add the glucose value text
             label.append("tspan")
-                .attr("x", width - 10)
-                .attr("dy", 0)  // No offset for the first line
-                .text(`Glucose: ${closestDataPoint.Value} mg/dL`);
+                    .attr("x", width - 10)
+                    .attr("dy", 0)
+                    .text(`Glucose: ${closestDataPoint.Value} mg/dL`);
 
             const formattedHour = formatHour(closestDataPoint.HourOfDay);
             // Add the hour text on a new line
             label.append("tspan")
-                .attr("x", width - 10)
-                .attr("dy", "1.5em")  // Add space between lines
-                .text(`Time: ${formattedHour}`);
+                    .attr("x", width - 10)
+                    .attr("dy", "1.5em")
+                    .text(`Time: ${formattedHour}`);
 
             // Show the label
             label.style("display", "block");
@@ -1952,8 +1951,8 @@ function updateFilters() {
     }
     // Update legend item appearance.
     if (legendItems) {
-        legendItems.select("rect")
-            .attr("fill-opacity", d => filters[d.category] ? 1 : 0.3);
+        legendItems.select(".legend-line")
+            .attr("stroke-opacity", d => filters[d.category] ? 1 : 0.3);
         legendItems.select("text")
             .style("opacity", d => filters[d.category] ? 1 : 0.3);
     }
@@ -2003,20 +2002,22 @@ function drawD3Graph() {
         // Add x-axis
         svg.append("g")
             .attr("transform", `translate(0,${height})`)
-            .call(d3.axisBottom(xScale).ticks(10).tickFormat(d => d + " min"));
+            .call(d3.axisBottom(xScale).ticks(10).tickFormat(d => d))
+            .style("font-size", "12");
 
         // Add y-axis
         svg.append("g")
-            .call(d3.axisLeft(yScale));
+            .call(d3.axisLeft(yScale))
+            .style("font-size", "12");
 
         // Add x-axis label
         svg.append("text")
             .attr("class", "x-axis-label")
             .attr("x", width / 2)
-            .attr("y", height + margin.bottom - 5)
+            .attr("y", height + margin.bottom - 2)
             .attr("text-anchor", "middle")
-            .style("font-size", "14px")
-            .text("Time (min)");
+            .style("font-size", "12px")
+            .text("Time from Food Consumption (min)");
 
         // Add y-axis label
         svg.append("text")
@@ -2025,7 +2026,7 @@ function drawD3Graph() {
             .attr("x", -height / 2)
             .attr("y", -margin.left + 20)
             .attr("text-anchor", "middle")
-            .style("font-size", "14px")
+            .style("font-size", "12px")
             .text("Glucose Level (mg/dL)");
 
         // Define a line generator function
@@ -2090,11 +2091,15 @@ function drawD3Graph() {
                 updateFilters();
             });
 
-        legendItems.append("rect")
-            .attr("width", 20)
-            .attr("height", 20)
-            .attr("fill", d => d.color)
-            .attr("stroke", "#ccc");
+        legendItems.append("line")
+            .attr("x1", 0)
+            .attr("y1", 10) // Position it vertically in the center of the legend item
+            .attr("x2", 20)  // Length of the line (this makes it a square line)
+            .attr("y2", 10)  // Y-position is the same for both points to make it a horizontal line
+            .attr("stroke", d => d.color)  // Line color based on legend data
+            .attr("stroke-width", 4) // Adjust the thickness of the line
+            .attr("stroke-linecap", "round")  // Makes the ends of the line rounded
+            .attr("class", "legend-line");
 
         legendItems.append("text")
             .attr("x", 30)
