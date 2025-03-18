@@ -2006,7 +2006,7 @@ function drawD3Graph() {
         // Add x-axis
         svg.append("g")
             .attr("transform", `translate(0,${height})`)
-            .call(d3.axisBottom(xScale).ticks(10).tickFormat(d => d + " min"))
+            .call(d3.axisBottom(xScale).ticks(10).tickFormat(d => d))
             .style("font-size", "12");
 
         // Add y-axis
@@ -2021,7 +2021,7 @@ function drawD3Graph() {
             .attr("y", height + margin.bottom - 2)
             .attr("text-anchor", "middle")
             .style("font-size", "12px")
-            .text("Time (min)");
+            .text("Time from Food Consumption (min)");
 
         // Add y-axis label
         svg.append("text")
