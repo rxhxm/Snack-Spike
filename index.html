@@ -33,9 +33,11 @@
 
     <div id="canvas"></div>
 
-
     <div class="container">
-        <h1>Snack & Spike: Understanding Your Glucose Response</h1>
+        <div class="page-title">
+            <h1>Snack & Spike</h1>
+            <h2>Understanding Your Glucose Response</h2>
+        </div>
 
         <!-- Navigation tabs for switching between explainer and game -->
         <div style="display: flex; width: 100%; max-width: 800px; margin-bottom: 20px;">
@@ -45,6 +47,43 @@
             <button id="game-tab" class="nav-button" style="flex: 1; background: #cccccc;">
                 Prediction Game
             </button>
+        </div>
+
+        <!-- Achievement banner moved below the navigation tabs -->
+        <div class="achievement-banner">
+            <div class="achievement-content">
+                <span class="achievement-trophy">🏆</span>
+                <div class="achievement-text">
+                    <h3>DSC 106 Project Showcase Winner</h3>
+                    <p>People's Choice Award & Honorable Mention Award (top 10%)</p>
+                    <p>Team: Roham Mehrabi, Ethan Lau, Adam Cross • <a href="https://dsc106.com/showcase/" target="_blank">View Showcase</a></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Glucose Molecule Visualization -->
+        <div id="glucose-molecule-container" class="molecule-container">
+            <div class="molecule-header">
+                <h2>Explore the Glucose Molecule</h2>
+                <p>Click and drag to rotate • Scroll to zoom • Double-click atoms for info <button id="reset-view-btn" class="molecule-btn">Reset View</button></p>
+            </div>
+            <div id="glucose-molecule-vis" class="molecule-vis"></div>
+            <div class="molecule-info">
+                <div class="molecule-facts">
+                    <div class="fact-card" id="molecule-fact-1">
+                        <h3>C<sub>6</sub>H<sub>12</sub>O<sub>6</sub></h3>
+                        <p>Glucose's chemical formula</p>
+                    </div>
+                    <div class="fact-card" id="molecule-fact-2">
+                        <h3>Hexose</h3>
+                        <p>A 6-carbon sugar</p>
+                    </div>
+                    <div class="fact-card" id="molecule-fact-3">
+                        <h3>Energy Source</h3>
+                        <p>Primary fuel for your cells</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div id="explainer-content">

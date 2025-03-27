@@ -2218,7 +2218,7 @@ let glucoseCount = 0;
 function init() {
     // Create scene
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xFFFFFF);
+    scene.background = null; // Changed from white color to null for transparency
 
     // Create camera
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -2443,4 +2443,501 @@ function collectMolecule(molecule) {
     // Update counter
     glucoseCount++;
     document.getElementById('count').textContent = glucoseCount;
+}
+
+// Glucose Molecule Visualization
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Three.js scene for the glucose molecule
+    initGlucoseMolecule();
+});
+
+function initGlucoseMolecule() {
+    const container = document.getElementById('glucose-molecule-vis');
+    if (!container) return;
+    
+    // Create scene, camera, and renderer
+    const scene = new THREE.Scene();
+    scene.background = null; // Changed from white color to null for transparency
+    
+    const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+    camera.position.z = 10; // Changed from 15 to 10 for a more zoomed-in initial view
+    
+    // Enhanced renderer with better quality settings
+    const renderer = new THREE.WebGLRenderer({ 
+        antialias: true, 
+        alpha: true, // Enable transparency
+        powerPreference: "high-performance" 
+    });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.shadowMap.enabled = true;
+    renderer.setClearColor(0x000000, 0); // Set clear color with 0 opacity
+    container.appendChild(renderer.domElement);
+    
+    // Enhanced lighting for better visual appeal
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambientLight);
+    
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(5, 5, 5);
+    directionalLight.castShadow = true;
+    scene.add(directionalLight);
+    
+    // Add a soft light from the opposite direction for better depth
+    const fillLight = new THREE.DirectionalLight(0x9edbff, 0.4);
+    fillLight.position.set(-5, -2, -5);
+    scene.add(fillLight);
+    
+    // Add a subtle point light for highlights
+    const pointLight = new THREE.PointLight(0xffffff, 0.5, 20);
+    pointLight.position.set(0, 5, 5);
+    scene.add(pointLight);
+    
+    // Create glucose molecule (ring form by default)
+    const molecule = new THREE.Group();
+    scene.add(molecule);
+    
+    // Enhanced materials with better shading and reflections
+    // Carbon atoms (dark grey with subtle reflection)
+    const carbonGeometry = new THREE.SphereGeometry(1, 32, 32);
+    const carbonMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0x333333,
+        specular: 0x222222,
+        shininess: 40,
+        reflectivity: 0.5
+    });
+    
+    // Oxygen atoms (vibrant red with highlights)
+    const oxygenGeometry = new THREE.SphereGeometry(0.9, 32, 32);
+    const oxygenMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0xff0000,
+        specular: 0xffffff,
+        shininess: 70,
+        reflectivity: 0.8
+    });
+    
+    // Hydrogen atoms (white with subtle blue tint)
+    const hydrogenGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+    const hydrogenMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0xf2f2f2,
+        specular: 0x9dc0e8,
+        shininess: 50,
+        reflectivity: 0.5
+    });
+    
+    // Enhanced bond geometry with better visual appearance
+    const bondGeometry = new THREE.CylinderGeometry(0.18, 0.18, 1, 16);
+    bondGeometry.rotateX(Math.PI / 2);
+    const bondMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0x888888,
+        specular: 0x222222,
+        shininess: 30,
+        reflectivity: 0.3,
+        transparent: true,
+        opacity: 0.9
+    });
+    
+    // Create ring form of glucose (C₆H₁₂O₆)
+    function createRingForm() {
+        // Clear existing molecule
+        while(molecule.children.length > 0) {
+            molecule.remove(molecule.children[0]);
+        }
+        
+        // Create ring structure (6 carbons in a ring)
+        const carbonRingPositions = [
+            { x: 0, y: 2, z: 0, label: 'C1' },
+            { x: 2, y: 1, z: 0, label: 'C2' },
+            { x: 2, y: -1, z: 0, label: 'C3' },
+            { x: 0, y: -2, z: 0, label: 'C4' },
+            { x: -2, y: -1, z: 0, label: 'C5' },
+            { x: -2, y: 1, z: 0, label: 'C6' }
+        ];
+        
+        const oxygenPositions = [
+            { x: -1, y: 2, z: -1, label: 'O5' }, // ring oxygen
+            { x: 0, y: 3, z: 1, label: 'OH1' },
+            { x: 3, y: 2, z: 0, label: 'OH2' },
+            { x: 3, y: -2, z: 0, label: 'OH3' },
+            { x: 0, y: -3, z: -1, label: 'OH4' },
+            { x: -3, y: -2, z: 0, label: 'OH6' }
+        ];
+        
+        const hydrogenPositions = [
+            { x: 0.5, y: 2.7, z: -0.7, label: 'H1' },
+            { x: 2.5, y: 1.7, z: -0.7, label: 'H2' },
+            { x: 2.5, y: -1.7, z: -0.7, label: 'H3' },
+            { x: 0.5, y: -2.7, z: 0.7, label: 'H4' },
+            { x: -2.5, y: -1.7, z: -0.7, label: 'H5' },
+            { x: -2.5, y: 1.7, z: -0.7, label: 'H6' },
+            // Hydrogens for OH groups
+            { x: 0.5, y: 3.7, z: 1.3, label: 'H-OH1' },
+            { x: 3.8, y: 2.3, z: 0.3, label: 'H-OH2' },
+            { x: 3.8, y: -2.3, z: 0.3, label: 'H-OH3' },
+            { x: 0.5, y: -3.7, z: -1.3, label: 'H-OH4' },
+            { x: -3.8, y: -2.3, z: 0.3, label: 'H-OH6' }
+        ];
+        
+        // Add carbon atoms with visual enhancements
+        carbonRingPositions.forEach(pos => {
+            const carbon = new THREE.Mesh(carbonGeometry, carbonMaterial);
+            carbon.position.set(pos.x, pos.y, pos.z);
+            carbon.userData = { 
+                type: 'carbon', 
+                label: pos.label,
+                description: 'Carbon (C): The backbone of glucose and all organic molecules'
+            };
+            carbon.castShadow = true;
+            carbon.receiveShadow = true;
+            molecule.add(carbon);
+        });
+        
+        // Add oxygen atoms with visual enhancements
+        oxygenPositions.forEach(pos => {
+            const oxygen = new THREE.Mesh(oxygenGeometry, oxygenMaterial);
+            oxygen.position.set(pos.x, pos.y, pos.z);
+            oxygen.userData = { 
+                type: 'oxygen', 
+                label: pos.label,
+                description: 'Oxygen (O): Makes glucose hydrophilic and reactive'
+            };
+            oxygen.castShadow = true;
+            oxygen.receiveShadow = true;
+            molecule.add(oxygen);
+        });
+        
+        // Add hydrogen atoms with visual enhancements
+        hydrogenPositions.forEach(pos => {
+            const hydrogen = new THREE.Mesh(hydrogenGeometry, hydrogenMaterial);
+            hydrogen.position.set(pos.x, pos.y, pos.z);
+            hydrogen.userData = { 
+                type: 'hydrogen', 
+                label: pos.label,
+                description: 'Hydrogen (H): Small atom attached to carbon and oxygen'
+            };
+            hydrogen.castShadow = true;
+            hydrogen.receiveShadow = true;
+            molecule.add(hydrogen);
+        });
+        
+        // Add bonds between atoms
+        // Ring bonds between carbons
+        createBond(carbonRingPositions[0], carbonRingPositions[1]);
+        createBond(carbonRingPositions[1], carbonRingPositions[2]);
+        createBond(carbonRingPositions[2], carbonRingPositions[3]);
+        createBond(carbonRingPositions[3], carbonRingPositions[4]);
+        createBond(carbonRingPositions[4], carbonRingPositions[5]);
+        
+        // Bond between C1 and ring oxygen (O5)
+        createBond(carbonRingPositions[0], oxygenPositions[0]);
+        // Bond between C5 and ring oxygen (O5)
+        createBond(carbonRingPositions[4], oxygenPositions[0]);
+        
+        // Bonds between carbons and OH groups
+        createBond(carbonRingPositions[0], oxygenPositions[1]);
+        createBond(carbonRingPositions[1], oxygenPositions[2]);
+        createBond(carbonRingPositions[2], oxygenPositions[3]);
+        createBond(carbonRingPositions[3], oxygenPositions[4]);
+        createBond(carbonRingPositions[5], oxygenPositions[5]);
+        
+        // Bonds between carbons and hydrogens
+        createBond(carbonRingPositions[0], hydrogenPositions[0]);
+        createBond(carbonRingPositions[1], hydrogenPositions[1]);
+        createBond(carbonRingPositions[2], hydrogenPositions[2]);
+        createBond(carbonRingPositions[3], hydrogenPositions[3]);
+        createBond(carbonRingPositions[4], hydrogenPositions[4]);
+        createBond(carbonRingPositions[5], hydrogenPositions[5]);
+        
+        // Bonds between OH oxygens and hydrogens
+        createBond(oxygenPositions[1], hydrogenPositions[6]);
+        createBond(oxygenPositions[2], hydrogenPositions[7]);
+        createBond(oxygenPositions[3], hydrogenPositions[8]);
+        createBond(oxygenPositions[4], hydrogenPositions[9]);
+        createBond(oxygenPositions[5], hydrogenPositions[10]);
+        
+        // Set initial rotation for an interesting starting angle
+        molecule.rotation.x = 0.3;
+        molecule.rotation.y = 0.5;
+        molecule.rotation.z = 0.1;
+    }
+    
+    // Function to create enhanced bonds between atoms
+    function createBond(atom1, atom2) {
+        const direction = new THREE.Vector3(
+            atom2.x - atom1.x,
+            atom2.y - atom1.y,
+            atom2.z - atom1.z
+        );
+        
+        const length = direction.length();
+        const bond = new THREE.Mesh(bondGeometry, bondMaterial);
+        
+        bond.position.set(
+            (atom1.x + atom2.x) / 2,
+            (atom1.y + atom2.y) / 2,
+            (atom1.z + atom2.z) / 2
+        );
+        
+        bond.scale.set(1, length, 1);
+        
+        // Orient the cylinder to connect the two atoms
+        bond.lookAt(atom2.x, atom2.y, atom2.z);
+        bond.castShadow = true;
+        bond.receiveShadow = true;
+        
+        molecule.add(bond);
+    }
+    
+    // Initialize with visually enhanced ring form
+    createRingForm();
+    
+    // Button event listener for resetting view with a smooth animation
+    document.getElementById('reset-view-btn').addEventListener('click', function() {
+        // Use animation for smoother transition
+        const initialRotationX = molecule.rotation.x;
+        const initialRotationY = molecule.rotation.y;
+        const initialRotationZ = molecule.rotation.z;
+        const initialPositionX = molecule.position.x;
+        const initialPositionY = molecule.position.y;
+        const initialPositionZ = molecule.position.z;
+        const initialCameraZ = camera.position.z;
+        
+        // Target values
+        const targetRotationX = 0.3;
+        const targetRotationY = 0.5;
+        const targetRotationZ = 0.1;
+        const targetPositionX = 0;
+        const targetPositionY = 0;
+        const targetPositionZ = 0;
+        const targetCameraZ = 10; // Changed from 15 to 10 to match the new default zoom level
+        
+        // Animate over 1 second
+        const duration = 1000; // ms
+        const startTime = Date.now();
+        
+        function animateReset() {
+            const elapsedTime = Date.now() - startTime;
+            const progress = Math.min(elapsedTime / duration, 1);
+            
+            // Ease in-out cubic function for smoother animation
+            const easeProgress = progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+            
+            // Update rotation
+            molecule.rotation.x = initialRotationX + (targetRotationX - initialRotationX) * easeProgress;
+            molecule.rotation.y = initialRotationY + (targetRotationY - initialRotationY) * easeProgress;
+            molecule.rotation.z = initialRotationZ + (targetRotationZ - initialRotationZ) * easeProgress;
+            
+            // Update position
+            molecule.position.x = initialPositionX + (targetPositionX - initialPositionX) * easeProgress;
+            molecule.position.y = initialPositionY + (targetPositionY - initialPositionY) * easeProgress;
+            molecule.position.z = initialPositionZ + (targetPositionZ - initialPositionZ) * easeProgress;
+            
+            // Update camera
+            camera.position.z = initialCameraZ + (targetCameraZ - initialCameraZ) * easeProgress;
+            
+            if (progress < 1) {
+                requestAnimationFrame(animateReset);
+            }
+        }
+        
+        animateReset();
+    });
+    
+    // Enhanced mouse controls for smoother rotation
+    let isDragging = false;
+    let previousMousePosition = {
+        x: 0,
+        y: 0
+    };
+    
+    container.addEventListener('mousedown', function(e) {
+        isDragging = true;
+        previousMousePosition = {
+            x: e.clientX,
+            y: e.clientY
+        };
+        container.style.cursor = 'grabbing';
+    });
+    
+    container.addEventListener('mousemove', function(e) {
+        if (isDragging) {
+            const deltaMove = {
+                x: e.clientX - previousMousePosition.x,
+                y: e.clientY - previousMousePosition.y
+            };
+            
+            if (deltaMove.x !== 0 || deltaMove.y !== 0) {
+                // Make rotation smoother by adjusting sensitivity
+                molecule.rotation.y += deltaMove.x * 0.008;
+                molecule.rotation.x += deltaMove.y * 0.008;
+            }
+            
+            previousMousePosition = {
+                x: e.clientX,
+                y: e.clientY
+            };
+        }
+    });
+    
+    window.addEventListener('mouseup', function() {
+        isDragging = false;
+        container.style.cursor = 'grab';
+    });
+    
+    // Enhanced zooming with smooth animation
+    container.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        
+        const zoomSpeed = 0.1;
+        const targetZoom = e.deltaY > 0 ? camera.position.z + zoomSpeed * 5 : camera.position.z - zoomSpeed * 5;
+        
+        // Clamp to reasonable bounds
+        const clampedTargetZoom = Math.max(5, Math.min(targetZoom, 30));
+        
+        // Animate zooming for smoother effect
+        const initialZoom = camera.position.z;
+        const zoomDiff = clampedTargetZoom - initialZoom;
+        
+        const duration = 300; // ms
+        const startTime = Date.now();
+        
+        function animateZoom() {
+            const elapsedTime = Date.now() - startTime;
+            const progress = Math.min(elapsedTime / duration, 1);
+            
+            // Ease out cubic function for smoother animation
+            const easeProgress = 1 - Math.pow(1 - progress, 3);
+            
+            camera.position.z = initialZoom + zoomDiff * easeProgress;
+            
+            if (progress < 1) {
+                requestAnimationFrame(animateZoom);
+            }
+        }
+        
+        animateZoom();
+    });
+    
+    // Double click to highlight atoms and show info with enhanced tooltips
+    container.addEventListener('dblclick', function(e) {
+        // Calculate mouse position in normalized device coordinates
+        const rect = renderer.domElement.getBoundingClientRect();
+        const mouse = new THREE.Vector2(
+            ((e.clientX - rect.left) / rect.width) * 2 - 1,
+            -((e.clientY - rect.top) / rect.height) * 2 + 1
+        );
+        
+        // Create raycaster
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouse, camera);
+        
+        // Check for intersections
+        const intersects = raycaster.intersectObjects(molecule.children);
+        
+        if (intersects.length > 0) {
+            const selectedObject = intersects[0].object;
+            
+            if (selectedObject.userData && selectedObject.userData.type) {
+                // Create or update tooltip with enhanced appearance
+                let tooltip = document.querySelector('.atom-tooltip');
+                if (!tooltip) {
+                    tooltip = document.createElement('div');
+                    tooltip.className = 'atom-tooltip';
+                    container.appendChild(tooltip);
+                }
+                
+                // Get atom info from userData
+                let atomInfo = selectedObject.userData.description || '';
+                
+                // Add label if available
+                if (selectedObject.userData.label) {
+                    atomInfo = `<strong>${selectedObject.userData.label}</strong>: ${atomInfo}`;
+                }
+                
+                tooltip.innerHTML = atomInfo;
+                tooltip.style.left = `${e.clientX - rect.left}px`;
+                tooltip.style.top = `${e.clientY - rect.top - 50}px`;
+                tooltip.style.opacity = '1';
+                
+                // Add pulse animation to the selected atom
+                const originalScale = selectedObject.scale.clone();
+                
+                // Store original material
+                const originalMaterial = selectedObject.material;
+                
+                // Create a new glowing material
+                const glowMaterial = selectedObject.material.clone();
+                glowMaterial.emissive = new THREE.Color(
+                    selectedObject.userData.type === 'carbon' ? 0x444444 : 
+                    selectedObject.userData.type === 'oxygen' ? 0xff0000 : 
+                    0xffffff
+                );
+                glowMaterial.emissiveIntensity = 0.5;
+                
+                // Apply the glowing material
+                selectedObject.material = glowMaterial;
+                
+                // Pulse animation
+                let pulseStartTime = Date.now();
+                const pulseDuration = 2000; // 2 seconds
+                
+                function pulseAnimation() {
+                    const elapsedTime = Date.now() - pulseStartTime;
+                    const progress = elapsedTime / pulseDuration;
+                    
+                    if (progress < 1) {
+                        const scale = 1 + 0.2 * Math.sin(progress * Math.PI * 6);
+                        selectedObject.scale.set(
+                            originalScale.x * scale,
+                            originalScale.y * scale,
+                            originalScale.z * scale
+                        );
+                        
+                        requestAnimationFrame(pulseAnimation);
+                    } else {
+                        // Reset to original scale and material
+                        selectedObject.scale.copy(originalScale);
+                        selectedObject.material = originalMaterial;
+                        tooltip.style.opacity = '0';
+                    }
+                }
+                
+                pulseAnimation();
+            }
+        }
+    });
+    
+    // Animation loop with subtle movements for more life-like appearance
+    const animationStartTime = Date.now();
+    
+    function animate() {
+        requestAnimationFrame(animate);
+        
+        // Add subtle continuous rotation when not dragging
+        if (!isDragging) {
+            molecule.rotation.y += 0.012; // Increased from 0.003 to 0.006 for much faster rotation
+            
+            // Add subtle oscillation for a more lively appearance
+            const elapsedTime = (Date.now() - animationStartTime) / 1000;
+            const oscillation = Math.sin(elapsedTime * 0.6) * 0.001; // Increased oscillation speed and amplitude
+            molecule.rotation.x += oscillation;
+            molecule.rotation.z += oscillation * 0.8;
+            
+            // Subtle breathing effect for the whole molecule
+            const breathScale = 1 + Math.sin(elapsedTime * 0.9) * 0.02; // Increased breathing effect
+            molecule.scale.set(breathScale, breathScale, breathScale);
+        }
+        
+        renderer.render(scene, camera);
+    }
+    
+    // Start animation
+    animate();
+    
+    // Handle window resize for responsiveness
+    window.addEventListener('resize', function() {
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+    });
 }
