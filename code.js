@@ -2218,7 +2218,7 @@ let glucoseCount = 0;
 function init() {
     // Create scene
     scene = new THREE.Scene();
-    scene.background = null; // Changed from white color to null for transparency
+    scene.background = new THREE.Color(0xFFFFFF);
 
     // Create camera
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -2457,7 +2457,7 @@ function initGlucoseMolecule() {
     
     // Create scene, camera, and renderer
     const scene = new THREE.Scene();
-    scene.background = null; // Changed from white color to null for transparency
+    scene.background = new THREE.Color(0xffffff);
     
     const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
     camera.position.z = 10; // Changed from 15 to 10 for a more zoomed-in initial view
@@ -2465,13 +2465,12 @@ function initGlucoseMolecule() {
     // Enhanced renderer with better quality settings
     const renderer = new THREE.WebGLRenderer({ 
         antialias: true, 
-        alpha: true, // Enable transparency
+        alpha: true,
         powerPreference: "high-performance" 
     });
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.shadowMap.enabled = true;
-    renderer.setClearColor(0x000000, 0); // Set clear color with 0 opacity
     container.appendChild(renderer.domElement);
     
     // Enhanced lighting for better visual appeal

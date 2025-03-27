@@ -1378,53 +1378,52 @@ body {
     animation: pulse 2s infinite ease-in-out;
 }
 
-/* Page Title Styles */
+/* Page Title Styling */
 .page-title {
     text-align: center;
     margin-bottom: 30px;
-    position: relative;
     width: 100%;
-    max-width: 900px;
 }
 
-.page-title h1 {
-    font-size: 3.5rem;
-    color: #0066CC;
-    margin: 0 0 5px;
+.main-title {
+    font-size: 4rem;
     font-weight: 800;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    letter-spacing: -0.5px;
+    color: #0066CC;
+    margin: 0 0 10px 0;
     line-height: 1.1;
+    text-shadow: 2px 2px 4px rgba(0, 102, 204, 0.2);
     background: linear-gradient(135deg, #0066CC 0%, #4A90E2 100%);
     -webkit-background-clip: text;
-    background-clip: text;
     -webkit-text-fill-color: transparent;
-    animation: title-glow 3s ease-in-out infinite alternate;
+    background-clip: text;
+    letter-spacing: -0.03em;
 }
 
-.page-title h2 {
+.subtitle {
     font-size: 1.8rem;
+    font-weight: 400;
     color: #444;
     margin: 0;
-    font-weight: 500;
-    opacity: 0.9;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    letter-spacing: 0.02em;
 }
 
-@keyframes title-glow {
-    0% {
-        text-shadow: 0 0 5px rgba(0, 102, 204, 0.1);
-    }
-    100% {
-        text-shadow: 0 0 15px rgba(0, 102, 204, 0.3);
-    }
-}
-
+/* Responsive title styles */
 @media (max-width: 768px) {
-    .page-title h1 {
-        font-size: 2.8rem;
+    .main-title {
+        font-size: 3rem;
     }
-    .page-title h2 {
-        font-size: 1.5rem;
+    
+    .subtitle {
+        font-size: 1.4rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-title {
+        font-size: 2.4rem;
+    }
+    
+    .subtitle {
+        font-size: 1.2rem;
     }
 }
