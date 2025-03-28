@@ -717,6 +717,12 @@ document.addEventListener('DOMContentLoaded', function () {
         gameContent.style.display = 'none';
         explainerTab.style.background = '#0066CC';
         gameTab.style.background = '#cccccc';
+        
+        // Show the glucose molecule container on the explainer page
+        const moleculeContainer = document.getElementById('glucose-molecule-container');
+        if (moleculeContainer) {
+            moleculeContainer.style.display = 'block';
+        }
     }
 
     // Function to switch to game view
@@ -727,6 +733,12 @@ document.addEventListener('DOMContentLoaded', function () {
         if (resultsPanel) resultsPanel.style.display = 'none';
         explainerTab.style.background = '#cccccc';
         gameTab.style.background = '#0066CC';
+
+        // Hide the glucose molecule container on the game page
+        const moleculeContainer = document.getElementById('glucose-molecule-container');
+        if (moleculeContainer) {
+            moleculeContainer.style.display = 'none';
+        }
 
         // Reset the game state
         resetGameState();
@@ -1222,6 +1234,34 @@ document.addEventListener('DOMContentLoaded', function () {
     NEW RADIAL CHART IMPLEMENTATION END
     ///////////// */
 
+    // Add tab switching functionality
+    const explainerTab = document.getElementById('explainer-tab');
+    const gameTab = document.getElementById('game-tab');
+    const explainerContent = document.getElementById('explainer-content');
+    const gameContent = document.getElementById('game-content');
+    const moleculeContainer = document.getElementById('glucose-molecule-container');
+
+    explainerTab.addEventListener('click', function () {
+        explainerContent.style.display = 'block';
+        gameContent.style.display = 'none';
+        explainerTab.style.background = '#0066CC';
+        gameTab.style.background = '#cccccc';
+        // Show molecule container on explainer page
+        if (moleculeContainer) {
+            moleculeContainer.style.display = 'block';
+        }
+    });
+
+    gameTab.addEventListener('click', function () {
+        explainerContent.style.display = 'none';
+        gameContent.style.display = 'block';
+        explainerTab.style.background = '#cccccc';
+        gameTab.style.background = '#0066CC';
+        // Hide molecule container on game page
+        if (moleculeContainer) {
+            moleculeContainer.style.display = 'none';
+        }
+    });
 });
 
 // Initialize the animation when document is loaded
